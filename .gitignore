@@ -1,0 +1,69 @@
+# Build Artifacts
+/build/
+.gradle/
+/local.properties
+/captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aar
+*.bundle
+*.flat
+/lint/
+/intermediates/
+/generated/
+/outputs/
+/tmp/
+/reports/
+
+# IDE Settings (Android Studio / IntelliJ)
+*.iml
+.idea/
+!.idea/codeStyles/
+!.idea/copyright/
+!.idea/inspectionProfiles/
+!.idea/icon.png
+*.ipr
+*.iws
+
+# OS Generated Files
+.DS_Store
+Thumbs.db
+*.swp
+*~
+.nfs*
+
+# Java / Kotlin
+*.class
+*.kt.dump
+*.kotlin_module
+
+# SQLite / Database
+*.db
+*.db-journal
+*.db-shm
+*.db-wal
+*.sql
+*.sqlite
+
+# Firebase / Google Cloud Platform (GCP)
+# google-services.json is usually kept in the repo for Firebase to work out-of-the-box.
+# Uncomment the line below if you want to keep it out of version control.
+# google-services.json
+.firebase/
+firebase-debug.log*
+.firebaserc
+google-cloud-sdk/
+.gcloud/
+
+# Keystores & Secrets (CRITICAL)
+*.jks
+*.keystore
+*.p12
+*.key
+secrets.xml
+secrets.properties
+signing.properties
+
+# Log files
+*.log
