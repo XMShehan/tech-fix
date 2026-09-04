@@ -12,7 +12,7 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix">
         <activity
-            android:name=".MainActivity"
+            android:name=".AdminDashboardActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -22,7 +22,15 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".AdminDashboardActivity"
+            android:name=".ManageServicesActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AddServiceActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".UpdateServiceActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>
