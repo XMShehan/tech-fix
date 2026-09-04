@@ -1,5 +1,6 @@
 package com.example.techfix;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 
@@ -24,5 +25,15 @@ public class CustomerDashboard extends AppCompatActivity {
         btnMyAppointments = findViewById(R.id.btnMyAppointments);
         btnRepairHistory = findViewById(R.id.btnRepairHistory);
         btnFeedback = findViewById(R.id.btnFeedback);
+
+        btnComputerRepair.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerDashboard.this, ComputerRepairActivity.class);
+            startActivity(intent);
+        });
+
+        btnMobileRepair.setOnClickListener(v -> {
+            Intent intent = new Intent(CustomerDashboard.this, MobileRepairActivity.class);
+            startActivity(intent);
+        });
     }
 }
