@@ -55,7 +55,17 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        Button btnTechnicians = findViewById(R.id.btnTechnicians);
 
+        btnTechnicians.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    AdminDashboardActivity.this,
+                    ManageTechniciansActivity.class
+            );
+
+            startActivity(intent);
+        });
 
     }
 }
