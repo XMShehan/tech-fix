@@ -31,16 +31,31 @@ public class AdminDashboardActivity extends AppCompatActivity {
             return insets;
         });
 
-        // Manage Services button
-        Button btnManageServices = findViewById(R.id.btnManageServices);
+        //Manage Services button
+        Button btnMangeServices = findViewById(R.id.btnManageServices);
 
-        btnManageServices.setOnClickListener(v -> {
+        btnMangeServices.setOnClickListener( v -> {
             Intent intent = new Intent(
                     AdminDashboardActivity.this,
                     ManageServicesActivity.class
             );
+            startActivity(intent);
+        });
+
+        // Manage Branches button
+        Button btnManageBranches = findViewById(R.id.btnManageBranches);
+
+        btnManageBranches.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    AdminDashboardActivity.this,
+                    ManageBranchesActivity.class
+            );
 
             startActivity(intent);
         });
+
+
+
     }
 }
