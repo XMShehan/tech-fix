@@ -17,6 +17,17 @@
         android:textColor="#222222"
         android:layout_marginBottom="20dp" />
 
+    <!-- Technician ID -->
+    <EditText
+        android:id="@+id/edtTechnicianId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Technician ID"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="12dp" />
+
+    <!-- Technician Name -->
     <EditText
         android:id="@+id/edtTechnicianName"
         android:layout_width="match_parent"
@@ -26,6 +37,7 @@
         android:background="#FFFFFF"
         android:layout_marginBottom="12dp" />
 
+    <!-- Phone Number -->
     <EditText
         android:id="@+id/edtTechnicianPhone"
         android:layout_width="match_parent"
@@ -36,6 +48,7 @@
         android:background="#FFFFFF"
         android:layout_marginBottom="12dp" />
 
+    <!-- Email -->
     <EditText
         android:id="@+id/edtTechnicianEmail"
         android:layout_width="match_parent"
@@ -46,6 +59,7 @@
         android:background="#FFFFFF"
         android:layout_marginBottom="12dp" />
 
+    <!-- Specialization -->
     <EditText
         android:id="@+id/edtTechnicianSpecialization"
         android:layout_width="match_parent"

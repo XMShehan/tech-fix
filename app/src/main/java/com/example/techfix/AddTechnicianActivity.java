@@ -1,6 +1,8 @@
 package com.example.techfix;
 
 import android.os.Bundle;
+import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -9,6 +11,14 @@ import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
 public class AddTechnicianActivity extends AppCompatActivity {
+
+    EditText edtTechnicianId;
+    EditText edtTechnicianName;
+    EditText edtTechnicianPhone;
+    EditText edtTechnicianEmail;
+    EditText edtTechnicianSpecialization;
+
+    Button btnSaveTechnician;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,7 +33,9 @@ public class AddTechnicianActivity extends AppCompatActivity {
                 (v, insets) -> {
 
                     Insets systemBars =
-                            insets.getInsets(WindowInsetsCompat.Type.systemBars());
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
 
                     v.setPadding(
                             systemBars.left,
@@ -35,5 +47,37 @@ public class AddTechnicianActivity extends AppCompatActivity {
                     return insets;
                 }
         );
+
+        // Find views
+        edtTechnicianId = findViewById(R.id.edtTechnicianId);
+        edtTechnicianName = findViewById(R.id.edtTechnicianName);
+        edtTechnicianPhone = findViewById(R.id.edtTechnicianPhone);
+        edtTechnicianEmail = findViewById(R.id.edtTechnicianEmail);
+        edtTechnicianSpecialization =
+                findViewById(R.id.edtTechnicianSpecialization);
+
+        btnSaveTechnician = findViewById(R.id.btnSaveTechnician);
+
+        // Save Technician button
+        btnSaveTechnician.setOnClickListener(v -> {
+
+            String technicianId =
+                    edtTechnicianId.getText().toString();
+
+            String technicianName =
+                    edtTechnicianName.getText().toString();
+
+            String technicianPhone =
+                    edtTechnicianPhone.getText().toString();
+
+            String technicianEmail =
+                    edtTechnicianEmail.getText().toString();
+
+            String specialization =
+                    edtTechnicianSpecialization.getText().toString();
+
+            // Database will be connected later.
+            finish();
+        });
     }
 }
