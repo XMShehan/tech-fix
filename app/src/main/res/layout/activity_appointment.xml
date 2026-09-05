@@ -10,8 +10,6 @@
         android:orientation="vertical"
         android:padding="20dp">
 
-        <!-- Title -->
-
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -133,7 +131,15 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="📷 Add Photo"
-            android:layout_marginBottom="25dp" />
+            android:layout_marginBottom="10dp" />
+
+        <ImageView
+            android:id="@+id/imgProductPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="220dp"
+            android:layout_marginBottom="25dp"
+            android:scaleType="centerCrop"
+            android:contentDescription="Attached product photo" />
 
         <!-- Date -->
 
