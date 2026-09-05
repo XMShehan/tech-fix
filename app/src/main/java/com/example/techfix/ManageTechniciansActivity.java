@@ -50,5 +50,18 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        // Delete Technician button
+        Button btnDeleteTechnician = findViewById(R.id.btnDeleteTechnician);
+
+        btnDeleteTechnician.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ManageTechniciansActivity.this,
+                    DeleteTechnicianActivity.class
+            );
+
+            startActivity(intent);
+        });
     }
 }
