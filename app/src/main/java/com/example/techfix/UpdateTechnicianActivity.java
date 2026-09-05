@@ -1,8 +1,6 @@
 package com.example.techfix;
 
-import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +8,7 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class ManageTechniciansActivity extends AppCompatActivity {
+public class UpdateTechnicianActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,7 +16,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_manage_technicians);
+        setContentView(R.layout.activity_update_technician);
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -37,18 +35,5 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                     return insets;
                 }
         );
-
-        // Add Technician button
-        Button btnAddTechnician = findViewById(R.id.btnAddTechnician);
-
-        btnAddTechnician.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    ManageTechniciansActivity.this,
-                    AddTechnicianActivity.class
-            );
-
-            startActivity(intent);
-        });
     }
 }
