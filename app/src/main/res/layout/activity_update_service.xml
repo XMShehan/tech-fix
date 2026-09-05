@@ -17,6 +17,23 @@
         android:textColor="#222222"
         android:layout_marginBottom="25dp" />
 
+    <!-- Service ID -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Service ID"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edtServiceId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Example: S001"
+        android:padding="12dp"
+        android:layout_marginBottom="15dp" />
+
+    <!-- Service Name -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -32,6 +49,7 @@
         android:padding="12dp"
         android:layout_marginBottom="15dp" />
 
+    <!-- Description -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -48,6 +66,7 @@
         android:padding="12dp"
         android:layout_marginBottom="15dp" />
 
+    <!-- Price -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -64,6 +83,7 @@
         android:padding="12dp"
         android:layout_marginBottom="15dp" />
 
+    <!-- Duration -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -79,6 +99,7 @@
         android:padding="12dp"
         android:layout_marginBottom="15dp" />
 
+    <!-- Status -->
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -92,6 +113,7 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="25dp" />
 
+    <!-- Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

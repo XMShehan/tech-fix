@@ -14,6 +14,7 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class UpdateServiceActivity extends AppCompatActivity {
 
+    EditText edtServiceId;
     EditText edtServiceName;
     EditText edtDescription;
     EditText edtPrice;
@@ -51,6 +52,8 @@ public class UpdateServiceActivity extends AppCompatActivity {
                 }
         );
 
+        // Find views
+        edtServiceId = findViewById(R.id.edtServiceId);
         edtServiceName = findViewById(R.id.edtServiceName);
         edtDescription = findViewById(R.id.edtDescription);
         edtPrice = findViewById(R.id.edtPrice);
@@ -78,11 +81,22 @@ public class UpdateServiceActivity extends AppCompatActivity {
 
         spinnerStatus.setAdapter(adapter);
 
+        // Cancel button
         btnCancel.setOnClickListener(v -> {
             finish();
         });
 
+        // Update Service button
         btnUpdateService.setOnClickListener(v -> {
+
+            String serviceId = edtServiceId.getText().toString();
+            String serviceName = edtServiceName.getText().toString();
+            String description = edtDescription.getText().toString();
+            String price = edtPrice.getText().toString();
+            String duration = edtDuration.getText().toString();
+            String status = spinnerStatus.getSelectedItem().toString();
+
+            // Database will be connected later.
             finish();
         });
     }

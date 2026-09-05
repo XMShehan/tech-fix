@@ -10,6 +10,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class AddServiceActivity extends AppCompatActivity {
 
+    EditText edtServiceId;
     EditText edtServiceName;
     EditText edtDescription;
     EditText edtPrice;
@@ -26,6 +27,7 @@ public class AddServiceActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_add_service);
 
+        edtServiceId = findViewById(R.id.edtServiceId);
         edtServiceName = findViewById(R.id.edtServiceName);
         edtDescription = findViewById(R.id.edtDescription);
         edtPrice = findViewById(R.id.edtPrice);
@@ -62,6 +64,7 @@ public class AddServiceActivity extends AppCompatActivity {
         // Save button
         btnSaveService.setOnClickListener(v -> {
 
+            String serviceId = edtServiceId.getText().toString();
             String serviceName = edtServiceName.getText().toString();
             String description = edtDescription.getText().toString();
             String price = edtPrice.getText().toString();
@@ -69,7 +72,7 @@ public class AddServiceActivity extends AppCompatActivity {
             String status = spinnerStatus.getSelectedItem().toString();
 
             // For now, just close the page
-            // We will connect this to the service list next.
+            // Database will be connected later.
             finish();
         });
     }

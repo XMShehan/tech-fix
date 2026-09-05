@@ -17,6 +17,30 @@
         android:textColor="#222222"
         android:layout_marginBottom="35dp" />
 
+    <!-- Branch ID -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Branch ID"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
+    <EditText
+        android:id="@+id/edtBranchId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Example: B001"
+        android:textSize="18sp"
+        android:layout_marginBottom="25dp" />
+
+    <!-- Branch Name -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Branch Name"
+        android:textSize="16sp"
+        android:textStyle="bold" />
+
     <EditText
         android:id="@+id/edtBranchName"
         android:layout_width="match_parent"
@@ -25,6 +49,7 @@
         android:textSize="18sp"
         android:layout_marginBottom="25dp" />
 
+    <!-- Address -->
     <EditText
         android:id="@+id/edtAddress"
         android:layout_width="match_parent"
@@ -36,6 +61,7 @@
         android:gravity="top"
         android:layout_marginBottom="25dp" />
 
+    <!-- Phone -->
     <EditText
         android:id="@+id/edtPhone"
         android:layout_width="match_parent"
@@ -45,6 +71,7 @@
         android:inputType="phone"
         android:layout_marginBottom="25dp" />
 
+    <!-- Email -->
     <EditText
         android:id="@+id/edtEmail"
         android:layout_width="match_parent"
@@ -54,12 +81,14 @@
         android:inputType="textEmailAddress"
         android:layout_marginBottom="25dp" />
 
+    <!-- Status -->
     <Spinner
         android:id="@+id/spinnerStatus"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="40dp" />
 
+    <!-- Buttons -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
