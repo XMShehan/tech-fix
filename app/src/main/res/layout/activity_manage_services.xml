@@ -32,6 +32,14 @@
         android:layout_height="wrap_content"
         android:text="+ Add Service"
         android:textSize="16sp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btnDeleteService"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Service"
+        android:textSize="16sp"
         android:layout_marginBottom="20dp" />
 
     <ScrollView

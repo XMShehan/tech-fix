@@ -51,5 +51,18 @@ public class ManageServicesActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        // Delete Service button
+        Button btnDeleteService = findViewById(R.id.btnDeleteService);
+
+        btnDeleteService.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ManageServicesActivity.this,
+                    DeleteServiceActivity.class
+            );
+
+            startActivity(intent);
+        });
     }
 }
