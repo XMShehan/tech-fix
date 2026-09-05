@@ -32,6 +32,14 @@
         android:layout_height="wrap_content"
         android:text="+ Add Branch"
         android:textSize="16sp"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btnDeleteBranch"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Delete Branch"
+        android:textSize="16sp"
         android:layout_marginBottom="20dp" />
 
     <ScrollView

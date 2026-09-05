@@ -51,5 +51,18 @@ public class ManageBranchesActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        // Delete Branch button
+        Button btnDeleteBranch = findViewById(R.id.btnDeleteBranch);
+
+        btnDeleteBranch.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ManageBranchesActivity.this,
+                    DeleteBranchActivity.class
+            );
+
+            startActivity(intent);
+        });
     }
 }
