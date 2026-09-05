@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // Inventory table
         db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
@@ -24,8 +25,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "price REAL, " +
                 "quantity INTEGER)");
 
-        // Sample products
+        // Appointment table
+        db.execSQL("CREATE TABLE appointments (" +
+                "appointmentId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "productService TEXT, " +
+                "category TEXT, " +
+                "price REAL, " +
+                "branch TEXT, " +
+                "appointmentDate TEXT, " +
+                "appointmentTime TEXT)");
 
+        // Sample products
         insertProduct(db, "PC Monitor", "Computer", 45000, 10);
         insertProduct(db, "Keyboard", "Computer", 5000, 25);
         insertProduct(db, "iPhone OLED Display", "Mobile", 85000, 3);
@@ -34,11 +44,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertProduct(db, "Charging Port", "Mobile", 7500, 12);
     }
 
-    private void insertProduct(SQLiteDatabase db,
-                               String productName,
-                               String category,
-                               double price,
-                               int quantity) {
+    private void insertProduct(
+            SQLiteDatabase db,
+            String productName,
+            String category,
+            double price,
+            int quantity) {
 
         ContentValues values = new ContentValues();
 
@@ -51,10 +62,21 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(
+            SQLiteDatabase db,
+            int oldVersion,
+            int newVersion) {
 
-        db.execSQL("DROP TABLE IF EXISTS inventory");
+        if (oldVersion < 2) {
 
-        onCreate(db);
+            db.execSQL("CREATE TABLE appointments (" +
+                    "appointmentId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "productService TEXT, " +
+                    "category TEXT, " +
+                    "price REAL, " +
+                    "branch TEXT, " +
+                    "appointmentDate TEXT, " +
+                    "appointmentTime TEXT)");
+        }
     }
 }
