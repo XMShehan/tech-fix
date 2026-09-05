@@ -8,8 +8,6 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CustomerDashboard extends AppCompatActivity {
 
-    Button btnComputerRepair;
-    Button btnMobileRepair;
     Button btnViewProducts;
     Button btnMyAppointments;
     Button btnRepairHistory;
@@ -21,34 +19,10 @@ public class CustomerDashboard extends AppCompatActivity {
 
         setContentView(R.layout.activity_customer_dashboard);
 
-        btnComputerRepair = findViewById(R.id.btnComputerRepair);
-        btnMobileRepair = findViewById(R.id.btnMobileRepair);
         btnViewProducts = findViewById(R.id.btnViewProducts);
         btnMyAppointments = findViewById(R.id.btnMyAppointments);
         btnRepairHistory = findViewById(R.id.btnRepairHistory);
         btnFeedback = findViewById(R.id.btnFeedback);
-
-        // Computer Repair
-        btnComputerRepair.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    CustomerDashboard.this,
-                    ComputerRepairActivity.class
-            );
-
-            startActivity(intent);
-        });
-
-        // Mobile Repair
-        btnMobileRepair.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    CustomerDashboard.this,
-                    MobileRepairActivity.class
-            );
-
-            startActivity(intent);
-        });
 
         // View Products
         btnViewProducts.setOnClickListener(v -> {
@@ -59,6 +33,21 @@ public class CustomerDashboard extends AppCompatActivity {
             );
 
             startActivity(intent);
+        });
+
+        // My Appointments
+        btnMyAppointments.setOnClickListener(v -> {
+            // My Appointments will be added later
+        });
+
+        // Repair History
+        btnRepairHistory.setOnClickListener(v -> {
+            // Repair History will be added later
+        });
+
+        // Feedback
+        btnFeedback.setOnClickListener(v -> {
+            // Feedback will be added later
         });
     }
 }

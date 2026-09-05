@@ -1,5 +1,6 @@
 package com.example.techfix;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -19,12 +20,18 @@ import java.util.ArrayList;
 public class ProductListActivity extends AppCompatActivity {
 
     LinearLayout productListContainer;
-    Button btnBack;
+
+    Button btnAll;
+    Button btnMobile;
+    Button btnComputer;
+
     EditText edtSearch;
 
     DatabaseHelper databaseHelper;
 
     ArrayList<Product> productList;
+
+    String selectedCategory = "All";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,7 +40,11 @@ public class ProductListActivity extends AppCompatActivity {
         setContentView(R.layout.activity_product_list);
 
         productListContainer = findViewById(R.id.productListContainer);
-        btnBack = findViewById(R.id.btnBack);
+
+        btnAll = findViewById(R.id.btnAll);
+        btnMobile = findViewById(R.id.btnMobile);
+        btnComputer = findViewById(R.id.btnComputer);
+
         edtSearch = findViewById(R.id.edtSearch);
 
         databaseHelper = new DatabaseHelper(this);
@@ -42,10 +53,31 @@ public class ProductListActivity extends AppCompatActivity {
 
         loadProducts();
 
-        btnBack.setOnClickListener(v -> {
-            finish();
+        // All Categories
+        btnAll.setOnClickListener(v -> {
+
+            selectedCategory = "All";
+
+            filterProducts(edtSearch.getText().toString());
         });
 
+        // Mobile
+        btnMobile.setOnClickListener(v -> {
+
+            selectedCategory = "Mobile";
+
+            filterProducts(edtSearch.getText().toString());
+        });
+
+        // Computer
+        btnComputer.setOnClickListener(v -> {
+
+            selectedCategory = "Computer";
+
+            filterProducts(edtSearch.getText().toString());
+        });
+
+        // Search
         edtSearch.addTextChangedListener(new android.text.TextWatcher() {
 
             @Override
@@ -114,8 +146,23 @@ public class ProductListActivity extends AppCompatActivity {
 
         for (Product product : productList) {
 
-            if (product.productName.toLowerCase().contains(searchText)
-                    || product.category.toLowerCase().contains(searchText)) {
+            boolean categoryMatches;
+
+            if (selectedCategory.equals("All")) {
+
+                categoryMatches = true;
+
+            } else {
+
+                categoryMatches =
+                        product.category.equalsIgnoreCase(selectedCategory);
+            }
+
+            boolean searchMatches =
+                    product.productName.toLowerCase().contains(searchText)
+                            || product.category.toLowerCase().contains(searchText);
+
+            if (categoryMatches && searchMatches) {
 
                 filteredList.add(product);
             }
@@ -132,7 +179,7 @@ public class ProductListActivity extends AppCompatActivity {
 
             TextView noProducts = new TextView(this);
 
-            noProducts.setText("No products found");
+            noProducts.setText("No products available");
             noProducts.setTextSize(18);
             noProducts.setGravity(Gravity.CENTER);
             noProducts.setPadding(0, 40, 0, 40);
@@ -159,6 +206,7 @@ public class ProductListActivity extends AppCompatActivity {
             double price,
             int quantity) {
 
+        // Main product card
         LinearLayout card = new LinearLayout(this);
 
         card.setOrientation(LinearLayout.VERTICAL);
@@ -243,11 +291,26 @@ public class ProductListActivity extends AppCompatActivity {
 
         card.addView(quantityText);
 
-        // Select button
+        // Select Product
         Button btnSelect = new Button(this);
 
         btnSelect.setText("Select Product");
         btnSelect.setGravity(Gravity.CENTER);
+
+        btnSelect.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ProductListActivity.this,
+                    AppointmentActivity.class
+            );
+
+            intent.putExtra("productName", productName);
+            intent.putExtra("category", category);
+            intent.putExtra("price", price);
+            intent.putExtra("quantity", quantity);
+
+            startActivity(intent);
+        });
 
         card.addView(btnSelect);
 

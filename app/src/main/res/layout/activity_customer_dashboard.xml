@@ -10,6 +10,8 @@
         android:orientation="vertical"
         android:padding="25dp">
 
+        <!-- TECHFIX -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -17,29 +19,10 @@
             android:textSize="32sp"
             android:textStyle="bold"
             android:layout_gravity="center"
-            android:layout_marginTop="20dp" />
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Computer &amp; Mobile Repair"
-            android:textSize="16sp"
-            android:layout_gravity="center"
+            android:layout_marginTop="30dp"
             android:layout_marginBottom="35dp" />
 
-        <Button
-            android:id="@+id/btnComputerRepair"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Computer Repair"
-            android:layout_marginBottom="12dp" />
-
-        <Button
-            android:id="@+id/btnMobileRepair"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Mobile Repair"
-            android:layout_marginBottom="12dp" />
+        <!-- View Products -->
 
         <Button
             android:id="@+id/btnViewProducts"
@@ -48,6 +31,8 @@
             android:text="View Products"
             android:layout_marginBottom="12dp" />
 
+        <!-- My Appointments -->
+
         <Button
             android:id="@+id/btnMyAppointments"
             android:layout_width="match_parent"
@@ -55,12 +40,16 @@
             android:text="My Appointments"
             android:layout_marginBottom="12dp" />
 
+        <!-- Repair History -->
+
         <Button
             android:id="@+id/btnRepairHistory"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Repair History"
             android:layout_marginBottom="12dp" />
+
+        <!-- Feedback -->
 
         <Button
             android:id="@+id/btnFeedback"
