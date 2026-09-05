@@ -13,8 +13,9 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class AddInventoryActivity extends AppCompatActivity{
+public class AddInventoryActivity extends AppCompatActivity {
 
+    EditText edtInventoryId;
     EditText edtProductName;
     EditText edtCategory;
     EditText edtPrice;
@@ -53,6 +54,7 @@ public class AddInventoryActivity extends AppCompatActivity{
         );
 
         // Find views
+        edtInventoryId = findViewById(R.id.edtInventoryId);
         edtProductName = findViewById(R.id.edtProductName);
         edtCategory = findViewById(R.id.edtCategory);
         edtPrice = findViewById(R.id.edtPrice);
@@ -71,13 +73,15 @@ public class AddInventoryActivity extends AppCompatActivity{
         // Save Inventory button
         btnSaveInventory.setOnClickListener(v -> {
 
+            String inventoryId = edtInventoryId.getText().toString().trim();
             String productName = edtProductName.getText().toString().trim();
             String category = edtCategory.getText().toString().trim();
             String priceText = edtPrice.getText().toString().trim();
             String quantityText = edtQuantity.getText().toString().trim();
 
             // Validation
-            if (productName.isEmpty() ||
+            if (inventoryId.isEmpty() ||
+                    productName.isEmpty() ||
                     category.isEmpty() ||
                     priceText.isEmpty() ||
                     quantityText.isEmpty()) {
@@ -99,6 +103,7 @@ public class AddInventoryActivity extends AppCompatActivity{
 
             ContentValues values = new ContentValues();
 
+            values.put("inventoryId", inventoryId);
             values.put("productName", productName);
             values.put("category", category);
             values.put("price", price);
