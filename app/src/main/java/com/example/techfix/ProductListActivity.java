@@ -8,17 +8,23 @@ import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import java.util.ArrayList;
+
 public class ProductListActivity extends AppCompatActivity {
 
     LinearLayout productListContainer;
     Button btnBack;
+    EditText edtSearch;
 
     DatabaseHelper databaseHelper;
+
+    ArrayList<Product> productList;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,13 +34,42 @@ public class ProductListActivity extends AppCompatActivity {
 
         productListContainer = findViewById(R.id.productListContainer);
         btnBack = findViewById(R.id.btnBack);
+        edtSearch = findViewById(R.id.edtSearch);
 
         databaseHelper = new DatabaseHelper(this);
+
+        productList = new ArrayList<>();
 
         loadProducts();
 
         btnBack.setOnClickListener(v -> {
             finish();
+        });
+
+        edtSearch.addTextChangedListener(new android.text.TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(
+                    CharSequence s,
+                    int start,
+                    int count,
+                    int after) {
+            }
+
+            @Override
+            public void onTextChanged(
+                    CharSequence s,
+                    int start,
+                    int before,
+                    int count) {
+
+                filterProducts(s.toString());
+            }
+
+            @Override
+            public void afterTextChanged(
+                    android.text.Editable s) {
+            }
         });
     }
 
@@ -56,15 +91,66 @@ public class ProductListActivity extends AppCompatActivity {
             double price = cursor.getDouble(2);
             int quantity = cursor.getInt(3);
 
-            createProductCard(
+            Product product = new Product(
                     productName,
                     category,
                     price,
                     quantity
             );
+
+            productList.add(product);
         }
 
         cursor.close();
+
+        displayProducts(productList);
+    }
+
+    private void filterProducts(String searchText) {
+
+        ArrayList<Product> filteredList = new ArrayList<>();
+
+        searchText = searchText.toLowerCase().trim();
+
+        for (Product product : productList) {
+
+            if (product.productName.toLowerCase().contains(searchText)
+                    || product.category.toLowerCase().contains(searchText)) {
+
+                filteredList.add(product);
+            }
+        }
+
+        displayProducts(filteredList);
+    }
+
+    private void displayProducts(ArrayList<Product> products) {
+
+        productListContainer.removeAllViews();
+
+        if (products.isEmpty()) {
+
+            TextView noProducts = new TextView(this);
+
+            noProducts.setText("No products found");
+            noProducts.setTextSize(18);
+            noProducts.setGravity(Gravity.CENTER);
+            noProducts.setPadding(0, 40, 0, 40);
+
+            productListContainer.addView(noProducts);
+
+            return;
+        }
+
+        for (Product product : products) {
+
+            createProductCard(
+                    product.productName,
+                    product.category,
+                    product.price,
+                    product.quantity
+            );
+        }
     }
 
     private void createProductCard(
@@ -73,7 +159,6 @@ public class ProductListActivity extends AppCompatActivity {
             double price,
             int quantity) {
 
-        // Main product card
         LinearLayout card = new LinearLayout(this);
 
         card.setOrientation(LinearLayout.VERTICAL);
@@ -121,7 +206,10 @@ public class ProductListActivity extends AppCompatActivity {
         // Price
         TextView priceText = new TextView(this);
 
-        priceText.setText("Rs. " + String.format("%.2f", price));
+        priceText.setText(
+                "Rs. " + String.format("%.2f", price)
+        );
+
         priceText.setTextSize(19);
         priceText.setTypeface(null, Typeface.BOLD);
 
@@ -159,12 +247,31 @@ public class ProductListActivity extends AppCompatActivity {
         Button btnSelect = new Button(this);
 
         btnSelect.setText("Select Product");
-
         btnSelect.setGravity(Gravity.CENTER);
 
         card.addView(btnSelect);
 
-        // Add card to screen
         productListContainer.addView(card);
+    }
+
+    // Product class
+    private static class Product {
+
+        String productName;
+        String category;
+        double price;
+        int quantity;
+
+        Product(
+                String productName,
+                String category,
+                double price,
+                int quantity) {
+
+            this.productName = productName;
+            this.category = category;
+            this.price = price;
+            this.quantity = quantity;
+        }
     }
 }

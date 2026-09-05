@@ -1,32 +1,60 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp">
 
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Available Products"
+        android:textSize="28sp"
+        android:textStyle="bold"
+        android:layout_gravity="center"
+        android:layout_marginBottom="5dp" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Products currently available in TechFix"
+        android:textSize="14sp"
+        android:layout_gravity="center"
+        android:layout_marginBottom="20dp" />
+
+    <!-- Fixed Back Button + Search Bar -->
     <LinearLayout
-        android:id="@+id/productContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="vertical"
-        android:padding="20dp">
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginBottom="15dp">
 
-        <TextView
+        <Button
+            android:id="@+id/btnBack"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Available Products"
-            android:textSize="28sp"
-            android:textStyle="bold"
-            android:layout_gravity="center"
-            android:layout_marginBottom="5dp" />
+            android:text="Back" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        <EditText
+            android:id="@+id/edtSearch"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:text="Products currently available in TechFix"
-            android:textSize="14sp"
-            android:layout_gravity="center"
-            android:layout_marginBottom="20dp" />
+            android:layout_weight="1"
+            android:layout_marginStart="10dp"
+            android:hint="Search products..."
+            android:inputType="text"
+            android:singleLine="true"
+            android:padding="10dp" />
+
+    </LinearLayout>
+
+    <!-- ONLY THIS PART SCROLLS -->
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1">
 
         <LinearLayout
             android:id="@+id/productListContainer"
@@ -34,13 +62,6 @@
             android:layout_height="wrap_content"
             android:orientation="vertical" />
 
-        <Button
-            android:id="@+id/btnBack"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:text="Back"
-            android:layout_marginTop="20dp" />
+    </ScrollView>
 
-    </LinearLayout>
-
-</ScrollView>
+</LinearLayout>
