@@ -37,7 +37,13 @@ public class CustomerDashboard extends AppCompatActivity {
 
         // My Appointments
         btnMyAppointments.setOnClickListener(v -> {
-            // My Appointments will be added later
+
+            Intent intent = new Intent(
+                    CustomerDashboard.this,
+                    MyAppointmentsActivity.class
+            );
+
+            startActivity(intent);
         });
 
         // Repair History
