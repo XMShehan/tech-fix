@@ -27,8 +27,25 @@ public class LoginActivity extends AppCompatActivity {
         btnLogin = findViewById(R.id.btnLogin);
         btnRegister = findViewById(R.id.btnRegister);
 
+        // Login button
+        btnLogin.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    CustomerDashboard.class
+            );
+
+            startActivity(intent);
+        });
+
+        // Register button
         btnRegister.setOnClickListener(v -> {
-            Intent intent = new Intent(LoginActivity.this, RegisterActivity.class);
+
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    RegisterActivity.class
+            );
+
             startActivity(intent);
         });
     }
