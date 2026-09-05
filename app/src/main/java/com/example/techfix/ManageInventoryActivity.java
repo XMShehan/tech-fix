@@ -39,6 +39,16 @@ public class ManageInventoryActivity extends AppCompatActivity {
                 }
         );
 
+        Button btnAddInventory = findViewById(R.id.btnAddInventory);
 
+        btnAddInventory.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ManageInventoryActivity.this,
+                    AddInventoryActivity.class
+            );
+
+            startActivity(intent);
+        });
     }
 }
