@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <application
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
@@ -11,8 +12,9 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix">
 
+        <!-- Main Activity - Starting point -->
         <activity
-            android:name=".AdminDashboardActivity"
+            android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
@@ -21,11 +23,25 @@
             </intent-filter>
         </activity>
 
+        <!-- Login -->
+        <activity
+            android:name=".LoginActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Customer Dashboard -->
         <activity
             android:name=".CustomerDashboard"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Admin Dashboard -->
+        <activity
+            android:name=".AdminDashboardActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Service Management -->
         <activity
             android:name=".ManageServicesActivity"
             android:exported="false"
@@ -41,6 +57,7 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Branch Management -->
         <activity
             android:name=".ManageBranchesActivity"
             android:exported="false"
@@ -56,11 +73,13 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Technician Management -->
         <activity
             android:name=".ManageTechniciansActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Repair Activities -->
         <activity
             android:name=".ComputerRepairActivity"
             android:exported="false"
@@ -71,20 +90,23 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".LoginActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-
+        <!-- Register -->
         <activity
             android:name=".RegisterActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <!-- Products -->
         <activity
             android:name=".ProductListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
+        <activity
+            android:name=".AppointmentActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
+
 </manifest>
