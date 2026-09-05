@@ -53,7 +53,13 @@ public class CustomerDashboard extends AppCompatActivity {
 
         // Feedback
         btnFeedback.setOnClickListener(v -> {
-            // Feedback will be added later
+
+            Intent intent = new Intent(
+                    CustomerDashboard.this,
+                    FeedbackActivity.class
+            );
+
+            startActivity(intent);
         });
     }
 }
