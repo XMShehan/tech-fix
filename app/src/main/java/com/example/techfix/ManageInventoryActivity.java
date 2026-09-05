@@ -1,55 +1,61 @@
-    package com.example.techfix;
+package com.example.techfix;
 
-    import android.content.Intent;
-    import android.os.Bundle;
-    import android.widget.Button;
+import android.content.Intent;
+import android.os.Bundle;
+import android.widget.Button;
 
-    import androidx.activity.EdgeToEdge;
-    import androidx.appcompat.app.AppCompatActivity;
-    import androidx.core.graphics.Insets;
-    import androidx.core.view.ViewCompat;
-    import androidx.core.view.WindowInsetsCompat;
+import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.graphics.Insets;
+import androidx.core.view.ViewCompat;
+import androidx.core.view.WindowInsetsCompat;
 
-    public class ManageInventoryActivity extends AppCompatActivity {
+public class ManageInventoryActivity extends AppCompatActivity {
 
-        @Override
-        protected void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
 
-            EdgeToEdge.enable(this);
+        EdgeToEdge.enable(this);
 
-            setContentView(R.layout.activity_manage_inventory);
+        setContentView(R.layout.activity_manage_inventory);
 
-            ViewCompat.setOnApplyWindowInsetsListener(
-                    findViewById(R.id.main),
-                    (v, insets) -> {
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (v, insets) -> {
 
-                        Insets systemBars = insets.getInsets(
-                                WindowInsetsCompat.Type.systemBars()
-                        );
+                    Insets systemBars = insets.getInsets(
+                            WindowInsetsCompat.Type.systemBars()
+                    );
 
-                        v.setPadding(
-                                systemBars.left,
-                                systemBars.top,
-                                systemBars.right,
-                                systemBars.bottom
-                        );
+                    v.setPadding(
+                            systemBars.left,
+                            systemBars.top,
+                            systemBars.right,
+                            systemBars.bottom
+                    );
 
-                        return insets;
-                    }
+                    return insets;
+                }
+        );
+
+        // Add Inventory button
+        Button btnAddInventory = findViewById(R.id.btnAddInventory);
+
+        btnAddInventory.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    ManageInventoryActivity.this,
+                    AddInventoryActivity.class
             );
 
-            Button btnAddInventory = findViewById(R.id.btnAddInventory);
+            startActivity(intent);
+        });
 
-            btnAddInventory.setOnClickListener(v -> {
+        // Delete Inventory button
+        Button btnDeleteInventory = findViewById(R.id.btnDeleteInventory);
 
-                Intent intent = new Intent(
-                        ManageInventoryActivity.this,
-                        AddInventoryActivity.class
-                );
-
-                startActivity(intent);
-            });
+        btnDeleteInventory.setOnClickListener(v -> {
 
             Intent intent = new Intent(
                     ManageInventoryActivity.this,
@@ -57,5 +63,6 @@
             );
 
             startActivity(intent);
-        }
+        });
     }
+}
