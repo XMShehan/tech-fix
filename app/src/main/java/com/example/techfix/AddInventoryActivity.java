@@ -38,9 +38,10 @@ public class AddInventoryActivity extends AppCompatActivity {
                 findViewById(R.id.main),
                 (v, insets) -> {
 
-                    Insets systemBars = insets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                    );
+                    Insets systemBars =
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
 
                     v.setPadding(
                             systemBars.left,
@@ -73,14 +74,23 @@ public class AddInventoryActivity extends AppCompatActivity {
         // Save Inventory button
         btnSaveInventory.setOnClickListener(v -> {
 
-            String inventoryId = edtInventoryId.getText().toString().trim();
-            String productName = edtProductName.getText().toString().trim();
-            String category = edtCategory.getText().toString().trim();
-            String priceText = edtPrice.getText().toString().trim();
-            String quantityText = edtQuantity.getText().toString().trim();
+            String inventoryIdText =
+                    edtInventoryId.getText().toString().trim();
+
+            String productName =
+                    edtProductName.getText().toString().trim();
+
+            String category =
+                    edtCategory.getText().toString().trim();
+
+            String priceText =
+                    edtPrice.getText().toString().trim();
+
+            String quantityText =
+                    edtQuantity.getText().toString().trim();
 
             // Validation
-            if (inventoryId.isEmpty() ||
+            if (inventoryIdText.isEmpty() ||
                     productName.isEmpty() ||
                     category.isEmpty() ||
                     priceText.isEmpty() ||
@@ -95,41 +105,61 @@ public class AddInventoryActivity extends AppCompatActivity {
                 return;
             }
 
-            double price = Double.parseDouble(priceText);
-            int quantity = Integer.parseInt(quantityText);
+            try {
 
-            // Insert into database
-            SQLiteDatabase db = databaseHelper.getWritableDatabase();
+                int inventoryId =
+                        Integer.parseInt(inventoryIdText);
 
-            ContentValues values = new ContentValues();
+                double price =
+                        Double.parseDouble(priceText);
 
-            values.put("inventoryId", inventoryId);
-            values.put("productName", productName);
-            values.put("category", category);
-            values.put("price", price);
-            values.put("quantity", quantity);
+                int quantity =
+                        Integer.parseInt(quantityText);
 
-            long result = db.insert(
-                    "inventory",
-                    null,
-                    values
-            );
+                // Insert into database
+                SQLiteDatabase db =
+                        databaseHelper.getWritableDatabase();
 
-            if (result != -1) {
+                ContentValues values =
+                        new ContentValues();
+
+                values.put("id", inventoryId);
+                values.put("productName", productName);
+                values.put("category", category);
+                values.put("price", price);
+                values.put("quantity", quantity);
+
+                long result =
+                        db.insert(
+                                "inventory",
+                                null,
+                                values
+                        );
+
+                if (result != -1) {
+
+                    Toast.makeText(
+                            AddInventoryActivity.this,
+                            "Inventory added successfully",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    finish();
+
+                } else {
+
+                    Toast.makeText(
+                            AddInventoryActivity.this,
+                            "Inventory ID already exists",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+
+            } catch (NumberFormatException e) {
 
                 Toast.makeText(
                         AddInventoryActivity.this,
-                        "Inventory added successfully",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                finish();
-
-            } else {
-
-                Toast.makeText(
-                        AddInventoryActivity.this,
-                        "Failed to add inventory",
+                        "Please enter valid numbers",
                         Toast.LENGTH_SHORT
                 ).show();
             }

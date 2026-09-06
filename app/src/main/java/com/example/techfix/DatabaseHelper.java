@@ -27,13 +27,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "price REAL, " +
                 "quantity INTEGER)");
 
-        // Sample inventory products
-        insertProduct(db, "PC Monitor", "Computer", 45000, 10);
-        insertProduct(db, "Keyboard", "Computer", 5000, 25);
-        insertProduct(db, "iPhone OLED Display", "Mobile", 85000, 3);
-        insertProduct(db, "Laptop Battery", "Computer", 30000, 5);
-        insertProduct(db, "iPhone Battery", "Mobile", 18000, 8);
-        insertProduct(db, "Charging Port", "Mobile", 7500, 12);
 
 
         // =========================
