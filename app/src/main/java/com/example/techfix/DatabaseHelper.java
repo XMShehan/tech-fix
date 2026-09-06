@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 5;
+    private static final int DATABASE_VERSION = 6;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,20 +17,20 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        // =========================
-        // Inventory Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS inventory (" +
+        // =========================================================
+        // INVENTORY TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
                 "category TEXT, " +
                 "price REAL, " +
                 "quantity INTEGER)");
 
-        // =========================
-        // Appointment Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS appointments (" +
+        // =========================================================
+        // APPOINTMENTS TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE appointments (" +
                 "appointmentId INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productService TEXT, " +
                 "category TEXT, " +
@@ -39,10 +39,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "appointmentDate TEXT, " +
                 "appointmentTime TEXT)");
 
-        // =========================
-        // Branch Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS branches (" +
+        // =========================================================
+        // BRANCHES TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE branches (" +
                 "branchId INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "branchCode TEXT, " +
                 "branchName TEXT, " +
@@ -53,10 +53,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "latitude REAL, " +
                 "longitude REAL)");
 
-        // =========================
-        // Services Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS services (" +
+        // =========================================================
+        // SERVICES TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE services (" +
                 "serviceId TEXT PRIMARY KEY, " +
                 "serviceName TEXT NOT NULL, " +
                 "description TEXT, " +
@@ -64,28 +64,48 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "duration TEXT, " +
                 "status TEXT)");
 
-        // =========================
-        // Technicians Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS technicians (" +
+        // =========================================================
+        // TECHNICIANS TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE technicians (" +
                 "technicianId TEXT PRIMARY KEY, " +
                 "technicianName TEXT NOT NULL, " +
                 "phone TEXT, " +
                 "email TEXT, " +
                 "specialization TEXT)");
 
-        // =========================
-        // Feedback Table
-        // =========================
-        db.execSQL("CREATE TABLE IF NOT EXISTS feedback (" +
+        // =========================================================
+        // FEEDBACK TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE feedback (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "customerName TEXT NOT NULL, " +
                 "customerEmail TEXT NOT NULL, " +
                 "feedback TEXT NOT NULL)");
 
-        // =========================
-        // Sample Products
-        // =========================
+        // =========================================================
+        // CUSTOMERS TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE customers (" +
+                "customerId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "customerName TEXT NOT NULL, " +
+                "email TEXT UNIQUE NOT NULL, " +
+                "phone TEXT, " +
+                "password TEXT NOT NULL)");
+
+        // =========================================================
+        // ADMINS TABLE
+        // =========================================================
+        db.execSQL("CREATE TABLE admins (" +
+                "adminId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "adminName TEXT NOT NULL, " +
+                "email TEXT UNIQUE NOT NULL, " +
+                "phone TEXT, " +
+                "password TEXT NOT NULL)");
+
+        // =========================================================
+        // SAMPLE INVENTORY PRODUCTS
+        // =========================================================
         insertProduct(db, "PC Monitor", "Computer", 45000, 10);
         insertProduct(db, "Keyboard", "Computer", 5000, 25);
         insertProduct(db, "iPhone OLED Display", "Mobile", 85000, 3);
@@ -93,9 +113,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertProduct(db, "iPhone Battery", "Mobile", 18000, 8);
         insertProduct(db, "Charging Port", "Mobile", 7500, 12);
 
-        // =========================
-        // Sample Branches
-        // =========================
+        // =========================================================
+        // SAMPLE BRANCHES
+        // =========================================================
         insertBranch(
                 db,
                 "B001",
@@ -145,9 +165,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-    // =====================================================
+    // =========================================================
     // INSERT PRODUCT
-    // =====================================================
+    // =========================================================
 
     private void insertProduct(
             SQLiteDatabase db,
@@ -163,12 +183,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("price", price);
         values.put("quantity", quantity);
 
-        db.insert("inventory", null, values);
+        db.insert(
+                "inventory",
+                null,
+                values
+        );
     }
 
-    // =====================================================
+    // =========================================================
     // INSERT BRANCH
-    // =====================================================
+    // =========================================================
 
     public void insertBranch(
             SQLiteDatabase db,
@@ -192,12 +216,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("latitude", latitude);
         values.put("longitude", longitude);
 
-        db.insert("branches", null, values);
+        db.insert(
+                "branches",
+                null,
+                values
+        );
     }
 
-    // =====================================================
-    // CONVENIENCE INSERT BRANCH
-    // =====================================================
+    // =========================================================
+    // INSERT BRANCH WITHOUT COORDINATES
+    // =========================================================
 
     public void insertBranch(
             String branchCode,
@@ -222,9 +250,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-    // =====================================================
+    // =========================================================
     // DATABASE UPGRADE
-    // =====================================================
+    // =========================================================
 
     @Override
     public void onUpgrade(
@@ -232,10 +260,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int oldVersion,
             int newVersion) {
 
-        // =========================
-        // Version 2
-        // Appointments
-        // =========================
+        // =========================================================
+        // VERSION 2 - APPOINTMENTS
+        // =========================================================
         if (oldVersion < 2) {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS appointments (" +
@@ -248,20 +275,14 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "appointmentTime TEXT)");
         }
 
-        // =========================
-        // Version 3
-        // Branches
-        // =========================
+        // =========================================================
+        // VERSION 3 - BRANCHES
+        // =========================================================
         if (oldVersion < 3) {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS branches (" +
                     "branchId INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                    "branchCode TEXT, " +
                     "branchName TEXT, " +
-                    "address TEXT, " +
-                    "phone TEXT, " +
-                    "email TEXT, " +
-                    "status TEXT DEFAULT 'Active', " +
                     "latitude REAL, " +
                     "longitude REAL)");
 
@@ -314,67 +335,37 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             );
         }
 
-        // =========================
-        // Version 4
-        // Branch Columns
-        // =========================
+        // =========================================================
+        // VERSION 4 - BRANCH DETAILS
+        // =========================================================
         if (oldVersion < 4) {
 
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN branchCode TEXT"
-                );
-            } catch (Exception ignored) {
-            }
+            db.execSQL(
+                    "ALTER TABLE branches ADD COLUMN branchCode TEXT"
+            );
 
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN address TEXT"
-                );
-            } catch (Exception ignored) {
-            }
+            db.execSQL(
+                    "ALTER TABLE branches ADD COLUMN address TEXT"
+            );
 
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN phone TEXT"
-                );
-            } catch (Exception ignored) {
-            }
+            db.execSQL(
+                    "ALTER TABLE branches ADD COLUMN phone TEXT"
+            );
 
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN email TEXT"
-                );
-            } catch (Exception ignored) {
-            }
+            db.execSQL(
+                    "ALTER TABLE branches ADD COLUMN email TEXT"
+            );
 
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN status TEXT DEFAULT 'Active'"
-                );
-            } catch (Exception ignored) {
-            }
-
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN latitude REAL"
-                );
-            } catch (Exception ignored) {
-            }
-
-            try {
-                db.execSQL(
-                        "ALTER TABLE branches ADD COLUMN longitude REAL"
-                );
-            } catch (Exception ignored) {
-            }
+            db.execSQL(
+                    "ALTER TABLE branches ADD COLUMN status TEXT DEFAULT 'Active'"
+            );
         }
 
-        // =========================
-        // Version 5
-        // Services, Technicians
-        // and Feedback
-        // =========================
+        // =========================================================
+        // VERSION 5 - SERVICES
+        // TECHNICIANS
+        // FEEDBACK
+        // =========================================================
         if (oldVersion < 5) {
 
             db.execSQL("CREATE TABLE IF NOT EXISTS services (" +
@@ -397,6 +388,26 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "customerName TEXT NOT NULL, " +
                     "customerEmail TEXT NOT NULL, " +
                     "feedback TEXT NOT NULL)");
+        }
+
+        // =========================================================
+        // VERSION 6 - CUSTOMERS AND ADMINS
+        // =========================================================
+        if (oldVersion < 6) {
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS customers (" +
+                    "customerId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "customerName TEXT NOT NULL, " +
+                    "email TEXT UNIQUE NOT NULL, " +
+                    "phone TEXT, " +
+                    "password TEXT NOT NULL)");
+
+            db.execSQL("CREATE TABLE IF NOT EXISTS admins (" +
+                    "adminId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "adminName TEXT NOT NULL, " +
+                    "email TEXT UNIQUE NOT NULL, " +
+                    "phone TEXT, " +
+                    "password TEXT NOT NULL)");
         }
     }
 }
