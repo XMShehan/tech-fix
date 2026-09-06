@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,7 +17,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // =========================
         // Inventory table
+        // =========================
         db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
@@ -34,7 +36,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertProduct(db, "Charging Port", "Mobile", 7500, 12);
 
 
-        // Service table
+        // =========================
+        // Services table
+        // =========================
         db.execSQL("CREATE TABLE services (" +
                 "serviceId TEXT PRIMARY KEY, " +
                 "serviceName TEXT NOT NULL, " +
@@ -42,13 +46,28 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "price REAL NOT NULL, " +
                 "duration TEXT, " +
                 "status TEXT)");
+
+
+        // =========================
+        // Technicians table
+        // =========================
+        db.execSQL("CREATE TABLE technicians (" +
+                "technicianId TEXT PRIMARY KEY, " +
+                "technicianName TEXT NOT NULL, " +
+                "phone TEXT, " +
+                "email TEXT, " +
+                "specialization TEXT)");
     }
 
-    private void insertProduct(SQLiteDatabase db,
-                               String productName,
-                               String category,
-                               double price,
-                               int quantity) {
+    // =========================
+    // Insert Inventory Product
+    // =========================
+    private void insertProduct(
+            SQLiteDatabase db,
+            String productName,
+            String category,
+            double price,
+            int quantity) {
 
         ContentValues values = new ContentValues();
 
@@ -57,8 +76,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         values.put("price", price);
         values.put("quantity", quantity);
 
-        db.insert("inventory", null, values);
+        db.insert(
+                "inventory",
+                null,
+                values
+        );
     }
+
+
+    // Database Upgrade
 
     @Override
     public void onUpgrade(
@@ -66,7 +92,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
             int oldVersion,
             int newVersion) {
 
+        // Version 2
         if (oldVersion < 2) {
+
             db.execSQL("CREATE TABLE services (" +
                     "serviceId TEXT PRIMARY KEY, " +
                     "serviceName TEXT NOT NULL, " +
@@ -74,6 +102,17 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "price REAL NOT NULL, " +
                     "duration TEXT, " +
                     "status TEXT)");
+        }
+
+        // Version 3
+        if (oldVersion < 3) {
+
+            db.execSQL("CREATE TABLE technicians (" +
+                    "technicianId TEXT PRIMARY KEY, " +
+                    "technicianName TEXT NOT NULL, " +
+                    "phone TEXT, " +
+                    "email TEXT, " +
+                    "specialization TEXT)");
         }
     }
 }
