@@ -87,7 +87,6 @@ public class ManageTechniciansActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Load technicians
         loadTechnicians();
     }
 
@@ -102,14 +101,11 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
     private void loadTechnicians() {
 
-        // Clear existing technician list
         technicianContainer.removeAllViews();
 
-        // Get database
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        // Read technicians
         Cursor cursor = db.rawQuery(
                 "SELECT technicianId, technicianName, phone, email, specialization " +
                         "FROM technicians",
@@ -133,37 +129,27 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
                 String technicianId =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "technicianId"
-                                )
+                                cursor.getColumnIndexOrThrow("technicianId")
                         );
 
                 String technicianName =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "technicianName"
-                                )
+                                cursor.getColumnIndexOrThrow("technicianName")
                         );
 
                 String phone =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "phone"
-                                )
+                                cursor.getColumnIndexOrThrow("phone")
                         );
 
                 String email =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "email"
-                                )
+                                cursor.getColumnIndexOrThrow("email")
                         );
 
                 String specialization =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "specialization"
-                                )
+                                cursor.getColumnIndexOrThrow("specialization")
                         );
 
                 // Container for one technician
@@ -182,8 +168,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 );
 
                 // Technician ID
-                TextView txtId =
-                        new TextView(this);
+                TextView txtId = new TextView(this);
 
                 txtId.setText(
                         "Technician ID: " + technicianId
@@ -195,8 +180,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtId);
 
                 // Technician Name
-                TextView txtName =
-                        new TextView(this);
+                TextView txtName = new TextView(this);
 
                 txtName.setText(
                         "Technician Name: " + technicianName
@@ -208,8 +192,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtName);
 
                 // Phone
-                TextView txtPhone =
-                        new TextView(this);
+                TextView txtPhone = new TextView(this);
 
                 txtPhone.setText(
                         "Phone: " + phone
@@ -221,8 +204,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtPhone);
 
                 // Email
-                TextView txtEmail =
-                        new TextView(this);
+                TextView txtEmail = new TextView(this);
 
                 txtEmail.setText(
                         "Email: " + email
@@ -234,8 +216,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtEmail);
 
                 // Specialization
-                TextView txtSpecialization =
-                        new TextView(this);
+                TextView txtSpecialization = new TextView(this);
 
                 txtSpecialization.setText(
                         "Specialization: " + specialization
@@ -246,10 +227,46 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
                 technicianLayout.addView(txtSpecialization);
 
-                // Add technician to container
-                technicianContainer.addView(
-                        technicianLayout
+                // Update Technician button
+                Button btnUpdate = new Button(this);
+
+                btnUpdate.setText("Update Technician");
+                btnUpdate.setTextSize(14);
+
+                LinearLayout.LayoutParams buttonParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                buttonParams.setMargins(
+                        0,
+                        10,
+                        0,
+                        10
                 );
+
+                btnUpdate.setLayoutParams(buttonParams);
+
+                technicianLayout.addView(btnUpdate);
+
+                // Update button click
+                btnUpdate.setOnClickListener(v -> {
+
+                    Intent intent = new Intent(
+                            ManageTechniciansActivity.this,
+                            UpdateTechnicianActivity.class
+                    );
+
+                    intent.putExtra(
+                            "technicianId",
+                            technicianId
+                    );
+
+                    startActivity(intent);
+                });
+
+                technicianContainer.addView(technicianLayout);
             }
         }
 

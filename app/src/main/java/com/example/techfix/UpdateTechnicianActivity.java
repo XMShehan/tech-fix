@@ -1,8 +1,11 @@
 package com.example.techfix;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -19,6 +22,8 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
     EditText edtTechnicianSpecialization;
 
     Button btnUpdateTechnician;
+
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -59,26 +64,86 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         btnUpdateTechnician =
                 findViewById(R.id.btnUpdateTechnician);
 
-        // Update Technician button
+        // Database
+        databaseHelper = new DatabaseHelper(this);
+
+        // Get Technician ID from previous page
+        String technicianId =
+                getIntent().getStringExtra("technicianId");
+
+        // Show Technician ID
+        if (technicianId != null) {
+            edtTechnicianId.setText(technicianId);
+        }
+
+        // Update Technician
         btnUpdateTechnician.setOnClickListener(v -> {
 
-            String technicianId =
-                    edtTechnicianId.getText().toString();
+            String id =
+                    edtTechnicianId.getText().toString().trim();
 
-            String technicianName =
-                    edtTechnicianName.getText().toString();
+            String name =
+                    edtTechnicianName.getText().toString().trim();
 
-            String technicianPhone =
-                    edtTechnicianPhone.getText().toString();
+            String phone =
+                    edtTechnicianPhone.getText().toString().trim();
 
-            String technicianEmail =
-                    edtTechnicianEmail.getText().toString();
+            String email =
+                    edtTechnicianEmail.getText().toString().trim();
 
             String specialization =
-                    edtTechnicianSpecialization.getText().toString();
+                    edtTechnicianSpecialization.getText().toString().trim();
 
-            // Database will be connected later.
-            finish();
+            if (id.isEmpty() ||
+                    name.isEmpty() ||
+                    phone.isEmpty() ||
+                    email.isEmpty() ||
+                    specialization.isEmpty()) {
+
+                Toast.makeText(
+                        UpdateTechnicianActivity.this,
+                        "Please fill all fields",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            SQLiteDatabase db =
+                    databaseHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+
+            values.put("technicianName", name);
+            values.put("phone", phone);
+            values.put("email", email);
+            values.put("specialization", specialization);
+
+            int rowsUpdated = db.update(
+                    "technicians",
+                    values,
+                    "technicianId = ?",
+                    new String[]{id}
+            );
+
+            if (rowsUpdated > 0) {
+
+                Toast.makeText(
+                        UpdateTechnicianActivity.this,
+                        "Technician updated successfully",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                finish();
+
+            } else {
+
+                Toast.makeText(
+                        UpdateTechnicianActivity.this,
+                        "Technician not found",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 }
