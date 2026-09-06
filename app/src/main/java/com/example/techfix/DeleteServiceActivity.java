@@ -1,8 +1,10 @@
 package com.example.techfix;
 
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -16,6 +18,8 @@ public class DeleteServiceActivity extends AppCompatActivity {
 
     Button btnCancel;
     Button btnDeleteService;
+
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,11 +49,14 @@ public class DeleteServiceActivity extends AppCompatActivity {
                 }
         );
 
-        // Service ID
+        // Find views
         edtServiceId = findViewById(R.id.edtServiceId);
 
         btnCancel = findViewById(R.id.btnCancel);
         btnDeleteService = findViewById(R.id.btnDeleteService);
+
+        // Database
+        databaseHelper = new DatabaseHelper(this);
 
         // Cancel button
         btnCancel.setOnClickListener(v -> {
@@ -58,7 +65,50 @@ public class DeleteServiceActivity extends AppCompatActivity {
 
         // Delete Service button
         btnDeleteService.setOnClickListener(v -> {
-            finish();
+
+            String serviceId =
+                    edtServiceId.getText().toString().trim();
+
+            // Validation
+            if (serviceId.isEmpty()) {
+
+                Toast.makeText(
+                        DeleteServiceActivity.this,
+                        "Please enter Service ID",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            // Delete from database
+            SQLiteDatabase db =
+                    databaseHelper.getWritableDatabase();
+
+            int result = db.delete(
+                    "services",
+                    "serviceId = ?",
+                    new String[]{serviceId}
+            );
+
+            if (result > 0) {
+
+                Toast.makeText(
+                        DeleteServiceActivity.this,
+                        "Service deleted successfully",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                finish();
+
+            } else {
+
+                Toast.makeText(
+                        DeleteServiceActivity.this,
+                        "Service not found",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 }
