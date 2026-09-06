@@ -1,8 +1,8 @@
 package com.example.techfix;
 
-import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
+import android.widget.EditText;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -10,7 +10,12 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class ManageBranchesActivity extends AppCompatActivity {
+public class DeleteBranchActivity extends AppCompatActivity {
+
+    EditText edtBranchId;
+
+    Button btnCancel;
+    Button btnDeleteBranch;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -18,15 +23,16 @@ public class ManageBranchesActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_manage_branches);
+        setContentView(R.layout.activity_delete_branch);
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
                 (v, insets) -> {
 
-                    Insets systemBars = insets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                    );
+                    Insets systemBars =
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
 
                     v.setPadding(
                             systemBars.left,
@@ -39,30 +45,20 @@ public class ManageBranchesActivity extends AppCompatActivity {
                 }
         );
 
-        // Add Branch button
-        Button btnAddBranch = findViewById(R.id.btnAddBranch);
+        // Branch ID
+        edtBranchId = findViewById(R.id.edtBranchId);
 
-        btnAddBranch.setOnClickListener(v -> {
+        btnCancel = findViewById(R.id.btnCancel);
+        btnDeleteBranch = findViewById(R.id.btnDeleteBranch);
 
-            Intent intent = new Intent(
-                    ManageBranchesActivity.this,
-                    AddBranchActivity.class
-            );
-
-            startActivity(intent);
+        // Cancel button
+        btnCancel.setOnClickListener(v -> {
+            finish();
         });
 
         // Delete Branch button
-        Button btnDeleteBranch = findViewById(R.id.btnDeleteBranch);
-
         btnDeleteBranch.setOnClickListener(v -> {
-
-            Intent intent = new Intent(
-                    ManageBranchesActivity.this,
-                    DeleteBranchActivity.class
-            );
-
-            startActivity(intent);
+            finish();
         });
     }
 }

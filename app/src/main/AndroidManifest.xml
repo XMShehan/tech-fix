@@ -2,15 +2,19 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <!-- Camera -->
+    <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Location -->
+    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
+    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
+
+    <!-- Camera intent -->
     <queries>
         <intent>
             <action android:name="android.media.action.IMAGE_CAPTURE" />
         </intent>
     </queries>
-
-    <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION"/>
-    <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION"/>
-    <uses-permission android:name="android.permission.CAMERA"/>
 
     <application
         android:allowBackup="true"
@@ -22,14 +26,13 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.TechFix">
 
-        <!-- Main Activity - Starting point -->
+        <!-- Main Activity -->
         <activity
             android:name=".MainActivity"
             android:exported="true"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -52,45 +55,75 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Service Management -->
+        <!-- Services -->
         <activity
             android:name=".ManageServicesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".AddServiceActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".UpdateServiceActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Branch Management -->
+        <activity
+            android:name=".DeleteServiceActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Branches -->
         <activity
             android:name=".ManageBranchesActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".AddBranchActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".UpdateBranchActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Technician Management -->
+        <activity
+            android:name=".DeleteBranchActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Technicians -->
         <activity
             android:name=".ManageTechniciansActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
 
-        <!-- Repair Activities -->
+        <activity
+            android:name=".AddTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".UpdateTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".DeleteTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Repair -->
         <activity
             android:name=".ComputerRepairActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".MobileRepairActivity"
             android:exported="false"
@@ -107,18 +140,65 @@
             android:name=".ProductListActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Appointment -->
         <activity
             android:name=".AppointmentActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
         <activity
             android:name=".MyAppointmentsActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <!-- Feedback -->
         <activity
             android:name=".FeedbackActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".CustomerFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".AddFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".UpdateFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".DeleteFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- Inventory -->
+        <activity
+            android:name=".ManageInventoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".AddInventoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".UpdateInventoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".DeleteInventoryActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+
     </application>
 
 </manifest>

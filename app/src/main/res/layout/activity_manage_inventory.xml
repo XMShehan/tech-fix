@@ -21,7 +21,7 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="20dp"
             android:letterSpacing="0.02"
-            android:text="Manage Technicians"
+            android:text="Manage Inventory"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
@@ -38,11 +38,11 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtSearchTechnicians"
+                android:id="@+id/edtSearchInventory"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Search technicians..."
+                android:hint="Search inventory..."
                 android:imeOptions="actionSearch"
                 android:inputType="text"
                 android:paddingStart="16dp"
@@ -53,28 +53,28 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Add Technician Button -->
+        <!-- Add Inventory Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddTechnician"
+            android:id="@+id/btnAddInventory"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginBottom="12dp"
             android:backgroundTint="#6750A4"
-            android:text="+ Add Technician"
+            android:text="+ Add Inventory"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
             app:cornerRadius="16dp" />
 
-        <!-- Delete Technician Button -->
+        <!-- Delete Inventory Button -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteTechnician"
+            android:id="@+id/btnDeleteInventory"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginBottom="20dp"
-            android:text="Delete Technician"
+            android:text="Delete Inventory"
             android:textAllCaps="false"
             android:textColor="#B3261E"
             android:textSize="15sp"
@@ -83,15 +83,15 @@
             app:strokeColor="#B3261E"
             app:strokeWidth="1dp" />
 
-        <!-- Technician List Container -->
+        <!-- Inventory List Container -->
         <LinearLayout
-            android:id="@+id/technicianContainer"
+            android:id="@+id/inventoryContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
             android:paddingBottom="16dp">
 
-            <!-- Dynamic technician item cards will load here programmatically -->
+            <!-- Dynamic inventory item cards will load here programmatically -->
 
         </LinearLayout>
 

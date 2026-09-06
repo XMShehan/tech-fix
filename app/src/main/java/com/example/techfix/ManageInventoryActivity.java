@@ -18,14 +18,14 @@ import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
-public class ManageServicesActivity extends AppCompatActivity {
+public class ManageInventoryActivity extends AppCompatActivity {
 
-    Button btnAddService;
-    Button btnDeleteService;
+    Button btnAddInventory;
+    Button btnDeleteInventory;
 
-    EditText edtSearch;
+    EditText edtSearchInventory;
 
-    LinearLayout serviceContainer;
+    LinearLayout inventoryContainer;
 
     DatabaseHelper databaseHelper;
 
@@ -35,7 +35,7 @@ public class ManageServicesActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_manage_services);
+        setContentView(R.layout.activity_manage_inventory);
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -58,38 +58,45 @@ public class ManageServicesActivity extends AppCompatActivity {
         );
 
         // Find views
-        btnAddService = findViewById(R.id.btnAddService);
-        btnDeleteService = findViewById(R.id.btnDeleteService);
-        edtSearch = findViewById(R.id.edtSearch);
-        serviceContainer = findViewById(R.id.serviceContainer);
+        btnAddInventory =
+                findViewById(R.id.btnAddInventory);
+
+        btnDeleteInventory =
+                findViewById(R.id.btnDeleteInventory);
+
+        edtSearchInventory =
+                findViewById(R.id.edtSearchInventory);
+
+        inventoryContainer =
+                findViewById(R.id.inventoryContainer);
 
         // Database
         databaseHelper = new DatabaseHelper(this);
 
-        // Add Service button
-        btnAddService.setOnClickListener(v -> {
+        // Add Inventory button
+        btnAddInventory.setOnClickListener(v -> {
 
             Intent intent = new Intent(
-                    ManageServicesActivity.this,
-                    AddServiceActivity.class
+                    ManageInventoryActivity.this,
+                    AddInventoryActivity.class
             );
 
             startActivity(intent);
         });
 
-        // Delete Service button
-        btnDeleteService.setOnClickListener(v -> {
+        // Delete Inventory button
+        btnDeleteInventory.setOnClickListener(v -> {
 
             Intent intent = new Intent(
-                    ManageServicesActivity.this,
-                    DeleteServiceActivity.class
+                    ManageInventoryActivity.this,
+                    DeleteInventoryActivity.class
             );
 
             startActivity(intent);
         });
 
-        // Search services
-        edtSearch.addTextChangedListener(new TextWatcher() {
+        // Search Inventory
+        edtSearchInventory.addTextChangedListener(new TextWatcher() {
 
             @Override
             public void beforeTextChanged(
@@ -106,7 +113,7 @@ public class ManageServicesActivity extends AppCompatActivity {
                     int before,
                     int count) {
 
-                loadServices(s.toString().trim());
+                loadInventory(s.toString().trim());
             }
 
             @Override
@@ -114,7 +121,8 @@ public class ManageServicesActivity extends AppCompatActivity {
             }
         });
 
-        loadServices("");
+        // Load inventory
+        loadInventory("");
     }
 
     @Override
@@ -124,15 +132,15 @@ public class ManageServicesActivity extends AppCompatActivity {
         if (databaseHelper != null) {
 
             String searchText =
-                    edtSearch.getText().toString().trim();
+                    edtSearchInventory.getText().toString().trim();
 
-            loadServices(searchText);
+            loadInventory(searchText);
         }
     }
 
-    private void loadServices(String searchText) {
+    private void loadInventory(String searchText) {
 
-        serviceContainer.removeAllViews();
+        inventoryContainer.removeAllViews();
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
@@ -142,19 +150,19 @@ public class ManageServicesActivity extends AppCompatActivity {
         if (searchText.isEmpty()) {
 
             cursor = db.rawQuery(
-                    "SELECT serviceId, serviceName, description, price, duration, status " +
-                            "FROM services",
+                    "SELECT id, productName, category, price, quantity " +
+                            "FROM inventory",
                     null
             );
 
         } else {
 
             cursor = db.rawQuery(
-                    "SELECT serviceId, serviceName, description, price, duration, status " +
-                            "FROM services " +
-                            "WHERE serviceId LIKE ? " +
-                            "OR serviceName LIKE ? " +
-                            "OR description LIKE ?",
+                    "SELECT id, productName, category, price, quantity " +
+                            "FROM inventory " +
+                            "WHERE CAST(id AS TEXT) LIKE ? " +
+                            "OR productName LIKE ? " +
+                            "OR category LIKE ?",
                     new String[]{
                             "%" + searchText + "%",
                             "%" + searchText + "%",
@@ -168,34 +176,34 @@ public class ManageServicesActivity extends AppCompatActivity {
             TextView emptyText = new TextView(this);
 
             if (searchText.isEmpty()) {
-                emptyText.setText("No services available");
+                emptyText.setText("No inventory available");
             } else {
-                emptyText.setText("No matching services found");
+                emptyText.setText("No inventory found");
             }
 
             emptyText.setTextSize(16);
             emptyText.setTextColor(Color.GRAY);
             emptyText.setPadding(10, 20, 10, 20);
 
-            serviceContainer.addView(emptyText);
+            inventoryContainer.addView(emptyText);
 
         } else {
 
             while (cursor.moveToNext()) {
 
-                String serviceId =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("serviceId")
+                int inventoryId =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow("id")
                         );
 
-                String serviceName =
+                String productName =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow("serviceName")
+                                cursor.getColumnIndexOrThrow("productName")
                         );
 
-                String description =
+                String category =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow("description")
+                                cursor.getColumnIndexOrThrow("category")
                         );
 
                 double price =
@@ -203,69 +211,68 @@ public class ManageServicesActivity extends AppCompatActivity {
                                 cursor.getColumnIndexOrThrow("price")
                         );
 
-                String duration =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("duration")
+                int quantity =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow("quantity")
                         );
 
-                String status =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("status")
-                        );
-
-                // Container for one service
-                LinearLayout serviceLayout =
+                // Container for one inventory item
+                LinearLayout inventoryLayout =
                         new LinearLayout(this);
 
-                serviceLayout.setOrientation(
+                inventoryLayout.setOrientation(
                         LinearLayout.VERTICAL
                 );
 
-                serviceLayout.setPadding(
+                inventoryLayout.setPadding(
                         12,
                         15,
                         12,
                         15
                 );
 
-                // Service ID
-                TextView txtId = new TextView(this);
+                // Inventory ID
+                TextView txtId =
+                        new TextView(this);
 
                 txtId.setText(
-                        "Service ID: " + serviceId
+                        "Inventory ID: " + inventoryId
                 );
 
                 txtId.setTextSize(16);
                 txtId.setTextColor(Color.BLACK);
 
-                serviceLayout.addView(txtId);
+                inventoryLayout.addView(txtId);
 
-                // Service Name
-                TextView txtName = new TextView(this);
+                // Product Name
+                TextView txtProductName =
+                        new TextView(this);
 
-                txtName.setText(
-                        "Service Name: " + serviceName
+                txtProductName.setText(
+                        "Product Name: " + productName
                 );
 
-                txtName.setTextSize(16);
-                txtName.setTextColor(Color.BLACK);
+                txtProductName.setTextSize(16);
+                txtProductName.setTextColor(Color.BLACK);
 
-                serviceLayout.addView(txtName);
+                inventoryLayout.addView(txtProductName);
 
-                // Description
-                TextView txtDescription = new TextView(this);
+                // Category
+                TextView txtCategory =
+                        new TextView(this);
 
-                txtDescription.setText(
-                        "Description: " + description
+                txtCategory.setText(
+                        "Category: " + category
                 );
 
-                txtDescription.setTextSize(16);
-                txtDescription.setTextColor(Color.BLACK);
+                txtCategory.setTextSize(16);
+                txtCategory.setTextColor(Color.BLACK);
 
-                serviceLayout.addView(txtDescription);
+                inventoryLayout.addView(txtCategory);
 
                 // Price
-                TextView txtPrice = new TextView(this);
+                TextView txtPrice =
+                        new TextView(this);
 
                 txtPrice.setText(
                         "Price: " + price
@@ -274,36 +281,26 @@ public class ManageServicesActivity extends AppCompatActivity {
                 txtPrice.setTextSize(16);
                 txtPrice.setTextColor(Color.BLACK);
 
-                serviceLayout.addView(txtPrice);
+                inventoryLayout.addView(txtPrice);
 
-                // Duration
-                TextView txtDuration = new TextView(this);
+                // Quantity
+                TextView txtQuantity =
+                        new TextView(this);
 
-                txtDuration.setText(
-                        "Duration: " + duration
+                txtQuantity.setText(
+                        "Quantity: " + quantity
                 );
 
-                txtDuration.setTextSize(16);
-                txtDuration.setTextColor(Color.BLACK);
+                txtQuantity.setTextSize(16);
+                txtQuantity.setTextColor(Color.BLACK);
 
-                serviceLayout.addView(txtDuration);
+                inventoryLayout.addView(txtQuantity);
 
-                // Status
-                TextView txtStatus = new TextView(this);
+                // Update Inventory button
+                Button btnUpdate =
+                        new Button(this);
 
-                txtStatus.setText(
-                        "Status: " + status
-                );
-
-                txtStatus.setTextSize(16);
-                txtStatus.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtStatus);
-
-                // Update Service button
-                Button btnUpdate = new Button(this);
-
-                btnUpdate.setText("Update Service");
+                btnUpdate.setText("Update Inventory");
                 btnUpdate.setTextSize(14);
 
                 LinearLayout.LayoutParams buttonParams =
@@ -321,25 +318,48 @@ public class ManageServicesActivity extends AppCompatActivity {
 
                 btnUpdate.setLayoutParams(buttonParams);
 
-                serviceLayout.addView(btnUpdate);
+                inventoryLayout.addView(btnUpdate);
 
                 // Update button click
                 btnUpdate.setOnClickListener(v -> {
 
                     Intent intent = new Intent(
-                            ManageServicesActivity.this,
-                            UpdateServiceActivity.class
+                            ManageInventoryActivity.this,
+                            UpdateInventoryActivity.class
                     );
 
                     intent.putExtra(
-                            "serviceId",
-                            serviceId
+                            "inventoryId",
+                            inventoryId
+                    );
+
+                    intent.putExtra(
+                            "productName",
+                            productName
+                    );
+
+                    intent.putExtra(
+                            "category",
+                            category
+                    );
+
+                    intent.putExtra(
+                            "price",
+                            String.valueOf(price)
+                    );
+
+                    intent.putExtra(
+                            "quantity",
+                            String.valueOf(quantity)
                     );
 
                     startActivity(intent);
                 });
 
-                serviceContainer.addView(serviceLayout);
+                // Add inventory item to container
+                inventoryContainer.addView(
+                        inventoryLayout
+                );
             }
         }
 

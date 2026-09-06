@@ -21,17 +21,17 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:letterSpacing="0.02"
-            android:text="Add Branch"
+            android:text="Update Inventory"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Branch ID -->
+        <!-- Product Name -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Branch ID"
+            android:text="Product Name"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -47,11 +47,11 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtBranchId"
+                android:id="@+id/edtProductName"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Example: B001"
+                android:hint="Enter product name"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:paddingStart="16dp"
@@ -62,12 +62,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Branch Name -->
+        <!-- Category -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Branch Name"
+            android:text="Category"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -83,11 +83,11 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtBranchName"
+                android:id="@+id/edtCategory"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Enter branch name"
+                android:hint="Enter category"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:paddingStart="16dp"
@@ -98,12 +98,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Address -->
+        <!-- Price -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Address"
+            android:text="Price"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -119,49 +119,13 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:gravity="top"
-                android:hint="Enter branch address"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:padding="16dp"
-                android:textColor="#1C1B1F"
-                android:textColorHint="#79747E"
-                android:textSize="15sp" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Phone -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:text="Phone Number"
-            android:textColor="#1C1B1F"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E0E2EC"
-            app:strokeWidth="1dp">
-
-            <EditText
-                android:id="@+id/edtPhone"
+                android:id="@+id/edtPrice"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Enter phone number"
+                android:hint="Enter price"
                 android:imeOptions="actionNext"
-                android:inputType="phone"
+                android:inputType="numberDecimal"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -170,48 +134,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Email -->
+        <!-- Quantity -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Email Address"
-            android:textColor="#1C1B1F"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E0E2EC"
-            app:strokeWidth="1dp">
-
-            <EditText
-                android:id="@+id/edtEmail"
-                android:layout_width="match_parent"
-                android:layout_height="52dp"
-                android:background="@android:color/transparent"
-                android:hint="Enter email"
-                android:imeOptions="actionDone"
-                android:inputType="textEmailAddress"
-                android:paddingStart="16dp"
-                android:paddingEnd="16dp"
-                android:textColor="#1C1B1F"
-                android:textColorHint="#79747E"
-                android:textSize="15sp" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Status -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:text="Status"
+            android:text="Quantity"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -226,12 +154,19 @@
             app:strokeColor="#E0E2EC"
             app:strokeWidth="1dp">
 
-            <Spinner
-                android:id="@+id/spinnerStatus"
+            <EditText
+                android:id="@+id/edtQuantity"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp" />
+                android:background="@android:color/transparent"
+                android:hint="Enter quantity"
+                android:imeOptions="actionDone"
+                android:inputType="number"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
 
         </com.google.android.material.card.MaterialCardView>
 
@@ -251,21 +186,21 @@
                 android:layout_weight="1"
                 android:text="Cancel"
                 android:textAllCaps="false"
-                android:textColor="#B3261E"
+                android:textColor="#6750A4"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 app:cornerRadius="16dp"
-                app:strokeColor="#B3261E"
+                app:strokeColor="#6750A4"
                 app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveBranch"
+                android:id="@+id/btnUpdateInventory"
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:layout_marginStart="8dp"
                 android:layout_weight="1"
                 android:backgroundTint="#6750A4"
-                android:text="Save Branch"
+                android:text="Update Inventory"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
