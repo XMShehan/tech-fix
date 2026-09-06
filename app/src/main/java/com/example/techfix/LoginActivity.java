@@ -124,7 +124,6 @@ public class LoginActivity extends AppCompatActivity {
                     CustomerDashboard.class
             );
 
-            // Send customer information
             intent.putExtra(
                     "customerId",
                     customerId
@@ -200,7 +199,6 @@ public class LoginActivity extends AppCompatActivity {
                     AdminDashboardActivity.class
             );
 
-            // Send admin information
             intent.putExtra(
                     "adminId",
                     adminId
@@ -224,6 +222,81 @@ public class LoginActivity extends AppCompatActivity {
         }
 
         adminCursor.close();
+
+        // =====================================================
+        // THIRD: CHECK TECHNICIAN
+        // =====================================================
+
+        Cursor technicianCursor = db.query(
+                "technicians",
+                new String[]{
+                        "technicianId",
+                        "technicianName",
+                        "email"
+                },
+                "email = ? AND password = ?",
+                new String[]{
+                        email,
+                        password
+                },
+                null,
+                null,
+                null
+        );
+
+        if (technicianCursor.moveToFirst()) {
+
+            String technicianId =
+                    technicianCursor.getString(
+                            technicianCursor.getColumnIndexOrThrow(
+                                    "technicianId"
+                            )
+                    );
+
+            String technicianName =
+                    technicianCursor.getString(
+                            technicianCursor.getColumnIndexOrThrow(
+                                    "technicianName"
+                            )
+                    );
+
+            technicianCursor.close();
+
+            Toast.makeText(
+                    this,
+                    "Welcome " + technicianName,
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            // Open Technician Dashboard
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    TechnicianDashboardActivity.class
+            );
+
+            intent.putExtra(
+                    "technicianId",
+                    technicianId
+            );
+
+            intent.putExtra(
+                    "technicianName",
+                    technicianName
+            );
+
+            intent.putExtra(
+                    "technicianEmail",
+                    email
+            );
+
+            startActivity(intent);
+
+            finish();
+
+            return;
+        }
+
+        technicianCursor.close();
 
         // =====================================================
         // INVALID LOGIN
