@@ -233,6 +233,66 @@ public class ManageInventoryActivity extends AppCompatActivity {
 
                 inventoryLayout.addView(txtQuantity);
 
+                // Update Inventory button
+                Button btnUpdate =
+                        new Button(this);
+
+                btnUpdate.setText("Update Inventory");
+                btnUpdate.setTextSize(14);
+
+                LinearLayout.LayoutParams buttonParams =
+                        new LinearLayout.LayoutParams(
+                                LinearLayout.LayoutParams.MATCH_PARENT,
+                                LinearLayout.LayoutParams.WRAP_CONTENT
+                        );
+
+                buttonParams.setMargins(
+                        0,
+                        10,
+                        0,
+                        10
+                );
+
+                btnUpdate.setLayoutParams(buttonParams);
+
+                inventoryLayout.addView(btnUpdate);
+
+                // Update button click
+                btnUpdate.setOnClickListener(v -> {
+
+                    Intent intent = new Intent(
+                            ManageInventoryActivity.this,
+                            UpdateInventoryActivity.class
+                    );
+
+                    intent.putExtra(
+                            "inventoryId",
+                            inventoryId
+                    );
+
+                    intent.putExtra(
+                            "productName",
+                            productName
+                    );
+
+                    intent.putExtra(
+                            "category",
+                            category
+                    );
+
+                    intent.putExtra(
+                            "price",
+                            String.valueOf(price)
+                    );
+
+                    intent.putExtra(
+                            "quantity",
+                            String.valueOf(quantity)
+                    );
+
+                    startActivity(intent);
+                });
+
                 // Add inventory item to container
                 inventoryContainer.addView(
                         inventoryLayout

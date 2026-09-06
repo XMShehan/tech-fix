@@ -1,5 +1,7 @@
 package com.example.techfix;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
@@ -17,6 +19,11 @@ public class UpdateInventoryActivity extends AppCompatActivity {
     EditText edtCategory;
     EditText edtPrice;
     EditText edtQuantity;
+
+    Button btnCancel;
+    Button btnUpdateInventory;
+
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,39 +52,182 @@ public class UpdateInventoryActivity extends AppCompatActivity {
                 }
         );
 
-        edtProductName = findViewById(R.id.edtProductName);
-        edtCategory = findViewById(R.id.edtCategory);
-        edtPrice = findViewById(R.id.edtPrice);
-        edtQuantity = findViewById(R.id.edtQuantity);
+        // Find views
+        edtProductName =
+                findViewById(R.id.edtProductName);
 
-        Button btnCancel = findViewById(R.id.btnCancel);
-        Button btnUpdateInventory = findViewById(R.id.btnUpdateInventory);
+        edtCategory =
+                findViewById(R.id.edtCategory);
+
+        edtPrice =
+                findViewById(R.id.edtPrice);
+
+        edtQuantity =
+                findViewById(R.id.edtQuantity);
+
+        btnCancel =
+                findViewById(R.id.btnCancel);
+
+        btnUpdateInventory =
+                findViewById(R.id.btnUpdateInventory);
+
+        // Database
+        databaseHelper = new DatabaseHelper(this);
+
+        // Get selected inventory ID
+        int inventoryId =
+                getIntent().getIntExtra("inventoryId", -1);
 
         // Get selected inventory data
-        String productName = getIntent().getStringExtra("productName");
-        String category = getIntent().getStringExtra("category");
-        String price = getIntent().getStringExtra("price");
-        String quantity = getIntent().getStringExtra("quantity");
+        String productName =
+                getIntent().getStringExtra("productName");
+
+        String category =
+                getIntent().getStringExtra("category");
+
+        String price =
+                getIntent().getStringExtra("price");
+
+        String quantity =
+                getIntent().getStringExtra("quantity");
 
         // Display existing data
-        edtProductName.setText(productName);
-        edtCategory.setText(category);
-        edtPrice.setText(price);
-        edtQuantity.setText(quantity);
+        if (productName != null) {
+            edtProductName.setText(productName);
+        }
+
+        if (category != null) {
+            edtCategory.setText(category);
+        }
+
+        if (price != null) {
+            edtPrice.setText(price);
+        }
+
+        if (quantity != null) {
+            edtQuantity.setText(quantity);
+        }
 
         // Cancel
-        btnCancel.setOnClickListener(v -> finish());
+        btnCancel.setOnClickListener(v -> {
+            finish();
+        });
 
-        // Update
+        // Update Inventory
         btnUpdateInventory.setOnClickListener(v -> {
 
-            Toast.makeText(
-                    UpdateInventoryActivity.this,
-                    "Inventory updated successfully",
-                    Toast.LENGTH_SHORT
-            ).show();
+            String newProductName =
+                    edtProductName.getText().toString().trim();
 
-            finish();
+            String newCategory =
+                    edtCategory.getText().toString().trim();
+
+            String newPrice =
+                    edtPrice.getText().toString().trim();
+
+            String newQuantity =
+                    edtQuantity.getText().toString().trim();
+
+            // Validation
+            if (newProductName.isEmpty() ||
+                    newCategory.isEmpty() ||
+                    newPrice.isEmpty() ||
+                    newQuantity.isEmpty()) {
+
+                Toast.makeText(
+                        UpdateInventoryActivity.this,
+                        "Please fill all fields",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            if (inventoryId == -1) {
+
+                Toast.makeText(
+                        UpdateInventoryActivity.this,
+                        "Inventory ID not found",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            try {
+
+                double priceValue =
+                        Double.parseDouble(newPrice);
+
+                int quantityValue =
+                        Integer.parseInt(newQuantity);
+
+                // Open database
+                SQLiteDatabase db =
+                        databaseHelper.getWritableDatabase();
+
+                // Updated values
+                ContentValues values =
+                        new ContentValues();
+
+                values.put(
+                        "productName",
+                        newProductName
+                );
+
+                values.put(
+                        "category",
+                        newCategory
+                );
+
+                values.put(
+                        "price",
+                        priceValue
+                );
+
+                values.put(
+                        "quantity",
+                        quantityValue
+                );
+
+                // Update inventory
+                int result =
+                        db.update(
+                                "inventory",
+                                values,
+                                "id = ?",
+                                new String[]{
+                                        String.valueOf(inventoryId)
+                                }
+                        );
+
+                if (result > 0) {
+
+                    Toast.makeText(
+                            UpdateInventoryActivity.this,
+                            "Inventory updated successfully",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    finish();
+
+                } else {
+
+                    Toast.makeText(
+                            UpdateInventoryActivity.this,
+                            "Inventory not found",
+                            Toast.LENGTH_SHORT
+                    ).show();
+                }
+
+            } catch (NumberFormatException e) {
+
+                Toast.makeText(
+                        UpdateInventoryActivity.this,
+                        "Please enter valid numbers",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 }
