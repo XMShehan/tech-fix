@@ -10,6 +10,8 @@
         android:orientation="vertical"
         android:padding="20dp">
 
+        <!-- Title -->
+
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -29,19 +31,40 @@
             android:textStyle="bold"
             android:layout_marginBottom="10dp" />
 
-        <RadioButton
-            android:id="@+id/radioAutoDetect"
+        <RadioGroup
+            android:id="@+id/radioGroupLocation"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Auto Detect Nearest Branch"
-            android:textSize="16sp" />
+            android:orientation="vertical">
 
-        <RadioButton
-            android:id="@+id/radioManual"
+            <RadioButton
+                android:id="@+id/radioAutoDetect"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Auto Detect Nearest Branch"
+                android:textSize="16sp" />
+
+            <RadioButton
+                android:id="@+id/radioManual"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Manually Select Branch"
+                android:textSize="16sp" />
+
+        </RadioGroup>
+
+        <!-- GPS Status -->
+
+        <TextView
+            android:id="@+id/txtLocationStatus"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Manually Select Branch"
-            android:textSize="16sp" />
+            android:text="Tap Auto Detect to detect your location"
+            android:textSize="14sp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Branch -->
 
         <Spinner
             android:id="@+id/spinnerBranch"
