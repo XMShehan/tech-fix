@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 1;
+    private static final int DATABASE_VERSION = 2;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,6 +17,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
+        // Inventory table
         db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
@@ -24,14 +25,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "price REAL, " +
                 "quantity INTEGER)");
 
-        // Sample products
-
+        // Sample inventory products
         insertProduct(db, "PC Monitor", "Computer", 45000, 10);
         insertProduct(db, "Keyboard", "Computer", 5000, 25);
         insertProduct(db, "iPhone OLED Display", "Mobile", 85000, 3);
         insertProduct(db, "Laptop Battery", "Computer", 30000, 5);
         insertProduct(db, "iPhone Battery", "Mobile", 18000, 8);
         insertProduct(db, "Charging Port", "Mobile", 7500, 12);
+
+
+        // Service table
+        db.execSQL("CREATE TABLE services (" +
+                "serviceId TEXT PRIMARY KEY, " +
+                "serviceName TEXT NOT NULL, " +
+                "description TEXT, " +
+                "price REAL NOT NULL, " +
+                "duration TEXT, " +
+                "status TEXT)");
     }
 
     private void insertProduct(SQLiteDatabase db,
@@ -51,10 +61,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     }
 
     @Override
-    public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+    public void onUpgrade(
+            SQLiteDatabase db,
+            int oldVersion,
+            int newVersion) {
 
-        db.execSQL("DROP TABLE IF EXISTS inventory");
-
-        onCreate(db);
+        if (oldVersion < 2) {
+            db.execSQL("CREATE TABLE services (" +
+                    "serviceId TEXT PRIMARY KEY, " +
+                    "serviceName TEXT NOT NULL, " +
+                    "description TEXT, " +
+                    "price REAL NOT NULL, " +
+                    "duration TEXT, " +
+                    "status TEXT)");
+        }
     }
 }
