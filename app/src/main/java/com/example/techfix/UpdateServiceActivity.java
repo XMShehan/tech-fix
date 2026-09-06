@@ -1,10 +1,13 @@
 package com.example.techfix;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -24,6 +27,8 @@ public class UpdateServiceActivity extends AppCompatActivity {
 
     Button btnCancel;
     Button btnUpdateService;
+
+    DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -64,6 +69,10 @@ public class UpdateServiceActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnUpdateService = findViewById(R.id.btnUpdateService);
 
+        // Database
+        databaseHelper = new DatabaseHelper(this);
+
+        // Status options
         String[] statusOptions = {
                 "Active",
                 "Inactive"
@@ -81,6 +90,13 @@ public class UpdateServiceActivity extends AppCompatActivity {
 
         spinnerStatus.setAdapter(adapter);
 
+        // Get Service ID from Manage Services page
+        String serviceId = getIntent().getStringExtra("serviceId");
+
+        if (serviceId != null) {
+            edtServiceId.setText(serviceId);
+        }
+
         // Cancel button
         btnCancel.setOnClickListener(v -> {
             finish();
@@ -89,15 +105,81 @@ public class UpdateServiceActivity extends AppCompatActivity {
         // Update Service button
         btnUpdateService.setOnClickListener(v -> {
 
-            String serviceId = edtServiceId.getText().toString();
-            String serviceName = edtServiceName.getText().toString();
-            String description = edtDescription.getText().toString();
-            String price = edtPrice.getText().toString();
-            String duration = edtDuration.getText().toString();
+            String id = edtServiceId.getText().toString().trim();
+            String serviceName = edtServiceName.getText().toString().trim();
+            String description = edtDescription.getText().toString().trim();
+            String priceText = edtPrice.getText().toString().trim();
+            String duration = edtDuration.getText().toString().trim();
             String status = spinnerStatus.getSelectedItem().toString();
 
-            // Database will be connected later.
-            finish();
+            // Validation
+            if (id.isEmpty() ||
+                    serviceName.isEmpty() ||
+                    description.isEmpty() ||
+                    priceText.isEmpty() ||
+                    duration.isEmpty()) {
+
+                Toast.makeText(
+                        UpdateServiceActivity.this,
+                        "Please fill all fields",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            double price;
+
+            try {
+                price = Double.parseDouble(priceText);
+            } catch (NumberFormatException e) {
+
+                Toast.makeText(
+                        UpdateServiceActivity.this,
+                        "Please enter a valid price",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            // Update database
+            SQLiteDatabase db =
+                    databaseHelper.getWritableDatabase();
+
+            ContentValues values = new ContentValues();
+
+            values.put("serviceName", serviceName);
+            values.put("description", description);
+            values.put("price", price);
+            values.put("duration", duration);
+            values.put("status", status);
+
+            int result = db.update(
+                    "services",
+                    values,
+                    "serviceId = ?",
+                    new String[]{id}
+            );
+
+            if (result > 0) {
+
+                Toast.makeText(
+                        UpdateServiceActivity.this,
+                        "Service updated successfully",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                finish();
+
+            } else {
+
+                Toast.makeText(
+                        UpdateServiceActivity.this,
+                        "Service not found",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 }
