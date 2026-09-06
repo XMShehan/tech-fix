@@ -21,17 +21,17 @@
             android:layout_marginTop="8dp"
             android:layout_marginBottom="24dp"
             android:letterSpacing="0.02"
-            android:text="Add Branch"
+            android:text="Update Technician"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Branch ID -->
+        <!-- Technician ID -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Branch ID"
+            android:text="Technician ID"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -47,11 +47,11 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtBranchId"
+                android:id="@+id/edtTechnicianId"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Example: B001"
+                android:hint="Technician ID"
                 android:imeOptions="actionNext"
                 android:inputType="text"
                 android:paddingStart="16dp"
@@ -62,12 +62,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Branch Name -->
+        <!-- Technician Name -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Branch Name"
+            android:text="Technician Name"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -83,13 +83,13 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtBranchName"
+                android:id="@+id/edtTechnicianName"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Enter branch name"
+                android:hint="Technician Name"
                 android:imeOptions="actionNext"
-                android:inputType="text"
+                android:inputType="textPersonName"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -98,43 +98,7 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Address -->
-        <TextView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="6dp"
-            android:text="Address"
-            android:textColor="#1C1B1F"
-            android:textSize="14sp"
-            android:textStyle="bold" />
-
-        <com.google.android.material.card.MaterialCardView
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
-            app:cardBackgroundColor="#FFFFFF"
-            app:cardCornerRadius="16dp"
-            app:cardElevation="0dp"
-            app:strokeColor="#E0E2EC"
-            app:strokeWidth="1dp">
-
-            <EditText
-                android:id="@+id/edtAddress"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:background="@android:color/transparent"
-                android:gravity="top"
-                android:hint="Enter branch address"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:padding="16dp"
-                android:textColor="#1C1B1F"
-                android:textColorHint="#79747E"
-                android:textSize="15sp" />
-
-        </com.google.android.material.card.MaterialCardView>
-
-        <!-- Phone -->
+        <!-- Phone Number -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -155,11 +119,11 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtPhone"
+                android:id="@+id/edtTechnicianPhone"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Enter phone number"
+                android:hint="Phone Number"
                 android:imeOptions="actionNext"
                 android:inputType="phone"
                 android:paddingStart="16dp"
@@ -191,12 +155,12 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtEmail"
+                android:id="@+id/edtTechnicianEmail"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Enter email"
-                android:imeOptions="actionDone"
+                android:hint="Email"
+                android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
@@ -206,12 +170,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Status -->
+        <!-- Specialization -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Status"
+            android:text="Specialization"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -226,53 +190,35 @@
             app:strokeColor="#E0E2EC"
             app:strokeWidth="1dp">
 
-            <Spinner
-                android:id="@+id/spinnerStatus"
+            <EditText
+                android:id="@+id/edtTechnicianSpecialization"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:paddingStart="8dp"
-                android:paddingEnd="8dp" />
+                android:background="@android:color/transparent"
+                android:hint="Specialization"
+                android:imeOptions="actionDone"
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Buttons -->
-        <LinearLayout
+        <!-- Update Technician Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdateTechnician"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:paddingBottom="16dp">
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnCancel"
-                style="@style/Widget.Material3.Button.OutlinedButton"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginEnd="8dp"
-                android:layout_weight="1"
-                android:text="Cancel"
-                android:textAllCaps="false"
-                android:textColor="#B3261E"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                app:cornerRadius="16dp"
-                app:strokeColor="#B3261E"
-                app:strokeWidth="1dp" />
-
-            <com.google.android.material.button.MaterialButton
-                android:id="@+id/btnSaveBranch"
-                android:layout_width="0dp"
-                android:layout_height="52dp"
-                android:layout_marginStart="8dp"
-                android:layout_weight="1"
-                android:backgroundTint="#6750A4"
-                android:text="Save Branch"
-                android:textAllCaps="false"
-                android:textColor="#FFFFFF"
-                android:textSize="15sp"
-                android:textStyle="bold"
-                app:cornerRadius="16dp" />
-
-        </LinearLayout>
+            android:layout_height="52dp"
+            android:layout_marginBottom="16dp"
+            android:backgroundTint="#6750A4"
+            android:text="Update Technician"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp" />
 
     </LinearLayout>
 

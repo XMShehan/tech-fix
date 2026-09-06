@@ -19,18 +19,27 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="24dp"
             android:letterSpacing="0.02"
-            android:text="Manage Technicians"
+            android:text="Delete Customer Feedback"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Search Input Field -->
+        <!-- Feedback ID Label & Input Card -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Feedback ID"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="16dp"
+            android:layout_marginBottom="24dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -38,13 +47,13 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtSearchTechnicians"
+                android:id="@+id/edtFeedbackId"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Search technicians..."
-                android:imeOptions="actionSearch"
-                android:inputType="text"
+                android:hint="Enter Feedback ID"
+                android:imeOptions="actionDone"
+                android:inputType="number"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -53,47 +62,35 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Add Technician Button -->
+        <!-- Delete Feedback Button (Destructive Primary) -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnAddTechnician"
+            android:id="@+id/btnDeleteFeedback"
             android:layout_width="match_parent"
             android:layout_height="52dp"
             android:layout_marginBottom="12dp"
-            android:backgroundTint="#6750A4"
-            android:text="+ Add Technician"
+            android:backgroundTint="#B3261E"
+            android:text="Delete Feedback"
             android:textAllCaps="false"
             android:textColor="#FFFFFF"
             android:textSize="15sp"
             android:textStyle="bold"
             app:cornerRadius="16dp" />
 
-        <!-- Delete Technician Button -->
+        <!-- Cancel Button (Outlined Neutral) -->
         <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteTechnician"
+            android:id="@+id/btnCancel"
             style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginBottom="20dp"
-            android:text="Delete Technician"
+            android:layout_marginBottom="16dp"
+            android:text="Cancel"
             android:textAllCaps="false"
-            android:textColor="#B3261E"
+            android:textColor="#6750A4"
             android:textSize="15sp"
             android:textStyle="bold"
             app:cornerRadius="16dp"
-            app:strokeColor="#B3261E"
+            app:strokeColor="#6750A4"
             app:strokeWidth="1dp" />
-
-        <!-- Technician List Container -->
-        <LinearLayout
-            android:id="@+id/technicianContainer"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
-
-            <!-- Dynamic technician item cards will load here programmatically -->
-
-        </LinearLayout>
 
     </LinearLayout>
 
