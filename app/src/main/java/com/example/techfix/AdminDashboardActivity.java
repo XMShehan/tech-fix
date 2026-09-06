@@ -40,73 +40,173 @@ public class AdminDashboardActivity extends AppCompatActivity {
                 }
         );
 
-        // Manage Services button
+        // =====================================================
+        // MANAGE SERVICES
+        // =====================================================
+
         Button btnManageServices =
                 findViewById(R.id.btnManageServices);
 
         btnManageServices.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    AdminDashboardActivity.this,
-                    ManageServicesActivity.class
-            );
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageServicesActivity.class
+                    );
 
             startActivity(intent);
         });
 
-        // Manage Branches button
+        // =====================================================
+        // MANAGE BRANCHES
+        // =====================================================
+
         Button btnManageBranches =
                 findViewById(R.id.btnManageBranches);
 
         btnManageBranches.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    AdminDashboardActivity.this,
-                    ManageBranchesActivity.class
-            );
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageBranchesActivity.class
+                    );
 
             startActivity(intent);
         });
 
-        // Technicians button
+        // =====================================================
+        // TECHNICIANS
+        // =====================================================
+
         Button btnTechnicians =
                 findViewById(R.id.btnTechnicians);
 
         btnTechnicians.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    AdminDashboardActivity.this,
-                    ManageTechniciansActivity.class
-            );
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageTechniciansActivity.class
+                    );
 
             startActivity(intent);
         });
 
-        // Inventory button
+        // =====================================================
+        // INVENTORY
+        // =====================================================
+
         Button btnInventory =
                 findViewById(R.id.btnInventory);
 
         btnInventory.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    AdminDashboardActivity.this,
-                    ManageInventoryActivity.class
-            );
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageInventoryActivity.class
+                    );
 
             startActivity(intent);
         });
 
-        // Customer Feedback Button
-        Button btnFeedback = findViewById(R.id.btnFeedback);
+        // =====================================================
+        // APPOINTMENTS
+        // =====================================================
+
+        Button btnAppointments =
+                findViewById(R.id.btnAppointments);
+
+        btnAppointments.setOnClickListener(v -> {
+
+            // Appointment management can be connected later
+        });
+
+        // =====================================================
+        // REPAIR STATUS
+        // =====================================================
+
+        Button btnRepairStatus =
+                findViewById(R.id.btnRepairStatus);
+
+        btnRepairStatus.setOnClickListener(v -> {
+
+            // Repair status functionality can be connected later
+        });
+
+        // =====================================================
+        // CUSTOMER FEEDBACK
+        // =====================================================
+
+        Button btnFeedback =
+                findViewById(R.id.btnFeedback);
 
         btnFeedback.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    AdminDashboardActivity.this,
-                    CustomerFeedbackActivity.class
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            CustomerFeedbackActivity.class
+                    );
+
+            startActivity(intent);
+        });
+
+        // =====================================================
+        // PAYMENTS
+        // =====================================================
+
+        Button btnPayments =
+                findViewById(R.id.btnPayments);
+
+        btnPayments.setOnClickListener(v -> {
+
+            // Payment functionality can be connected later
+        });
+
+        // =====================================================
+        // MANAGE JOBS
+        // =====================================================
+
+        Button btnManageJobs =
+                findViewById(R.id.btnManageJobs);
+
+        btnManageJobs.setOnClickListener(v -> {
+
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageJobsActivity.class
+                    );
+
+            startActivity(intent);
+        });
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
+
+        Button btnLogout =
+                findViewById(R.id.btnLogout);
+
+        btnLogout.setOnClickListener(v -> {
+
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            LoginActivity.class
+                    );
+
+            intent.setFlags(
+                    Intent.FLAG_ACTIVITY_NEW_TASK |
+                            Intent.FLAG_ACTIVITY_CLEAR_TASK
             );
 
             startActivity(intent);
+
+            finish();
         });
     }
 }
