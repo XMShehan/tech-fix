@@ -5,7 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,6 +22,8 @@ public class ManageInventoryActivity extends AppCompatActivity {
 
     Button btnAddInventory;
     Button btnDeleteInventory;
+
+    EditText edtSearchInventory;
 
     LinearLayout inventoryContainer;
 
@@ -59,6 +64,9 @@ public class ManageInventoryActivity extends AppCompatActivity {
         btnDeleteInventory =
                 findViewById(R.id.btnDeleteInventory);
 
+        edtSearchInventory =
+                findViewById(R.id.edtSearchInventory);
+
         inventoryContainer =
                 findViewById(R.id.inventoryContainer);
 
@@ -87,8 +95,34 @@ public class ManageInventoryActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
+        // Search Inventory
+        edtSearchInventory.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(
+                    CharSequence s,
+                    int start,
+                    int count,
+                    int after) {
+            }
+
+            @Override
+            public void onTextChanged(
+                    CharSequence s,
+                    int start,
+                    int before,
+                    int count) {
+
+                loadInventory(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
         // Load inventory
-        loadInventory();
+        loadInventory("");
     }
 
     @Override
@@ -96,28 +130,57 @@ public class ManageInventoryActivity extends AppCompatActivity {
         super.onResume();
 
         if (databaseHelper != null) {
-            loadInventory();
+
+            String searchText =
+                    edtSearchInventory.getText().toString().trim();
+
+            loadInventory(searchText);
         }
     }
 
-    private void loadInventory() {
+    private void loadInventory(String searchText) {
 
         inventoryContainer.removeAllViews();
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery(
-                "SELECT id, productName, category, price, quantity " +
-                        "FROM inventory",
-                null
-        );
+        Cursor cursor;
+
+        if (searchText.isEmpty()) {
+
+            cursor = db.rawQuery(
+                    "SELECT id, productName, category, price, quantity " +
+                            "FROM inventory",
+                    null
+            );
+
+        } else {
+
+            cursor = db.rawQuery(
+                    "SELECT id, productName, category, price, quantity " +
+                            "FROM inventory " +
+                            "WHERE CAST(id AS TEXT) LIKE ? " +
+                            "OR productName LIKE ? " +
+                            "OR category LIKE ?",
+                    new String[]{
+                            "%" + searchText + "%",
+                            "%" + searchText + "%",
+                            "%" + searchText + "%"
+                    }
+            );
+        }
 
         if (cursor.getCount() == 0) {
 
             TextView emptyText = new TextView(this);
 
-            emptyText.setText("No inventory available");
+            if (searchText.isEmpty()) {
+                emptyText.setText("No inventory available");
+            } else {
+                emptyText.setText("No inventory found");
+            }
+
             emptyText.setTextSize(16);
             emptyText.setTextColor(Color.GRAY);
             emptyText.setPadding(10, 20, 10, 20);

@@ -1,6 +1,7 @@
 package com.example.techfix;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
@@ -24,6 +25,8 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
     Button btnUpdateTechnician;
 
     DatabaseHelper databaseHelper;
+
+    String technicianId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,10 +57,18 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         );
 
         // Find views
-        edtTechnicianId = findViewById(R.id.edtTechnicianId);
-        edtTechnicianName = findViewById(R.id.edtTechnicianName);
-        edtTechnicianPhone = findViewById(R.id.edtTechnicianPhone);
-        edtTechnicianEmail = findViewById(R.id.edtTechnicianEmail);
+        edtTechnicianId =
+                findViewById(R.id.edtTechnicianId);
+
+        edtTechnicianName =
+                findViewById(R.id.edtTechnicianName);
+
+        edtTechnicianPhone =
+                findViewById(R.id.edtTechnicianPhone);
+
+        edtTechnicianEmail =
+                findViewById(R.id.edtTechnicianEmail);
+
         edtTechnicianSpecialization =
                 findViewById(R.id.edtTechnicianSpecialization);
 
@@ -65,85 +76,168 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
                 findViewById(R.id.btnUpdateTechnician);
 
         // Database
-        databaseHelper = new DatabaseHelper(this);
+        databaseHelper =
+                new DatabaseHelper(this);
 
-        // Get Technician ID from previous page
-        String technicianId =
+        // Get technician ID from ManageTechniciansActivity
+        technicianId =
                 getIntent().getStringExtra("technicianId");
 
-        // Show Technician ID
+        // Show technician ID
         if (technicianId != null) {
+
             edtTechnicianId.setText(technicianId);
+
+            // Load current technician details
+            loadTechnicianDetails();
         }
 
         // Update Technician
         btnUpdateTechnician.setOnClickListener(v -> {
 
-            String id =
-                    edtTechnicianId.getText().toString().trim();
+            updateTechnician();
+        });
+    }
 
-            String name =
-                    edtTechnicianName.getText().toString().trim();
+    private void loadTechnicianDetails() {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor = db.query(
+                "technicians",
+                new String[]{
+                        "technicianName",
+                        "phone",
+                        "email",
+                        "specialization"
+                },
+                "technicianId = ?",
+                new String[]{technicianId},
+                null,
+                null,
+                null
+        );
+
+        if (cursor.moveToFirst()) {
+
+            String technicianName =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "technicianName"
+                            )
+                    );
 
             String phone =
-                    edtTechnicianPhone.getText().toString().trim();
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "phone"
+                            )
+                    );
 
             String email =
-                    edtTechnicianEmail.getText().toString().trim();
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "email"
+                            )
+                    );
 
             String specialization =
-                    edtTechnicianSpecialization.getText().toString().trim();
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "specialization"
+                            )
+                    );
 
-            if (id.isEmpty() ||
-                    name.isEmpty() ||
-                    phone.isEmpty() ||
-                    email.isEmpty() ||
-                    specialization.isEmpty()) {
+            // Display current details
+            edtTechnicianName.setText(technicianName);
+            edtTechnicianPhone.setText(phone);
+            edtTechnicianEmail.setText(email);
+            edtTechnicianSpecialization.setText(specialization);
+        }
 
-                Toast.makeText(
-                        UpdateTechnicianActivity.this,
-                        "Please fill all fields",
-                        Toast.LENGTH_SHORT
-                ).show();
+        cursor.close();
+    }
 
-                return;
-            }
+    private void updateTechnician() {
 
-            SQLiteDatabase db =
-                    databaseHelper.getWritableDatabase();
+        String technicianName =
+                edtTechnicianName.getText().toString().trim();
 
-            ContentValues values = new ContentValues();
+        String phone =
+                edtTechnicianPhone.getText().toString().trim();
 
-            values.put("technicianName", name);
-            values.put("phone", phone);
-            values.put("email", email);
-            values.put("specialization", specialization);
+        String email =
+                edtTechnicianEmail.getText().toString().trim();
 
-            int rowsUpdated = db.update(
-                    "technicians",
-                    values,
-                    "technicianId = ?",
-                    new String[]{id}
-            );
+        String specialization =
+                edtTechnicianSpecialization.getText().toString().trim();
 
-            if (rowsUpdated > 0) {
+        // Validation
+        if (technicianName.isEmpty() ||
+                phone.isEmpty() ||
+                email.isEmpty() ||
+                specialization.isEmpty()) {
 
-                Toast.makeText(
-                        UpdateTechnicianActivity.this,
-                        "Technician updated successfully",
-                        Toast.LENGTH_SHORT
-                ).show();
+            Toast.makeText(
+                    UpdateTechnicianActivity.this,
+                    "Please fill all fields",
+                    Toast.LENGTH_SHORT
+            ).show();
 
-                finish();
+            return;
+        }
 
-            } else {
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
 
-                Toast.makeText(
-                        UpdateTechnicianActivity.this,
-                        "Technician not found",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                "technicianName",
+                technicianName
+        );
+
+        values.put(
+                "phone",
+                phone
+        );
+
+        values.put(
+                "email",
+                email
+        );
+
+        values.put(
+                "specialization",
+                specialization
+        );
+
+        int result = db.update(
+                "technicians",
+                values,
+                "technicianId = ?",
+                new String[]{technicianId}
+        );
+
+        if (result > 0) {
+
+            Toast.makeText(
+                    UpdateTechnicianActivity.this,
+                    "Technician updated successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            finish();
+
+        } else {
+
+            Toast.makeText(
+                    UpdateTechnicianActivity.this,
+                    "Failed to update technician",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 }
