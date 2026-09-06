@@ -33,102 +33,166 @@ public class ProductListActivity extends AppCompatActivity {
 
     String selectedCategory = "All";
 
+    // Logged-in customer information
+    String customerId;
+    String customerName;
+    String customerEmail;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_product_list);
 
-        productListContainer = findViewById(R.id.productListContainer);
+        productListContainer =
+                findViewById(R.id.productListContainer);
 
-        btnAll = findViewById(R.id.btnAll);
-        btnMobile = findViewById(R.id.btnMobile);
-        btnComputer = findViewById(R.id.btnComputer);
+        btnAll =
+                findViewById(R.id.btnAll);
 
-        edtSearch = findViewById(R.id.edtSearch);
+        btnMobile =
+                findViewById(R.id.btnMobile);
 
-        databaseHelper = new DatabaseHelper(this);
+        btnComputer =
+                findViewById(R.id.btnComputer);
 
-        productList = new ArrayList<>();
+        edtSearch =
+                findViewById(R.id.edtSearch);
 
+        databaseHelper =
+                new DatabaseHelper(this);
+
+        productList =
+                new ArrayList<>();
+
+        // =====================================================
+        // GET CUSTOMER INFORMATION
+        // =====================================================
+
+        customerId =
+                getIntent().getStringExtra("customerId");
+
+        customerName =
+                getIntent().getStringExtra("customerName");
+
+        customerEmail =
+                getIntent().getStringExtra("customerEmail");
+
+        // Load products
         loadProducts();
 
-        // All Categories
+        // =====================================================
+        // ALL CATEGORIES
+        // =====================================================
+
         btnAll.setOnClickListener(v -> {
 
             selectedCategory = "All";
 
-            filterProducts(edtSearch.getText().toString());
+            filterProducts(
+                    edtSearch.getText().toString()
+            );
         });
 
-        // Mobile
+        // =====================================================
+        // MOBILE
+        // =====================================================
+
         btnMobile.setOnClickListener(v -> {
 
             selectedCategory = "Mobile";
 
-            filterProducts(edtSearch.getText().toString());
+            filterProducts(
+                    edtSearch.getText().toString()
+            );
         });
 
-        // Computer
+        // =====================================================
+        // COMPUTER
+        // =====================================================
+
         btnComputer.setOnClickListener(v -> {
 
             selectedCategory = "Computer";
 
-            filterProducts(edtSearch.getText().toString());
+            filterProducts(
+                    edtSearch.getText().toString()
+            );
         });
 
-        // Search
-        edtSearch.addTextChangedListener(new android.text.TextWatcher() {
+        // =====================================================
+        // SEARCH
+        // =====================================================
 
-            @Override
-            public void beforeTextChanged(
-                    CharSequence s,
-                    int start,
-                    int count,
-                    int after) {
-            }
+        edtSearch.addTextChangedListener(
+                new android.text.TextWatcher() {
 
-            @Override
-            public void onTextChanged(
-                    CharSequence s,
-                    int start,
-                    int before,
-                    int count) {
+                    @Override
+                    public void beforeTextChanged(
+                            CharSequence s,
+                            int start,
+                            int count,
+                            int after) {
+                    }
 
-                filterProducts(s.toString());
-            }
+                    @Override
+                    public void onTextChanged(
+                            CharSequence s,
+                            int start,
+                            int before,
+                            int count) {
 
-            @Override
-            public void afterTextChanged(
-                    android.text.Editable s) {
-            }
-        });
+                        filterProducts(
+                                s.toString()
+                        );
+                    }
+
+                    @Override
+                    public void afterTextChanged(
+                            android.text.Editable s) {
+                    }
+                }
+        );
     }
+
+    // =========================================================
+    // LOAD PRODUCTS
+    // =========================================================
 
     private void loadProducts() {
 
-        SQLiteDatabase db = databaseHelper.getReadableDatabase();
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery(
-                "SELECT productName, category, price, quantity " +
-                        "FROM inventory " +
-                        "WHERE quantity > 0",
-                null
-        );
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT productName, category, price, quantity " +
+                                "FROM inventory " +
+                                "WHERE quantity > 0",
+                        null
+                );
 
         while (cursor.moveToNext()) {
 
-            String productName = cursor.getString(0);
-            String category = cursor.getString(1);
-            double price = cursor.getDouble(2);
-            int quantity = cursor.getInt(3);
+            String productName =
+                    cursor.getString(0);
 
-            Product product = new Product(
-                    productName,
-                    category,
-                    price,
-                    quantity
-            );
+            String category =
+                    cursor.getString(1);
+
+            double price =
+                    cursor.getDouble(2);
+
+            int quantity =
+                    cursor.getInt(3);
+
+            Product product =
+                    new Product(
+                            productName,
+                            category,
+                            price,
+                            quantity
+                    );
 
             productList.add(product);
         }
@@ -138,13 +202,23 @@ public class ProductListActivity extends AppCompatActivity {
         displayProducts(productList);
     }
 
-    private void filterProducts(String searchText) {
+    // =========================================================
+    // FILTER PRODUCTS
+    // =========================================================
 
-        ArrayList<Product> filteredList = new ArrayList<>();
+    private void filterProducts(
+            String searchText) {
 
-        searchText = searchText.toLowerCase().trim();
+        ArrayList<Product> filteredList =
+                new ArrayList<>();
 
-        for (Product product : productList) {
+        searchText =
+                searchText
+                        .toLowerCase()
+                        .trim();
+
+        for (Product product :
+                productList) {
 
             boolean categoryMatches;
 
@@ -155,14 +229,22 @@ public class ProductListActivity extends AppCompatActivity {
             } else {
 
                 categoryMatches =
-                        product.category.equalsIgnoreCase(selectedCategory);
+                        product.category.equalsIgnoreCase(
+                                selectedCategory
+                        );
             }
 
             boolean searchMatches =
-                    product.productName.toLowerCase().contains(searchText)
-                            || product.category.toLowerCase().contains(searchText);
+                    product.productName
+                            .toLowerCase()
+                            .contains(searchText)
+                            ||
+                            product.category
+                                    .toLowerCase()
+                                    .contains(searchText);
 
-            if (categoryMatches && searchMatches) {
+            if (categoryMatches &&
+                    searchMatches) {
 
                 filteredList.add(product);
             }
@@ -171,25 +253,46 @@ public class ProductListActivity extends AppCompatActivity {
         displayProducts(filteredList);
     }
 
-    private void displayProducts(ArrayList<Product> products) {
+    // =========================================================
+    // DISPLAY PRODUCTS
+    // =========================================================
+
+    private void displayProducts(
+            ArrayList<Product> products) {
 
         productListContainer.removeAllViews();
 
         if (products.isEmpty()) {
 
-            TextView noProducts = new TextView(this);
+            TextView noProducts =
+                    new TextView(this);
 
-            noProducts.setText("No products available");
+            noProducts.setText(
+                    "No products available"
+            );
+
             noProducts.setTextSize(18);
-            noProducts.setGravity(Gravity.CENTER);
-            noProducts.setPadding(0, 40, 0, 40);
 
-            productListContainer.addView(noProducts);
+            noProducts.setGravity(
+                    Gravity.CENTER
+            );
+
+            noProducts.setPadding(
+                    0,
+                    40,
+                    0,
+                    40
+            );
+
+            productListContainer.addView(
+                    noProducts
+            );
 
             return;
         }
 
-        for (Product product : products) {
+        for (Product product :
+                products) {
 
             createProductCard(
                     product.productName,
@@ -200,6 +303,10 @@ public class ProductListActivity extends AppCompatActivity {
         }
     }
 
+    // =========================================================
+    // CREATE PRODUCT CARD
+    // =========================================================
+
     private void createProductCard(
             String productName,
             String category,
@@ -207,12 +314,23 @@ public class ProductListActivity extends AppCompatActivity {
             int quantity) {
 
         // Main product card
-        LinearLayout card = new LinearLayout(this);
+        LinearLayout card =
+                new LinearLayout(this);
 
-        card.setOrientation(LinearLayout.VERTICAL);
-        card.setPadding(25, 25, 25, 25);
+        card.setOrientation(
+                LinearLayout.VERTICAL
+        );
 
-        card.setBackgroundColor(Color.WHITE);
+        card.setPadding(
+                25,
+                25,
+                25,
+                25
+        );
+
+        card.setBackgroundColor(
+                Color.WHITE
+        );
 
         LinearLayout.LayoutParams cardParams =
                 new LinearLayout.LayoutParams(
@@ -220,23 +338,38 @@ public class ProductListActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
 
-        cardParams.setMargins(0, 0, 0, 20);
+        cardParams.setMargins(
+                0,
+                0,
+                0,
+                20
+        );
 
         card.setLayoutParams(cardParams);
 
         // Product name
-        TextView nameText = new TextView(this);
+        TextView nameText =
+                new TextView(this);
 
         nameText.setText(productName);
+
         nameText.setTextSize(21);
-        nameText.setTypeface(null, Typeface.BOLD);
+
+        nameText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
 
         card.addView(nameText);
 
         // Category
-        TextView categoryText = new TextView(this);
+        TextView categoryText =
+                new TextView(this);
 
-        categoryText.setText("Category: " + category);
+        categoryText.setText(
+                "Category: " + category
+        );
+
         categoryText.setTextSize(15);
 
         LinearLayout.LayoutParams categoryParams =
@@ -245,21 +378,37 @@ public class ProductListActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
 
-        categoryParams.setMargins(0, 10, 0, 0);
+        categoryParams.setMargins(
+                0,
+                10,
+                0,
+                0
+        );
 
-        categoryText.setLayoutParams(categoryParams);
+        categoryText.setLayoutParams(
+                categoryParams
+        );
 
         card.addView(categoryText);
 
         // Price
-        TextView priceText = new TextView(this);
+        TextView priceText =
+                new TextView(this);
 
         priceText.setText(
-                "Rs. " + String.format("%.2f", price)
+                "Rs. " +
+                        String.format(
+                                "%.2f",
+                                price
+                        )
         );
 
         priceText.setTextSize(19);
-        priceText.setTypeface(null, Typeface.BOLD);
+
+        priceText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
 
         LinearLayout.LayoutParams priceParams =
                 new LinearLayout.LayoutParams(
@@ -267,16 +416,27 @@ public class ProductListActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
 
-        priceParams.setMargins(0, 15, 0, 0);
+        priceParams.setMargins(
+                0,
+                15,
+                0,
+                0
+        );
 
-        priceText.setLayoutParams(priceParams);
+        priceText.setLayoutParams(
+                priceParams
+        );
 
         card.addView(priceText);
 
         // Quantity
-        TextView quantityText = new TextView(this);
+        TextView quantityText =
+                new TextView(this);
 
-        quantityText.setText("Available: " + quantity);
+        quantityText.setText(
+                "Available: " + quantity
+        );
+
         quantityText.setTextSize(15);
 
         LinearLayout.LayoutParams quantityParams =
@@ -285,39 +445,93 @@ public class ProductListActivity extends AppCompatActivity {
                         ViewGroup.LayoutParams.WRAP_CONTENT
                 );
 
-        quantityParams.setMargins(0, 5, 0, 10);
+        quantityParams.setMargins(
+                0,
+                5,
+                0,
+                10
+        );
 
-        quantityText.setLayoutParams(quantityParams);
+        quantityText.setLayoutParams(
+                quantityParams
+        );
 
         card.addView(quantityText);
 
         // Select Product
-        Button btnSelect = new Button(this);
+        Button btnSelect =
+                new Button(this);
 
-        btnSelect.setText("Select Product");
-        btnSelect.setGravity(Gravity.CENTER);
+        btnSelect.setText(
+                "Select Product"
+        );
+
+        btnSelect.setGravity(
+                Gravity.CENTER
+        );
 
         btnSelect.setOnClickListener(v -> {
 
-            Intent intent = new Intent(
-                    ProductListActivity.this,
-                    AppointmentActivity.class
+            Intent intent =
+                    new Intent(
+                            ProductListActivity.this,
+                            AppointmentActivity.class
+                    );
+
+            // Product information
+            intent.putExtra(
+                    "productName",
+                    productName
             );
 
-            intent.putExtra("productName", productName);
-            intent.putExtra("category", category);
-            intent.putExtra("price", price);
-            intent.putExtra("quantity", quantity);
+            intent.putExtra(
+                    "category",
+                    category
+            );
+
+            intent.putExtra(
+                    "price",
+                    price
+            );
+
+            intent.putExtra(
+                    "quantity",
+                    quantity
+            );
+
+            // =================================================
+            // CUSTOMER INFORMATION
+            // =================================================
+
+            intent.putExtra(
+                    "customerId",
+                    customerId
+            );
+
+            intent.putExtra(
+                    "customerName",
+                    customerName
+            );
+
+            intent.putExtra(
+                    "customerEmail",
+                    customerEmail
+            );
 
             startActivity(intent);
         });
 
         card.addView(btnSelect);
 
-        productListContainer.addView(card);
+        productListContainer.addView(
+                card
+        );
     }
 
-    // Product class
+    // =========================================================
+    // PRODUCT CLASS
+    // =========================================================
+
     private static class Product {
 
         String productName;
@@ -331,10 +545,17 @@ public class ProductListActivity extends AppCompatActivity {
                 double price,
                 int quantity) {
 
-            this.productName = productName;
-            this.category = category;
-            this.price = price;
-            this.quantity = quantity;
+            this.productName =
+                    productName;
+
+            this.category =
+                    category;
+
+            this.price =
+                    price;
+
+            this.quantity =
+                    quantity;
         }
     }
 }
