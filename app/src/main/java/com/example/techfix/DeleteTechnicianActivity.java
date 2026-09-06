@@ -1,8 +1,11 @@
 package com.example.techfix;
 
+import android.content.ContentValues;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,6 +18,8 @@ public class DeleteTechnicianActivity extends AppCompatActivity {
     private EditText edtTechnicianId;
     private Button btnCancel;
     private Button btnDeleteTechnician;
+
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -48,6 +53,9 @@ public class DeleteTechnicianActivity extends AppCompatActivity {
         btnCancel = findViewById(R.id.btnCancel);
         btnDeleteTechnician = findViewById(R.id.btnDeleteTechnician);
 
+        // Database
+        databaseHelper = new DatabaseHelper(this);
+
         // Cancel button
         btnCancel.setOnClickListener(v -> {
             finish();
@@ -55,7 +63,50 @@ public class DeleteTechnicianActivity extends AppCompatActivity {
 
         // Delete Technician button
         btnDeleteTechnician.setOnClickListener(v -> {
-            finish();
+
+            String technicianId =
+                    edtTechnicianId.getText().toString().trim();
+
+            // Validation
+            if (technicianId.isEmpty()) {
+
+                Toast.makeText(
+                        DeleteTechnicianActivity.this,
+                        "Please enter Technician ID",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+            // Delete from database
+            SQLiteDatabase db =
+                    databaseHelper.getWritableDatabase();
+
+            int result = db.delete(
+                    "technicians",
+                    "technicianId = ?",
+                    new String[]{technicianId}
+            );
+
+            if (result > 0) {
+
+                Toast.makeText(
+                        DeleteTechnicianActivity.this,
+                        "Technician deleted successfully",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                finish();
+
+            } else {
+
+                Toast.makeText(
+                        DeleteTechnicianActivity.this,
+                        "Technician ID not found",
+                        Toast.LENGTH_SHORT
+                ).show();
+            }
         });
     }
 }

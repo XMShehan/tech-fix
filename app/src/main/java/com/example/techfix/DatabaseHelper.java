@@ -17,9 +17,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-        // =========================
+
         // Inventory table
-        // =========================
+
         db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
