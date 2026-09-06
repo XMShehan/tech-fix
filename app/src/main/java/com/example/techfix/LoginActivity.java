@@ -36,7 +36,7 @@ public class LoginActivity extends AppCompatActivity {
         databaseHelper = new DatabaseHelper(this);
 
         // Login button
-        btnLogin.setOnClickListener(v -> loginCustomer());
+        btnLogin.setOnClickListener(v -> loginUser());
 
         // Register button
         btnRegister.setOnClickListener(v -> {
@@ -50,7 +50,7 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    private void loginCustomer() {
+    private void loginUser() {
 
         String email =
                 edtEmail.getText().toString().trim();
@@ -73,7 +73,11 @@ public class LoginActivity extends AppCompatActivity {
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
+        // =====================================================
+        // FIRST: CHECK CUSTOMER
+        // =====================================================
+
+        Cursor customerCursor = db.query(
                 "customers",
                 new String[]{
                         "customerId",
@@ -90,25 +94,29 @@ public class LoginActivity extends AppCompatActivity {
                 null
         );
 
-        if (cursor.moveToFirst()) {
+        if (customerCursor.moveToFirst()) {
 
             String customerId =
-                    cursor.getString(
-                            cursor.getColumnIndexOrThrow("customerId")
+                    customerCursor.getString(
+                            customerCursor.getColumnIndexOrThrow(
+                                    "customerId"
+                            )
                     );
 
             String customerName =
-                    cursor.getString(
-                            cursor.getColumnIndexOrThrow("customerName")
+                    customerCursor.getString(
+                            customerCursor.getColumnIndexOrThrow(
+                                    "customerName"
+                            )
                     );
+
+            customerCursor.close();
 
             Toast.makeText(
                     this,
                     "Welcome " + customerName,
                     Toast.LENGTH_SHORT
             ).show();
-
-            cursor.close();
 
             // Open Customer Dashboard
             Intent intent = new Intent(
@@ -117,23 +125,114 @@ public class LoginActivity extends AppCompatActivity {
             );
 
             // Send customer information
-            intent.putExtra("customerId", customerId);
-            intent.putExtra("customerName", customerName);
-            intent.putExtra("customerEmail", email);
+            intent.putExtra(
+                    "customerId",
+                    customerId
+            );
+
+            intent.putExtra(
+                    "customerName",
+                    customerName
+            );
+
+            intent.putExtra(
+                    "customerEmail",
+                    email
+            );
 
             startActivity(intent);
 
             finish();
 
-        } else {
+            return;
+        }
 
-            cursor.close();
+        customerCursor.close();
+
+        // =====================================================
+        // SECOND: CHECK ADMIN
+        // =====================================================
+
+        Cursor adminCursor = db.query(
+                "admins",
+                new String[]{
+                        "adminId",
+                        "adminName",
+                        "email"
+                },
+                "email = ? AND password = ?",
+                new String[]{
+                        email,
+                        password
+                },
+                null,
+                null,
+                null
+        );
+
+        if (adminCursor.moveToFirst()) {
+
+            String adminId =
+                    adminCursor.getString(
+                            adminCursor.getColumnIndexOrThrow(
+                                    "adminId"
+                            )
+                    );
+
+            String adminName =
+                    adminCursor.getString(
+                            adminCursor.getColumnIndexOrThrow(
+                                    "adminName"
+                            )
+                    );
+
+            adminCursor.close();
 
             Toast.makeText(
                     this,
-                    "Invalid email or password",
+                    "Welcome " + adminName,
                     Toast.LENGTH_SHORT
             ).show();
+
+            // Open Admin Dashboard
+            Intent intent = new Intent(
+                    LoginActivity.this,
+                    AdminDashboardActivity.class
+            );
+
+            // Send admin information
+            intent.putExtra(
+                    "adminId",
+                    adminId
+            );
+
+            intent.putExtra(
+                    "adminName",
+                    adminName
+            );
+
+            intent.putExtra(
+                    "adminEmail",
+                    email
+            );
+
+            startActivity(intent);
+
+            finish();
+
+            return;
         }
+
+        adminCursor.close();
+
+        // =====================================================
+        // INVALID LOGIN
+        // =====================================================
+
+        Toast.makeText(
+                this,
+                "Invalid email or password",
+                Toast.LENGTH_SHORT
+        ).show();
     }
 }

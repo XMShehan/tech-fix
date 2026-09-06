@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 6;
+    private static final int DATABASE_VERSION = 7;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -163,6 +163,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 7.2083,
                 79.8358
         );
+
+        // =========================================================
+        // DEFAULT ADMIN ACCOUNT
+        // =========================================================
+        insertDefaultAdmin(db);
     }
 
     // =========================================================
@@ -247,6 +252,27 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 status,
                 0.0,
                 0.0
+        );
+    }
+
+    // =========================================================
+    // INSERT DEFAULT ADMIN
+    // =========================================================
+
+    private void insertDefaultAdmin(SQLiteDatabase db) {
+
+        ContentValues values = new ContentValues();
+
+        values.put("adminName", "TechFix Admin");
+        values.put("email", "admin@techfix.com");
+        values.put("phone", "0771234567");
+        values.put("password", "admin123");
+
+        db.insertWithOnConflict(
+                "admins",
+                null,
+                values,
+                SQLiteDatabase.CONFLICT_IGNORE
         );
     }
 
@@ -408,6 +434,23 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "email TEXT UNIQUE NOT NULL, " +
                     "phone TEXT, " +
                     "password TEXT NOT NULL)");
+        }
+
+        // =========================================================
+        // VERSION 7 - DEFAULT ADMIN ACCOUNT
+        // =========================================================
+        if (oldVersion < 7) {
+
+            // Make sure admins table exists
+            db.execSQL("CREATE TABLE IF NOT EXISTS admins (" +
+                    "adminId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "adminName TEXT NOT NULL, " +
+                    "email TEXT UNIQUE NOT NULL, " +
+                    "phone TEXT, " +
+                    "password TEXT NOT NULL)");
+
+            // Add default admin
+            insertDefaultAdmin(db);
         }
     }
 }
