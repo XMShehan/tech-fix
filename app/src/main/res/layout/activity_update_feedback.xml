@@ -1,72 +1,204 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:padding="20dp"
-    android:background="#F5F6FA">
+    android:background="#F8F9FA"
+    android:clipToPadding="false"
+    android:scrollbars="none">
 
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Update Feedback"
-        android:textSize="26sp"
-        android:textStyle="bold"
-        android:textColor="#222222"
-        android:layout_marginBottom="25dp" />
+        android:orientation="vertical"
+        android:padding="24dp">
 
-    <EditText
-        android:id="@+id/edtFeedbackId"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Feedback ID"
-        android:enabled="false"
-        android:padding="12dp"
-        android:background="#FFFFFF"
-        android:layout_marginBottom="10dp" />
+        <!-- Title -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="24dp"
+            android:letterSpacing="0.02"
+            android:text="Update Feedback"
+            android:textColor="#1C1B1F"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/edtCustomerName"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Customer Name"
-        android:padding="12dp"
-        android:background="#FFFFFF"
-        android:layout_marginBottom="10dp" />
+        <!-- Feedback ID -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Feedback ID"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-    <EditText
-        android:id="@+id/edtCustomerEmail"
-        android:layout_width="match_parent"
-        android:layout_height="55dp"
-        android:hint="Customer Email"
-        android:inputType="textEmailAddress"
-        android:padding="12dp"
-        android:background="#FFFFFF"
-        android:layout_marginBottom="10dp" />
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#F1F3F4"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
 
-    <EditText
-        android:id="@+id/edtFeedback"
-        android:layout_width="match_parent"
-        android:layout_height="150dp"
-        android:hint="Feedback"
-        android:gravity="top"
-        android:padding="12dp"
-        android:background="#FFFFFF"
-        android:layout_marginBottom="20dp" />
+            <EditText
+                android:id="@+id/edtFeedbackId"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:enabled="false"
+                android:hint="Feedback ID"
+                android:imeOptions="actionNext"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
 
-    <Button
-        android:id="@+id/btnUpdateFeedback"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Update Feedback"
-        android:layout_marginBottom="10dp" />
+        </com.google.android.material.card.MaterialCardView>
 
-    <Button
-        android:id="@+id/btnCancel"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Cancel" />
+        <!-- Customer Name -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Customer Name"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
 
-</LinearLayout>
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <EditText
+                android:id="@+id/edtCustomerName"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:hint="Customer Name"
+                android:imeOptions="actionNext"
+                android:inputType="textPersonName"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Customer Email -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Customer Email"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <EditText
+                android:id="@+id/edtCustomerEmail"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:hint="Customer Email"
+                android:imeOptions="actionNext"
+                android:inputType="textEmailAddress"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Feedback -->
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Feedback"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <EditText
+                android:id="@+id/edtFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"
+                android:background="@android:color/transparent"
+                android:gravity="top"
+                android:hint="Feedback"
+                android:inputType="textMultiLine"
+                android:padding="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Update Feedback Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnUpdateFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#6750A4"
+            android:text="Update Feedback"
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp" />
+
+        <!-- Cancel Button -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btnCancel"
+            style="@style/Widget.Material3.Button.OutlinedButton"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:layout_marginBottom="16dp"
+            android:text="Cancel"
+            android:textAllCaps="false"
+            android:textColor="#6750A4"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:strokeColor="#6750A4"
+            app:strokeWidth="1dp" />
+
+    </LinearLayout>
+
+</ScrollView>

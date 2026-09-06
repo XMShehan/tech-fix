@@ -1,66 +1,99 @@
 <?xml version="1.0" encoding="utf-8"?>
-
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#F5F6FA">
+    android:background="#F8F9FA"
+    android:clipToPadding="false"
+    android:scrollbars="none">
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
-        android:padding="0dp">
+        android:padding="24dp">
 
         <!-- Title -->
-
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:layout_marginTop="8dp"
+            android:layout_marginBottom="20dp"
+            android:letterSpacing="0.02"
             android:text="Customer Feedback"
-            android:textSize="26sp"
-            android:textStyle="bold"
-            android:textColor="#222222"
-            android:layout_marginBottom="20dp" />
+            android:textColor="#1C1B1F"
+            android:textSize="28sp"
+            android:textStyle="bold" />
 
-        <!-- Search -->
-
-        <EditText
-            android:id="@+id/edtSearchFeedback"
+        <!-- Search Input Field -->
+        <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
-            android:layout_height="55dp"
-            android:hint="Search feedback..."
-            android:padding="12dp"
-            android:background="#FFFFFF"
-            android:layout_marginBottom="15dp" />
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="16dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
 
-        <!-- Add Feedback -->
+            <EditText
+                android:id="@+id/edtSearchFeedback"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:hint="Search feedback..."
+                android:imeOptions="actionSearch"
+                android:inputType="text"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
 
-        <Button
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Add Feedback Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddFeedback"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginBottom="12dp"
+            android:backgroundTint="#6750A4"
             android:text="+ Add Feedback"
-            android:textSize="16sp"
-            android:layout_marginBottom="10dp" />
+            android:textAllCaps="false"
+            android:textColor="#FFFFFF"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp" />
 
-        <!-- Delete Feedback -->
-
-        <Button
+        <!-- Delete Feedback Button -->
+        <com.google.android.material.button.MaterialButton
             android:id="@+id/btnDeleteFeedback"
+            style="@style/Widget.Material3.Button.OutlinedButton"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
+            android:layout_height="52dp"
+            android:layout_marginBottom="20dp"
             android:text="Delete Feedback"
-            android:textSize="16sp"
-            android:layout_marginBottom="20dp" />
+            android:textAllCaps="false"
+            android:textColor="#B3261E"
+            android:textSize="15sp"
+            android:textStyle="bold"
+            app:cornerRadius="16dp"
+            app:strokeColor="#B3261E"
+            app:strokeWidth="1dp" />
 
         <!-- Feedback List -->
-
         <LinearLayout
             android:id="@+id/feedbackContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical" />
+            android:orientation="vertical"
+            android:paddingBottom="16dp">
+
+            <!-- Dynamic feedback item cards will load here programmatically -->
+
+        </LinearLayout>
 
     </LinearLayout>
 
