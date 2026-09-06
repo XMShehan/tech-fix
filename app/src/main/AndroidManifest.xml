@@ -54,6 +54,18 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
+            android:name=".AddTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".UpdateTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".DeleteTechnicianActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
             android:name=".ComputerRepairActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
@@ -71,14 +83,6 @@
             android:windowSoftInputMode="adjustResize" />
         <activity
             android:name=".ProductListActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".AddTechnicianActivity"
-            android:exported="false"
-            android:windowSoftInputMode="adjustResize" />
-        <activity
-            android:name=".UpdateTechnicianActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
@@ -106,7 +110,19 @@
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
         <activity
-            android:name=".DeleteTechnicianActivity"
+            android:name=".CustomerFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".UpdateFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".DeleteFeedbackActivity"
+            android:exported="false"
+            android:windowSoftInputMode="adjustResize" />
+        <activity
+            android:name=".AddFeedbackActivity"
             android:exported="false"
             android:windowSoftInputMode="adjustResize" />
     </application>

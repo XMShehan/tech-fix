@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="20dp"
+    android:background="#F5F6FA">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update Feedback"
+        android:textSize="26sp"
+        android:textStyle="bold"
+        android:textColor="#222222"
+        android:layout_marginBottom="25dp" />
+
+    <EditText
+        android:id="@+id/edtFeedbackId"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Feedback ID"
+        android:enabled="false"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="10dp" />
+
+    <EditText
+        android:id="@+id/edtCustomerName"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Customer Name"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="10dp" />
+
+    <EditText
+        android:id="@+id/edtCustomerEmail"
+        android:layout_width="match_parent"
+        android:layout_height="55dp"
+        android:hint="Customer Email"
+        android:inputType="textEmailAddress"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="10dp" />
+
+    <EditText
+        android:id="@+id/edtFeedback"
+        android:layout_width="match_parent"
+        android:layout_height="150dp"
+        android:hint="Feedback"
+        android:gravity="top"
+        android:padding="12dp"
+        android:background="#FFFFFF"
+        android:layout_marginBottom="20dp" />
+
+    <Button
+        android:id="@+id/btnUpdateFeedback"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Update Feedback"
+        android:layout_marginBottom="10dp" />
+
+    <Button
+        android:id="@+id/btnCancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Cancel" />
+
+</LinearLayout>

@@ -8,7 +8,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -17,17 +17,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
     @Override
     public void onCreate(SQLiteDatabase db) {
 
-
+        // =========================
         // Inventory table
-
+        // =========================
         db.execSQL("CREATE TABLE inventory (" +
                 "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "productName TEXT, " +
                 "category TEXT, " +
                 "price REAL, " +
                 "quantity INTEGER)");
-
-
 
         // =========================
         // Services table
@@ -40,7 +38,6 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "duration TEXT, " +
                 "status TEXT)");
 
-
         // =========================
         // Technicians table
         // =========================
@@ -50,6 +47,15 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "phone TEXT, " +
                 "email TEXT, " +
                 "specialization TEXT)");
+
+        // =========================
+        // Customer Feedback table
+        // =========================
+        db.execSQL("CREATE TABLE feedback (" +
+                "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "customerName TEXT NOT NULL, " +
+                "customerEmail TEXT NOT NULL, " +
+                "feedback TEXT NOT NULL)");
     }
 
     // =========================
@@ -76,9 +82,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
-
+    // =========================
     // Database Upgrade
-
+    // =========================
     @Override
     public void onUpgrade(
             SQLiteDatabase db,
@@ -106,6 +112,16 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                     "phone TEXT, " +
                     "email TEXT, " +
                     "specialization TEXT)");
+        }
+
+        // Version 4
+        if (oldVersion < 4) {
+
+            db.execSQL("CREATE TABLE feedback (" +
+                    "id INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                    "customerName TEXT NOT NULL, " +
+                    "customerEmail TEXT NOT NULL, " +
+                    "feedback TEXT NOT NULL)");
         }
     }
 }

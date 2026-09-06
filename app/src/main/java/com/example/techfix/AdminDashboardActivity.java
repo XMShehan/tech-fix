@@ -15,35 +15,48 @@ public class AdminDashboardActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         EdgeToEdge.enable(this);
+
         setContentView(R.layout.activity_admin_dashboard);
 
-        ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main), (v, insets) -> {
-            Insets systemBars = insets.getInsets(WindowInsetsCompat.Type.systemBars());
+        ViewCompat.setOnApplyWindowInsetsListener(
+                findViewById(R.id.main),
+                (v, insets) -> {
 
-            v.setPadding(
-                    systemBars.left,
-                    systemBars.top,
-                    systemBars.right,
-                    systemBars.bottom
-            );
+                    Insets systemBars =
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
 
-            return insets;
-        });
+                    v.setPadding(
+                            systemBars.left,
+                            systemBars.top,
+                            systemBars.right,
+                            systemBars.bottom
+                    );
 
-        //Manage Services button
-        Button btnMangeServices = findViewById(R.id.btnManageServices);
+                    return insets;
+                }
+        );
 
-        btnMangeServices.setOnClickListener( v -> {
+        // Manage Services button
+        Button btnManageServices =
+                findViewById(R.id.btnManageServices);
+
+        btnManageServices.setOnClickListener(v -> {
+
             Intent intent = new Intent(
                     AdminDashboardActivity.this,
                     ManageServicesActivity.class
             );
+
             startActivity(intent);
         });
 
         // Manage Branches button
-        Button btnManageBranches = findViewById(R.id.btnManageBranches);
+        Button btnManageBranches =
+                findViewById(R.id.btnManageBranches);
 
         btnManageBranches.setOnClickListener(v -> {
 
@@ -55,8 +68,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        //Technician Button
-        Button btnTechnicians = findViewById(R.id.btnTechnicians);
+        // Technicians button
+        Button btnTechnicians =
+                findViewById(R.id.btnTechnicians);
 
         btnTechnicians.setOnClickListener(v -> {
 
@@ -68,14 +82,28 @@ public class AdminDashboardActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        //Inventory Button
-        Button btnInventory = findViewById(R.id.btnInventory);
+        // Inventory button
+        Button btnInventory =
+                findViewById(R.id.btnInventory);
 
         btnInventory.setOnClickListener(v -> {
 
             Intent intent = new Intent(
                     AdminDashboardActivity.this,
                     ManageInventoryActivity.class
+            );
+
+            startActivity(intent);
+        });
+
+        // Customer Feedback Button
+        Button btnFeedback = findViewById(R.id.btnFeedback);
+
+        btnFeedback.setOnClickListener(v -> {
+
+            Intent intent = new Intent(
+                    AdminDashboardActivity.this,
+                    CustomerFeedbackActivity.class
             );
 
             startActivity(intent);

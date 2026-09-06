@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="#F5F6FA">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:padding="0dp">
+
+        <!-- Title -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Customer Feedback"
+            android:textSize="26sp"
+            android:textStyle="bold"
+            android:textColor="#222222"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Search -->
+
+        <EditText
+            android:id="@+id/edtSearchFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="55dp"
+            android:hint="Search feedback..."
+            android:padding="12dp"
+            android:background="#FFFFFF"
+            android:layout_marginBottom="15dp" />
+
+        <!-- Add Feedback -->
+
+        <Button
+            android:id="@+id/btnAddFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="+ Add Feedback"
+            android:textSize="16sp"
+            android:layout_marginBottom="10dp" />
+
+        <!-- Delete Feedback -->
+
+        <Button
+            android:id="@+id/btnDeleteFeedback"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="Delete Feedback"
+            android:textSize="16sp"
+            android:layout_marginBottom="20dp" />
+
+        <!-- Feedback List -->
+
+        <LinearLayout
+            android:id="@+id/feedbackContainer"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
+    </LinearLayout>
+
+</ScrollView>
