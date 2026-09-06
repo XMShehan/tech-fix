@@ -20,7 +20,7 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
     EditText edtTechnicianName;
     EditText edtTechnicianPhone;
     EditText edtTechnicianEmail;
-    EditText edtTechnicianSpecialization;
+    EditText edtTechnicianPassword;
 
     Button btnUpdateTechnician;
 
@@ -69,8 +69,8 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         edtTechnicianEmail =
                 findViewById(R.id.edtTechnicianEmail);
 
-        edtTechnicianSpecialization =
-                findViewById(R.id.edtTechnicianSpecialization);
+        edtTechnicianPassword =
+                findViewById(R.id.edtTechnicianPassword);
 
         btnUpdateTechnician =
                 findViewById(R.id.btnUpdateTechnician);
@@ -79,16 +79,18 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // Get technician ID from ManageTechniciansActivity
+        // Get technician ID
         technicianId =
                 getIntent().getStringExtra("technicianId");
 
-        // Show technician ID
+        // Show technician ID and load details
         if (technicianId != null) {
 
             edtTechnicianId.setText(technicianId);
 
-            // Load current technician details
+            // Technician ID should not be changed
+            edtTechnicianId.setEnabled(false);
+
             loadTechnicianDetails();
         }
 
@@ -110,7 +112,7 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
                         "technicianName",
                         "phone",
                         "email",
-                        "specialization"
+                        "password"
                 },
                 "technicianId = ?",
                 new String[]{technicianId},
@@ -142,10 +144,10 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
                             )
                     );
 
-            String specialization =
+            String password =
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
-                                    "specialization"
+                                    "password"
                             )
                     );
 
@@ -153,7 +155,7 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
             edtTechnicianName.setText(technicianName);
             edtTechnicianPhone.setText(phone);
             edtTechnicianEmail.setText(email);
-            edtTechnicianSpecialization.setText(specialization);
+            edtTechnicianPassword.setText(password);
         }
 
         cursor.close();
@@ -170,14 +172,14 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         String email =
                 edtTechnicianEmail.getText().toString().trim();
 
-        String specialization =
-                edtTechnicianSpecialization.getText().toString().trim();
+        String password =
+                edtTechnicianPassword.getText().toString().trim();
 
         // Validation
         if (technicianName.isEmpty() ||
                 phone.isEmpty() ||
                 email.isEmpty() ||
-                specialization.isEmpty()) {
+                password.isEmpty()) {
 
             Toast.makeText(
                     UpdateTechnicianActivity.this,
@@ -210,8 +212,8 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         );
 
         values.put(
-                "specialization",
-                specialization
+                "password",
+                password
         );
 
         int result = db.update(

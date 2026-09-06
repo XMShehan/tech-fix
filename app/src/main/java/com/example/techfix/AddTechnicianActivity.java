@@ -19,7 +19,7 @@ public class AddTechnicianActivity extends AppCompatActivity {
     EditText edtTechnicianName;
     EditText edtTechnicianPhone;
     EditText edtTechnicianEmail;
-    EditText edtTechnicianSpecialization;
+    EditText edtTechnicianPassword;
 
     Button btnSaveTechnician;
 
@@ -66,8 +66,8 @@ public class AddTechnicianActivity extends AppCompatActivity {
         edtTechnicianEmail =
                 findViewById(R.id.edtTechnicianEmail);
 
-        edtTechnicianSpecialization =
-                findViewById(R.id.edtTechnicianSpecialization);
+        edtTechnicianPassword =
+                findViewById(R.id.edtTechnicianPassword);
 
         btnSaveTechnician =
                 findViewById(R.id.btnSaveTechnician);
@@ -90,15 +90,15 @@ public class AddTechnicianActivity extends AppCompatActivity {
             String technicianEmail =
                     edtTechnicianEmail.getText().toString().trim();
 
-            String specialization =
-                    edtTechnicianSpecialization.getText().toString().trim();
+            String technicianPassword =
+                    edtTechnicianPassword.getText().toString().trim();
 
             // Check required fields
             if (technicianId.isEmpty() ||
                     technicianName.isEmpty() ||
                     technicianPhone.isEmpty() ||
                     technicianEmail.isEmpty() ||
-                    specialization.isEmpty()) {
+                    technicianPassword.isEmpty()) {
 
                 Toast.makeText(
                         this,
@@ -137,8 +137,8 @@ public class AddTechnicianActivity extends AppCompatActivity {
             );
 
             values.put(
-                    "specialization",
-                    specialization
+                    "password",
+                    technicianPassword
             );
 
             // Insert into technicians table

@@ -170,12 +170,12 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Specialization -->
+        <!-- Password -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Specialization"
+            android:text="Password"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -191,13 +191,13 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtTechnicianSpecialization"
+                android:id="@+id/edtTechnicianPassword"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Specialization"
+                android:hint="Technician Password"
                 android:imeOptions="actionDone"
-                android:inputType="text"
+                android:inputType="textPassword"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
