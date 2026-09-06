@@ -5,7 +5,10 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -19,6 +22,8 @@ public class ManageServicesActivity extends AppCompatActivity {
 
     Button btnAddService;
     Button btnDeleteService;
+
+    EditText edtSearch;
 
     LinearLayout serviceContainer;
 
@@ -55,6 +60,7 @@ public class ManageServicesActivity extends AppCompatActivity {
         // Find views
         btnAddService = findViewById(R.id.btnAddService);
         btnDeleteService = findViewById(R.id.btnDeleteService);
+        edtSearch = findViewById(R.id.edtSearch);
         serviceContainer = findViewById(R.id.serviceContainer);
 
         // Database
@@ -82,7 +88,33 @@ public class ManageServicesActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        loadServices();
+        // Search services
+        edtSearch.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void beforeTextChanged(
+                    CharSequence s,
+                    int start,
+                    int count,
+                    int after) {
+            }
+
+            @Override
+            public void onTextChanged(
+                    CharSequence s,
+                    int start,
+                    int before,
+                    int count) {
+
+                loadServices(s.toString().trim());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+            }
+        });
+
+        loadServices("");
     }
 
     @Override
@@ -90,28 +122,57 @@ public class ManageServicesActivity extends AppCompatActivity {
         super.onResume();
 
         if (databaseHelper != null) {
-            loadServices();
+
+            String searchText =
+                    edtSearch.getText().toString().trim();
+
+            loadServices(searchText);
         }
     }
 
-    private void loadServices() {
+    private void loadServices(String searchText) {
 
         serviceContainer.removeAllViews();
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.rawQuery(
-                "SELECT serviceId, serviceName, description, price, duration, status " +
-                        "FROM services",
-                null
-        );
+        Cursor cursor;
+
+        if (searchText.isEmpty()) {
+
+            cursor = db.rawQuery(
+                    "SELECT serviceId, serviceName, description, price, duration, status " +
+                            "FROM services",
+                    null
+            );
+
+        } else {
+
+            cursor = db.rawQuery(
+                    "SELECT serviceId, serviceName, description, price, duration, status " +
+                            "FROM services " +
+                            "WHERE serviceId LIKE ? " +
+                            "OR serviceName LIKE ? " +
+                            "OR description LIKE ?",
+                    new String[]{
+                            "%" + searchText + "%",
+                            "%" + searchText + "%",
+                            "%" + searchText + "%"
+                    }
+            );
+        }
 
         if (cursor.getCount() == 0) {
 
             TextView emptyText = new TextView(this);
 
-            emptyText.setText("No services available");
+            if (searchText.isEmpty()) {
+                emptyText.setText("No services available");
+            } else {
+                emptyText.setText("No matching services found");
+            }
+
             emptyText.setTextSize(16);
             emptyText.setTextColor(Color.GRAY);
             emptyText.setPadding(10, 20, 10, 20);
