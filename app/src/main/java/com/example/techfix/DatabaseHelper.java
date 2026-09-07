@@ -9,7 +9,10 @@ import android.database.sqlite.SQLiteOpenHelper;
 public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
-    private static final int DATABASE_VERSION = 9;
+
+    // Version 10:
+    // Add customerId to feedback table
+    private static final int DATABASE_VERSION = 10;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -87,10 +90,11 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         db.execSQL("CREATE TABLE feedback (" +
                 "feedbackId INTEGER PRIMARY KEY AUTOINCREMENT, " +
-                "customerName TEXT, " +
-                "rating INTEGER, " +
-                "comment TEXT, " +
-                "date TEXT)");
+                "customerId INTEGER NOT NULL DEFAULT 0, " +
+                "customerName TEXT NOT NULL, " +
+                "rating INTEGER NOT NULL, " +
+                "comment TEXT NOT NULL, " +
+                "date TEXT NOT NULL)");
 
         // =====================================================
         // CUSTOMERS
@@ -432,18 +436,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (oldVersion < 9) {
 
-            // -------------------------------------------------
-            // Add customerId to existing appointments
-            // -------------------------------------------------
-
             db.execSQL(
                     "ALTER TABLE appointments " +
                             "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
             );
-
-            // -------------------------------------------------
-            // Create jobs table
-            // -------------------------------------------------
 
             db.execSQL(
                     "CREATE TABLE IF NOT EXISTS jobs (" +
@@ -454,6 +450,22 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             "photoPath TEXT, " +
                             "updatedAt TEXT)"
             );
+        }
+
+        // =====================================================
+        // VERSION 10
+        // Add customerId to feedback
+        // =====================================================
+
+        if (oldVersion < 10) {
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE feedback " +
+                                "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
+                );
+            } catch (Exception ignored) {
+            }
         }
     }
 

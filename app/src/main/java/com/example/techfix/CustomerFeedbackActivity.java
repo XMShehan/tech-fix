@@ -1,18 +1,21 @@
 package com.example.techfix;
 
+import android.content.ContentValues;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.Gravity;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -20,14 +23,15 @@ import androidx.core.view.WindowInsetsCompat;
 
 public class CustomerFeedbackActivity extends AppCompatActivity {
 
-    EditText edtSearchFeedback;
+    private EditText edtSearchFeedback;
+    private Button btnAddFeedback;
+    private LinearLayout feedbackContainer;
 
-    Button btnAddFeedback;
-    Button btnDeleteFeedback;
+    private DatabaseHelper databaseHelper;
 
-    LinearLayout feedbackContainer;
-
-    DatabaseHelper databaseHelper;
+    private String customerId;
+    private String customerName;
+    private String customerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +39,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_customer_feedback);
+        setContentView(
+                R.layout.activity_customer_feedback
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -57,59 +63,104 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                 }
         );
 
-        // Find views
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
+
         edtSearchFeedback =
-                findViewById(R.id.edtSearchFeedback);
+                findViewById(
+                        R.id.edtSearchFeedback
+                );
 
         btnAddFeedback =
-                findViewById(R.id.btnAddFeedback);
-
-        btnDeleteFeedback =
-                findViewById(R.id.btnDeleteFeedback);
+                findViewById(
+                        R.id.btnAddFeedback
+                );
 
         feedbackContainer =
-                findViewById(R.id.feedbackContainer);
+                findViewById(
+                        R.id.feedbackContainer
+                );
 
-        // Database
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // =========================
-        // Add Feedback
-        // =========================
+        // =====================================================
+        // GET LOGGED-IN CUSTOMER
+        // =====================================================
+
+        customerId =
+                getIntent().getStringExtra(
+                        "customerId"
+                );
+
+        customerName =
+                getIntent().getStringExtra(
+                        "customerName"
+                );
+
+        customerEmail =
+                getIntent().getStringExtra(
+                        "customerEmail"
+                );
+
+        // =====================================================
+        // VALIDATE CUSTOMER
+        // =====================================================
+
+        if (customerId == null
+                || customerId.trim().isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Customer information missing",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+            return;
+        }
+
+        // =====================================================
+        // ADD FEEDBACK
+        // =====================================================
 
         btnAddFeedback.setOnClickListener(v -> {
 
             Intent intent =
                     new Intent(
                             CustomerFeedbackActivity.this,
-                            AddFeedbackActivity.class
+                            FeedbackActivity.class
                     );
+
+            intent.putExtra(
+                    "customerId",
+                    customerId
+            );
+
+            intent.putExtra(
+                    "customerName",
+                    customerName
+            );
+
+            intent.putExtra(
+                    "customerEmail",
+                    customerEmail
+            );
 
             startActivity(intent);
         });
 
-        // =========================
-        // Delete Feedback
-        // =========================
-
-        btnDeleteFeedback.setOnClickListener(v -> {
-
-            Intent intent =
-                    new Intent(
-                            CustomerFeedbackActivity.this,
-                            DeleteFeedbackActivity.class
-                    );
-
-            startActivity(intent);
-        });
-
-        // =========================
-        // Search Feedback
-        // =========================
+        // =====================================================
+        // SEARCH
+        // =====================================================
 
         edtSearchFeedback.addTextChangedListener(
-                new TextWatcher() {
+                new android.text.TextWatcher() {
 
                     @Override
                     public void beforeTextChanged(
@@ -133,20 +184,25 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
 
                     @Override
                     public void afterTextChanged(
-                            Editable s) {
+                            android.text.Editable s) {
                     }
                 }
         );
 
-        // Load feedback
+        // =====================================================
+        // INITIAL LOAD
+        // =====================================================
+
         loadFeedback("");
     }
 
     @Override
     protected void onResume() {
+
         super.onResume();
 
-        if (databaseHelper != null) {
+        if (databaseHelper != null
+                && customerId != null) {
 
             loadFeedback(
                     edtSearchFeedback
@@ -157,11 +213,12 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
         }
     }
 
-    // =========================
-    // Load Feedback
-    // =========================
+    // =========================================================
+    // LOAD CUSTOMER'S FEEDBACK
+    // =========================================================
 
-    private void loadFeedback(String searchText) {
+    private void loadFeedback(
+            String searchText) {
 
         feedbackContainer.removeAllViews();
 
@@ -173,28 +230,39 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
         if (searchText.isEmpty()) {
 
             cursor = db.rawQuery(
-                    "SELECT id, customerName, customerEmail, feedback " +
+                    "SELECT feedbackId, customerName, " +
+                            "rating, comment, date " +
                             "FROM feedback " +
-                            "ORDER BY id DESC",
-                    null
+                            "WHERE customerId = ? " +
+                            "ORDER BY feedbackId DESC",
+
+                    new String[]{
+                            customerId
+                    }
             );
 
         } else {
 
             cursor = db.rawQuery(
-                    "SELECT id, customerName, customerEmail, feedback " +
+                    "SELECT feedbackId, customerName, " +
+                            "rating, comment, date " +
                             "FROM feedback " +
-                            "WHERE customerName LIKE ? " +
-                            "OR customerEmail LIKE ? " +
-                            "OR feedback LIKE ? " +
-                            "ORDER BY id DESC",
+                            "WHERE customerId = ? " +
+                            "AND (comment LIKE ? " +
+                            "OR customerName LIKE ?) " +
+                            "ORDER BY feedbackId DESC",
+
                     new String[]{
-                            "%" + searchText + "%",
+                            customerId,
                             "%" + searchText + "%",
                             "%" + searchText + "%"
                     }
             );
         }
+
+        // =====================================================
+        // NO FEEDBACK
+        // =====================================================
 
         if (cursor.getCount() == 0) {
 
@@ -202,202 +270,384 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     new TextView(this);
 
             emptyText.setText(
-                    "No feedback available"
+                    "You have not submitted any feedback yet."
             );
 
             emptyText.setTextSize(16);
             emptyText.setTextColor(Color.GRAY);
+            emptyText.setGravity(
+                    Gravity.CENTER
+            );
 
             emptyText.setPadding(
-                    10,
                     20,
-                    10,
-                    20
+                    40,
+                    20,
+                    40
             );
 
             feedbackContainer.addView(
                     emptyText
             );
 
-        } else {
+            cursor.close();
 
-            while (cursor.moveToNext()) {
+            return;
+        }
 
-                int feedbackId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow("id")
-                        );
+        // =====================================================
+        // DISPLAY FEEDBACK
+        // =====================================================
 
-                String customerName =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "customerName"
-                                )
-                        );
+        while (cursor.moveToNext()) {
 
-                String customerEmail =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "customerEmail"
-                                )
-                        );
-
-                String feedback =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "feedback"
-                                )
-                        );
-
-                // =========================
-                // Feedback Layout
-                // =========================
-
-                LinearLayout feedbackLayout =
-                        new LinearLayout(this);
-
-                feedbackLayout.setOrientation(
-                        LinearLayout.VERTICAL
-                );
-
-                feedbackLayout.setPadding(
-                        5,
-                        15,
-                        5,
-                        15
-                );
-
-                // Feedback ID
-
-                TextView txtId =
-                        new TextView(this);
-
-                txtId.setText(
-                        "Feedback ID: " + feedbackId
-                );
-
-                txtId.setTextSize(16);
-                txtId.setTextColor(Color.BLACK);
-
-                feedbackLayout.addView(txtId);
-
-                // Customer Name
-
-                TextView txtName =
-                        new TextView(this);
-
-                txtName.setText(
-                        "Customer Name: " + customerName
-                );
-
-                txtName.setTextSize(16);
-                txtName.setTextColor(Color.BLACK);
-
-                feedbackLayout.addView(txtName);
-
-                // Customer Email
-
-                TextView txtEmail =
-                        new TextView(this);
-
-                txtEmail.setText(
-                        "Customer Email: " + customerEmail
-                );
-
-                txtEmail.setTextSize(16);
-                txtEmail.setTextColor(Color.BLACK);
-
-                feedbackLayout.addView(txtEmail);
-
-                // Feedback
-
-                TextView txtFeedback =
-                        new TextView(this);
-
-                txtFeedback.setText(
-                        "Feedback: " + feedback
-                );
-
-                txtFeedback.setTextSize(16);
-                txtFeedback.setTextColor(Color.BLACK);
-
-                feedbackLayout.addView(txtFeedback);
-
-                // =========================
-                // Update Button
-                // =========================
-
-                Button btnUpdate =
-                        new Button(this);
-
-                btnUpdate.setText(
-                        "UPDATE FEEDBACK"
-                );
-
-                LinearLayout.LayoutParams buttonParams =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
-
-                buttonParams.setMargins(
-                        5,
-                        10,
-                        5,
-                        10
-                );
-
-                btnUpdate.setLayoutParams(
-                        buttonParams
-                );
-
-                feedbackLayout.addView(
-                        btnUpdate
-                );
-
-                // =========================
-                // Update Navigation
-                // =========================
-
-                btnUpdate.setOnClickListener(v -> {
-
-                    Intent intent =
-                            new Intent(
-                                    CustomerFeedbackActivity.this,
-                                    UpdateFeedbackActivity.class
-                            );
-
-                    intent.putExtra(
-                            "feedbackId",
-                            feedbackId
+            int feedbackId =
+                    cursor.getInt(
+                            cursor.getColumnIndexOrThrow(
+                                    "feedbackId"
+                            )
                     );
 
-                    intent.putExtra(
-                            "customerName",
-                            customerName
+            String name =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "customerName"
+                            )
                     );
 
-                    intent.putExtra(
-                            "customerEmail",
-                            customerEmail
+            int rating =
+                    cursor.getInt(
+                            cursor.getColumnIndexOrThrow(
+                                    "rating"
+                            )
                     );
 
-                    intent.putExtra(
-                            "feedback",
-                            feedback
+            String comment =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "comment"
+                            )
                     );
 
-                    startActivity(intent);
-                });
+            String date =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "date"
+                            )
+                    );
 
-                // Add to container
+            // =================================================
+            // FEEDBACK CARD
+            // =================================================
 
-                feedbackContainer.addView(
-                        feedbackLayout
+            LinearLayout card =
+                    new LinearLayout(this);
+
+            card.setOrientation(
+                    LinearLayout.VERTICAL
+            );
+
+            card.setPadding(
+                    20,
+                    20,
+                    20,
+                    20
+            );
+
+            card.setBackgroundColor(
+                    Color.WHITE
+            );
+
+            LinearLayout.LayoutParams cardParams =
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+
+            cardParams.setMargins(
+                    0,
+                    0,
+                    0,
+                    20
+            );
+
+            card.setLayoutParams(
+                    cardParams
+            );
+
+            // =================================================
+            // TITLE
+            // =================================================
+
+            TextView title =
+                    new TextView(this);
+
+            title.setText(
+                    "Feedback #" + feedbackId
+            );
+
+            title.setTextSize(18);
+            title.setTextColor(Color.BLACK);
+            title.setTypeface(
+                    null,
+                    Typeface.BOLD
+            );
+
+            card.addView(title);
+
+            // =================================================
+            // RATING
+            // =================================================
+
+            TextView txtRating =
+                    new TextView(this);
+
+            txtRating.setText(
+                    "Rating: " + getStars(rating)
+            );
+
+            txtRating.setTextSize(16);
+            txtRating.setTextColor(Color.DKGRAY);
+            txtRating.setPadding(
+                    0,
+                    10,
+                    0,
+                    5
+            );
+
+            card.addView(txtRating);
+
+            // =================================================
+            // COMMENT
+            // =================================================
+
+            TextView txtComment =
+                    new TextView(this);
+
+            txtComment.setText(
+                    "Comment: " + comment
+            );
+
+            txtComment.setTextSize(15);
+            txtComment.setTextColor(Color.DKGRAY);
+            txtComment.setPadding(
+                    0,
+                    5,
+                    0,
+                    5
+            );
+
+            card.addView(txtComment);
+
+            // =================================================
+            // DATE
+            // =================================================
+
+            TextView txtDate =
+                    new TextView(this);
+
+            txtDate.setText(
+                    "Date: " + date
+            );
+
+            txtDate.setTextSize(14);
+            txtDate.setTextColor(Color.GRAY);
+            txtDate.setPadding(
+                    0,
+                    5,
+                    0,
+                    10
+            );
+
+            card.addView(txtDate);
+
+            // =================================================
+            // BUTTON ROW
+            // =================================================
+
+            LinearLayout buttonRow =
+                    new LinearLayout(this);
+
+            buttonRow.setOrientation(
+                    LinearLayout.HORIZONTAL
+            );
+
+            buttonRow.setGravity(
+                    Gravity.CENTER
+            );
+
+            Button btnEdit =
+                    new Button(this);
+
+            btnEdit.setText(
+                    "Edit"
+            );
+
+            Button btnDelete =
+                    new Button(this);
+
+            btnDelete.setText(
+                    "Delete"
+            );
+
+            LinearLayout.LayoutParams buttonParams =
+                    new LinearLayout.LayoutParams(
+                            0,
+                            LinearLayout.LayoutParams.WRAP_CONTENT,
+                            1
+                    );
+
+            buttonParams.setMargins(
+                    5,
+                    5,
+                    5,
+                    5
+            );
+
+            buttonRow.addView(
+                    btnEdit,
+                    buttonParams
+            );
+
+            buttonRow.addView(
+                    btnDelete,
+                    buttonParams
+            );
+
+            card.addView(
+                    buttonRow
+            );
+
+            // =================================================
+            // EDIT
+            // =================================================
+
+            btnEdit.setOnClickListener(v -> {
+
+                Intent intent =
+                        new Intent(
+                                CustomerFeedbackActivity.this,
+                                UpdateFeedbackActivity.class
+                        );
+
+                intent.putExtra(
+                        "feedbackId",
+                        feedbackId
                 );
-            }
+
+                intent.putExtra(
+                        "customerId",
+                        customerId
+                );
+
+                startActivity(intent);
+            });
+
+            // =================================================
+            // DELETE
+            // =================================================
+
+            btnDelete.setOnClickListener(v -> {
+
+                showDeleteConfirmation(
+                        feedbackId
+                );
+            });
+
+            feedbackContainer.addView(
+                    card
+            );
         }
 
         cursor.close();
+    }
+
+    // =========================================================
+    // DELETE CONFIRMATION
+    // =========================================================
+
+    private void showDeleteConfirmation(
+            int feedbackId) {
+
+        new AlertDialog.Builder(this)
+                .setTitle(
+                        "Delete Feedback"
+                )
+                .setMessage(
+                        "Are you sure you want to delete this feedback?"
+                )
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
+                .setPositiveButton(
+                        "Delete",
+                        (dialog, which) -> {
+
+                            SQLiteDatabase db =
+                                    databaseHelper
+                                            .getWritableDatabase();
+
+                            int deleted =
+                                    db.delete(
+                                            "feedback",
+                                            "feedbackId = ? AND customerId = ?",
+                                            new String[]{
+                                                    String.valueOf(
+                                                            feedbackId
+                                                    ),
+                                                    customerId
+                                            }
+                                    );
+
+                            if (deleted > 0) {
+
+                                Toast.makeText(
+                                        this,
+                                        "Feedback deleted successfully",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+
+                                loadFeedback(
+                                        edtSearchFeedback
+                                                .getText()
+                                                .toString()
+                                                .trim()
+                                );
+
+                            } else {
+
+                                Toast.makeText(
+                                        this,
+                                        "Unable to delete feedback",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                        }
+                )
+                .show();
+    }
+
+    // =========================================================
+    // STAR DISPLAY
+    // =========================================================
+
+    private String getStars(
+            int rating) {
+
+        StringBuilder stars =
+                new StringBuilder();
+
+        for (int i = 0; i < rating; i++) {
+
+            stars.append("★");
+        }
+
+        for (int i = rating; i < 5; i++) {
+
+            stars.append("☆");
+        }
+
+        return stars.toString();
     }
 }

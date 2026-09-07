@@ -1,207 +1,274 @@
 package com.example.techfix;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RatingBar;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class UpdateFeedbackActivity extends AppCompatActivity {
 
-    EditText edtFeedbackId;
-    EditText edtCustomerName;
-    EditText edtCustomerEmail;
-    EditText edtFeedback;
+    private RatingBar ratingBar;
+    private EditText edtComment;
 
-    Button btnCancel;
-    Button btnUpdateFeedback;
+    private Button btnUpdate;
+    private Button btnCancel;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
+
+    private int feedbackId;
+    private String customerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EdgeToEdge.enable(this);
-
-        setContentView(R.layout.activity_update_feedback);
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(R.id.main),
-                (v, insets) -> {
-
-                    Insets systemBars =
-                            insets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                            );
-
-                    v.setPadding(
-                            systemBars.left,
-                            systemBars.top,
-                            systemBars.right,
-                            systemBars.bottom
-                    );
-
-                    return insets;
-                }
+        setContentView(
+                R.layout.activity_update_feedback
         );
 
-        edtFeedbackId =
-                findViewById(R.id.edtFeedbackId);
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
 
-        edtCustomerName =
-                findViewById(R.id.edtCustomerName);
+        ratingBar =
+                findViewById(
+                        R.id.ratingBar
+                );
 
-        edtCustomerEmail =
-                findViewById(R.id.edtCustomerEmail);
+        edtComment =
+                findViewById(
+                        R.id.edtComment
+                );
 
-        edtFeedback =
-                findViewById(R.id.edtFeedback);
+        btnUpdate =
+                findViewById(
+                        R.id.btnUpdate
+                );
 
         btnCancel =
-                findViewById(R.id.btnCancel);
+                findViewById(
+                        R.id.btnCancel
+                );
 
-        btnUpdateFeedback =
-                findViewById(R.id.btnUpdateFeedback);
+        // =====================================================
+        // DATABASE
+        // =====================================================
 
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // Get data from CustomerFeedbackActivity
+        // =====================================================
+        // GET DATA
+        // =====================================================
 
-        int feedbackId =
+        feedbackId =
                 getIntent().getIntExtra(
                         "feedbackId",
                         -1
                 );
 
-        String customerName =
+        customerId =
                 getIntent().getStringExtra(
-                        "customerName"
+                        "customerId"
                 );
 
-        String customerEmail =
-                getIntent().getStringExtra(
-                        "customerEmail"
-                );
+        // =====================================================
+        // VALIDATE
+        // =====================================================
 
-        String feedback =
-                getIntent().getStringExtra(
-                        "feedback"
-                );
+        if (feedbackId == -1
+                || customerId == null
+                || customerId.trim().isEmpty()) {
 
-        // Display existing data
+            Toast.makeText(
+                    this,
+                    "Feedback information missing",
+                    Toast.LENGTH_LONG
+            ).show();
 
-        edtFeedbackId.setText(
-                String.valueOf(feedbackId)
-        );
-
-        edtCustomerName.setText(
-                customerName
-        );
-
-        edtCustomerEmail.setText(
-                customerEmail
-        );
-
-        edtFeedback.setText(
-                feedback
-        );
-
-        // Cancel
-
-        btnCancel.setOnClickListener(v -> {
             finish();
-        });
+            return;
+        }
 
-        // Update
+        // =====================================================
+        // LOAD EXISTING FEEDBACK
+        // =====================================================
 
-        btnUpdateFeedback.setOnClickListener(v -> {
+        loadFeedback();
 
-            String name =
-                    edtCustomerName.getText()
-                            .toString()
-                            .trim();
+        // =====================================================
+        // UPDATE
+        // =====================================================
 
-            String email =
-                    edtCustomerEmail.getText()
-                            .toString()
-                            .trim();
+        btnUpdate.setOnClickListener(
+                v -> updateFeedback()
+        );
 
-            String feedbackText =
-                    edtFeedback.getText()
-                            .toString()
-                            .trim();
+        // =====================================================
+        // CANCEL
+        // =====================================================
 
-            if (name.isEmpty()
-                    || email.isEmpty()
-                    || feedbackText.isEmpty()) {
+        btnCancel.setOnClickListener(
+                v -> finish()
+        );
+    }
 
-                Toast.makeText(
-                        this,
-                        "Please fill all fields",
-                        Toast.LENGTH_SHORT
-                ).show();
+    private void loadFeedback() {
 
-                return;
-            }
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
 
-            SQLiteDatabase db =
-                    databaseHelper.getWritableDatabase();
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT rating, comment " +
+                                "FROM feedback " +
+                                "WHERE feedbackId = ? " +
+                                "AND customerId = ?",
 
-            ContentValues values =
-                    new ContentValues();
+                        new String[]{
+                                String.valueOf(
+                                        feedbackId
+                                ),
+                                customerId
+                        }
+                );
 
-            values.put(
-                    "customerName",
-                    name
-            );
+        if (cursor.moveToFirst()) {
 
-            values.put(
-                    "customerEmail",
-                    email
-            );
-
-            values.put(
-                    "feedback",
-                    feedbackText
-            );
-
-            int result =
-                    db.update(
-                            "feedback",
-                            values,
-                            "id = ?",
-                            new String[]{
-                                    String.valueOf(feedbackId)
-                            }
+            int rating =
+                    cursor.getInt(
+                            cursor.getColumnIndexOrThrow(
+                                    "rating"
+                            )
                     );
 
-            if (result > 0) {
+            String comment =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "comment"
+                            )
+                    );
 
-                Toast.makeText(
-                        this,
-                        "Feedback updated successfully",
-                        Toast.LENGTH_SHORT
-                ).show();
+            ratingBar.setRating(
+                    rating
+            );
 
-                finish();
+            edtComment.setText(
+                    comment
+            );
 
-            } else {
+        } else {
 
-                Toast.makeText(
-                        this,
-                        "Feedback not found",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
+            Toast.makeText(
+                    this,
+                    "Feedback not found",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            finish();
+        }
+
+        cursor.close();
+    }
+
+    private void updateFeedback() {
+
+        float rating =
+                ratingBar.getRating();
+
+        String comment =
+                edtComment.getText()
+                        .toString()
+                        .trim();
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (rating == 0) {
+
+            Toast.makeText(
+                    this,
+                    "Please give a rating",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        if (comment.isEmpty()) {
+
+            edtComment.setError(
+                    "Please enter your feedback"
+            );
+
+            edtComment.requestFocus();
+
+            return;
+        }
+
+        // =====================================================
+        // UPDATE DATABASE
+        // =====================================================
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                "rating",
+                (int) rating
+        );
+
+        values.put(
+                "comment",
+                comment
+        );
+
+        int updated =
+                db.update(
+                        "feedback",
+                        values,
+                        "feedbackId = ? AND customerId = ?",
+                        new String[]{
+                                String.valueOf(
+                                        feedbackId
+                                ),
+                                customerId
+                        }
+                );
+
+        // =====================================================
+        // RESULT
+        // =====================================================
+
+        if (updated > 0) {
+
+            Toast.makeText(
+                    this,
+                    "Feedback updated successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            finish();
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Unable to update feedback",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 }

@@ -1,12 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
-    android:clipToPadding="false"
-    android:scrollbars="none">
+    android:fillViewport="true">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -14,19 +15,23 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title -->
         <TextView
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_marginTop="8dp"
-            android:layout_marginBottom="20dp"
-            android:letterSpacing="0.02"
-            android:text="Customer Feedback"
+            android:text="My Feedback"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Search Input Field -->
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="4dp"
+            android:layout_marginBottom="20dp"
+            android:text="View and manage your feedback"
+            android:textColor="#5F6368"
+            android:textSize="15sp" />
+
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -42,23 +47,19 @@
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Search feedback..."
-                android:imeOptions="actionSearch"
+                android:hint="Search your feedback..."
                 android:inputType="text"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
-                android:textColor="#1C1B1F"
-                android:textColorHint="#79747E"
                 android:textSize="15sp" />
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Add Feedback Button -->
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnAddFeedback"
             android:layout_width="match_parent"
             android:layout_height="52dp"
-            android:layout_marginBottom="12dp"
+            android:layout_marginBottom="20dp"
             android:backgroundTint="#6750A4"
             android:text="+ Add Feedback"
             android:textAllCaps="false"
@@ -67,33 +68,11 @@
             android:textStyle="bold"
             app:cornerRadius="16dp" />
 
-        <!-- Delete Feedback Button -->
-        <com.google.android.material.button.MaterialButton
-            android:id="@+id/btnDeleteFeedback"
-            style="@style/Widget.Material3.Button.OutlinedButton"
-            android:layout_width="match_parent"
-            android:layout_height="52dp"
-            android:layout_marginBottom="20dp"
-            android:text="Delete Feedback"
-            android:textAllCaps="false"
-            android:textColor="#B3261E"
-            android:textSize="15sp"
-            android:textStyle="bold"
-            app:cornerRadius="16dp"
-            app:strokeColor="#B3261E"
-            app:strokeWidth="1dp" />
-
-        <!-- Feedback List -->
         <LinearLayout
             android:id="@+id/feedbackContainer"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
-            android:paddingBottom="16dp">
-
-            <!-- Dynamic feedback item cards will load here programmatically -->
-
-        </LinearLayout>
+            android:orientation="vertical" />
 
     </LinearLayout>
 

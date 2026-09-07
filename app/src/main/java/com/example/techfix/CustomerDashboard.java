@@ -8,15 +8,15 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class CustomerDashboard extends AppCompatActivity {
 
-    Button btnViewProducts;
-    Button btnMyAppointments;
-    Button btnRepairHistory;
-    Button btnFeedback;
+    private Button btnViewProducts;
+    private Button btnMyAppointments;
+    private Button btnRepairHistory;
+    private Button btnFeedback;
 
     // Logged-in customer information
-    String customerId;
-    String customerName;
-    String customerEmail;
+    private String customerId;
+    private String customerName;
+    private String customerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -25,6 +25,10 @@ public class CustomerDashboard extends AppCompatActivity {
         setContentView(
                 R.layout.activity_customer_dashboard
         );
+
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
 
         btnViewProducts =
                 findViewById(R.id.btnViewProducts);
@@ -156,7 +160,7 @@ public class CustomerDashboard extends AppCompatActivity {
             Intent intent =
                     new Intent(
                             CustomerDashboard.this,
-                            FeedbackActivity.class
+                            CustomerFeedbackActivity.class
                     );
 
             intent.putExtra(
