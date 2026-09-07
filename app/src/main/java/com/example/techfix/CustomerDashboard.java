@@ -5,6 +5,7 @@ import android.os.Bundle;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 
 public class CustomerDashboard extends AppCompatActivity {
@@ -13,6 +14,7 @@ public class CustomerDashboard extends AppCompatActivity {
     private LinearLayout btnMyAppointments;
     private LinearLayout btnRepairHistory;
     private LinearLayout btnFeedback;
+    private LinearLayout btnLogout;
 
     private TextView txtWelcome;
 
@@ -44,6 +46,9 @@ public class CustomerDashboard extends AppCompatActivity {
 
         btnFeedback =
                 findViewById(R.id.btnFeedback);
+
+        btnLogout =
+                findViewById(R.id.btnLogout);
 
         txtWelcome =
                 findViewById(R.id.txtWelcome);
@@ -206,5 +211,65 @@ public class CustomerDashboard extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
+
+        btnLogout.setOnClickListener(v -> {
+
+            showLogoutConfirmation();
+        });
+    }
+
+    // =====================================================
+    // LOGOUT CONFIRMATION
+    // =====================================================
+
+    private void showLogoutConfirmation() {
+
+        new AlertDialog.Builder(this)
+
+                .setTitle(
+                        "Logout"
+                )
+
+                .setMessage(
+                        "Are you sure you want to logout?"
+                )
+
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
+
+                .setPositiveButton(
+                        "Logout",
+                        (dialog, which) -> logoutUser()
+                )
+
+                .show();
+    }
+
+    // =====================================================
+    // LOGOUT USER
+    // =====================================================
+
+    private void logoutUser() {
+
+        Intent intent =
+                new Intent(
+                        CustomerDashboard.this,
+                        LoginActivity.class
+                );
+
+        intent.setFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
+        finish();
     }
 }

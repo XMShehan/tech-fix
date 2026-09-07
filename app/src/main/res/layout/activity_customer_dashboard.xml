@@ -60,10 +60,8 @@
 
 
         <!-- ================================================= -->
-        <!-- DASHBOARD ACTIONS -->
-        <!-- ================================================= -->
-
         <!-- VIEW PRODUCTS -->
+        <!-- ================================================= -->
 
         <LinearLayout
             android:id="@+id/btnViewProducts"
@@ -96,7 +94,9 @@
         </LinearLayout>
 
 
+        <!-- ================================================= -->
         <!-- MY APPOINTMENTS -->
+        <!-- ================================================= -->
 
         <LinearLayout
             android:id="@+id/btnMyAppointments"
@@ -129,7 +129,9 @@
         </LinearLayout>
 
 
+        <!-- ================================================= -->
         <!-- REPAIR HISTORY -->
+        <!-- ================================================= -->
 
         <LinearLayout
             android:id="@+id/btnRepairHistory"
@@ -162,7 +164,9 @@
         </LinearLayout>
 
 
+        <!-- ================================================= -->
         <!-- FEEDBACK -->
+        <!-- ================================================= -->
 
         <LinearLayout
             android:id="@+id/btnFeedback"
@@ -174,7 +178,7 @@
             android:elevation="2dp"
             android:clickable="true"
             android:focusable="true"
-            android:layout_marginBottom="10dp">
+            android:layout_marginBottom="20dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -196,6 +200,32 @@
 
 
         <!-- ================================================= -->
+        <!-- LOGOUT -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:id="@+id/btnLogout"
+            android:layout_width="match_parent"
+            android:layout_height="52dp"
+            android:orientation="vertical"
+            android:gravity="center"
+            android:background="@drawable/bg_logout_button"
+            android:clickable="true"
+            android:focusable="true">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="LOG OUT"
+                android:textColor="#C62828"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05" />
+
+        </LinearLayout>
+
+
+        <!-- ================================================= -->
         <!-- FOOTER -->
         <!-- ================================================= -->
 
@@ -206,7 +236,7 @@
             android:textColor="#78909C"
             android:textSize="13sp"
             android:layout_gravity="center"
-            android:layout_marginTop="16dp" />
+            android:layout_marginTop="20dp" />
 
     </LinearLayout>
 
