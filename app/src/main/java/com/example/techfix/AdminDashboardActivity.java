@@ -121,7 +121,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnAppointments.setOnClickListener(v -> {
 
-            // Appointment management can be connected later
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            ManageAppointmentsActivity.class
+                    );
+
+            startActivity(intent);
         });
 
         // =====================================================
