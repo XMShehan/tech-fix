@@ -7,6 +7,7 @@ import android.content.pm.PackageManager;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.provider.MediaStore;
 import android.widget.Button;
@@ -19,6 +20,10 @@ import androidx.activity.result.ActivityResultLauncher;
 import androidx.activity.result.contract.ActivityResultContracts;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
+
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
 
 public class UpdateJobActivity extends AppCompatActivity {
 
@@ -40,9 +45,8 @@ public class UpdateJobActivity extends AppCompatActivity {
     String productService;
     String currentStatus;
 
-    // Photo information
-    private Bitmap repairPhotoBitmap;
-    private boolean photoAttached = false;
+    // Actual saved photo path
+    private String savedPhotoPath = null;
 
     private static final int CAMERA_PERMISSION_REQUEST = 300;
 
@@ -68,21 +72,13 @@ public class UpdateJobActivity extends AppCompatActivity {
 
                                 if (photo != null) {
 
-                                    repairPhotoBitmap = photo;
-
+                                    // Display photo immediately
                                     imgRepairPhoto.setImageBitmap(
                                             photo
                                     );
 
-                                    photoAttached = true;
-
-                                    Toast.makeText(
-                                            this,
-                                            "Repair photo attached",
-                                            Toast.LENGTH_SHORT
-                                    ).show();
-
-                                    updateButtonStates();
+                                    // Save actual photo file
+                                    saveRepairPhoto(photo);
                                 }
                             }
                         }
@@ -160,7 +156,8 @@ public class UpdateJobActivity extends AppCompatActivity {
         if (currentStatus == null ||
                 currentStatus.trim().isEmpty()) {
 
-            currentStatus = "PENDING";
+            currentStatus =
+                    "PENDING";
         }
 
         // Display information
@@ -181,6 +178,12 @@ public class UpdateJobActivity extends AppCompatActivity {
                 "Current Status: " +
                         currentStatus
         );
+
+        // =====================================================
+        // LOAD EXISTING PHOTO
+        // =====================================================
+
+        loadExistingPhoto();
 
         // =====================================================
         // START JOB
@@ -219,7 +222,8 @@ public class UpdateJobActivity extends AppCompatActivity {
 
         btnFinished.setOnClickListener(v -> {
 
-            if (!photoAttached) {
+            if (savedPhotoPath == null ||
+                    savedPhotoPath.trim().isEmpty()) {
 
                 Toast.makeText(
                         this,
@@ -235,6 +239,209 @@ public class UpdateJobActivity extends AppCompatActivity {
 
         // Initial button state
         updateButtonStates();
+    }
+
+    // =====================================================
+    // SAVE REPAIR PHOTO
+    // =====================================================
+
+    private void saveRepairPhoto(
+            Bitmap bitmap
+    ) {
+
+        FileOutputStream outputStream = null;
+
+        try {
+
+            /*
+             * Create a file inside the app's private
+             * internal storage.
+             */
+            File photoFile =
+                    new File(
+                            getFilesDir(),
+                            "repair_job_" +
+                                    jobId +
+                                    "_" +
+                                    System.currentTimeMillis() +
+                                    ".jpg"
+                    );
+
+            outputStream =
+                    new FileOutputStream(
+                            photoFile
+                    );
+
+            boolean compressed =
+                    bitmap.compress(
+                            Bitmap.CompressFormat.JPEG,
+                            90,
+                            outputStream
+                    );
+
+            if (!compressed) {
+
+                Toast.makeText(
+                        this,
+                        "Failed to save repair photo",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
+
+            outputStream.flush();
+
+            savedPhotoPath =
+                    photoFile.getAbsolutePath();
+
+            // Save path immediately to database
+            SQLiteDatabase db =
+                    databaseHelper.getWritableDatabase();
+
+            ContentValues values =
+                    new ContentValues();
+
+            values.put(
+                    "photoPath",
+                    savedPhotoPath
+            );
+
+            values.put(
+                    "updatedAt",
+                    String.valueOf(
+                            System.currentTimeMillis()
+                    )
+            );
+
+            int result =
+                    db.update(
+                            "jobs",
+                            values,
+                            "jobId = ? AND technicianId = ?",
+                            new String[]{
+                                    String.valueOf(
+                                            jobId
+                                    ),
+                                    technicianId
+                            }
+                    );
+
+            if (result > 0) {
+
+                Toast.makeText(
+                        this,
+                        "Repair photo saved successfully",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                updateButtonStates();
+
+            } else {
+
+                Toast.makeText(
+                        this,
+                        "Photo saved, but database update failed",
+                        Toast.LENGTH_LONG
+                ).show();
+            }
+
+        } catch (IOException e) {
+
+            savedPhotoPath = null;
+
+            Toast.makeText(
+                    this,
+                    "Failed to save repair photo",
+                    Toast.LENGTH_LONG
+            ).show();
+
+        } finally {
+
+            if (outputStream != null) {
+
+                try {
+                    outputStream.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
+
+    // =====================================================
+    // LOAD EXISTING PHOTO
+    // =====================================================
+
+    private void loadExistingPhoto() {
+
+        if (jobId == -1 ||
+                technicianId == null) {
+
+            return;
+        }
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT photoPath " +
+                                    "FROM jobs " +
+                                    "WHERE jobId = ? " +
+                                    "AND technicianId = ?",
+                            new String[]{
+                                    String.valueOf(
+                                            jobId
+                                    ),
+                                    technicianId
+                            }
+                    );
+
+            if (cursor.moveToFirst()) {
+
+                String photoPath =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "photoPath"
+                                )
+                        );
+
+                if (photoPath != null &&
+                        !photoPath.trim().isEmpty()) {
+
+                    File photoFile =
+                            new File(photoPath);
+
+                    if (photoFile.exists()) {
+
+                        savedPhotoPath =
+                                photoPath;
+
+                        Bitmap bitmap =
+                                BitmapFactory.decodeFile(
+                                        photoPath
+                                );
+
+                        if (bitmap != null) {
+
+                            imgRepairPhoto.setImageBitmap(
+                                    bitmap
+                            );
+                        }
+                    }
+                }
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
     // =====================================================
@@ -367,7 +574,8 @@ public class UpdateJobActivity extends AppCompatActivity {
 
     private void finishJob() {
 
-        if (repairPhotoBitmap == null) {
+        if (savedPhotoPath == null ||
+                savedPhotoPath.trim().isEmpty()) {
 
             Toast.makeText(
                     this,
@@ -381,18 +589,6 @@ public class UpdateJobActivity extends AppCompatActivity {
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
 
-        /*
-         * Store a simple reference indicating that
-         * a repair photo was attached.
-         *
-         * The actual bitmap is displayed in the activity.
-         * For this project, we store the photo reference
-         * in the jobs.photoPath column.
-         */
-        String photoReference =
-                "Repair photo attached - Job #" +
-                        jobId;
-
         ContentValues values =
                 new ContentValues();
 
@@ -403,7 +599,7 @@ public class UpdateJobActivity extends AppCompatActivity {
 
         values.put(
                 "photoPath",
-                photoReference
+                savedPhotoPath
         );
 
         values.put(
@@ -465,10 +661,7 @@ public class UpdateJobActivity extends AppCompatActivity {
                     "PENDING";
         }
 
-        // -------------------------------------------------
         // PENDING
-        // -------------------------------------------------
-
         if (currentStatus.equals("PENDING")) {
 
             btnStartJob.setEnabled(true);
@@ -480,10 +673,7 @@ public class UpdateJobActivity extends AppCompatActivity {
             btnFinished.setEnabled(false);
         }
 
-        // -------------------------------------------------
         // STARTED
-        // -------------------------------------------------
-
         else if (currentStatus.equals("STARTED")) {
 
             btnStartJob.setEnabled(false);
@@ -495,10 +685,7 @@ public class UpdateJobActivity extends AppCompatActivity {
             btnFinished.setEnabled(false);
         }
 
-        // -------------------------------------------------
         // ONGOING
-        // -------------------------------------------------
-
         else if (currentStatus.equals("ONGOING")) {
 
             btnStartJob.setEnabled(false);
@@ -508,14 +695,12 @@ public class UpdateJobActivity extends AppCompatActivity {
             btnAddPhoto.setEnabled(true);
 
             btnFinished.setEnabled(
-                    photoAttached
+                    savedPhotoPath != null &&
+                            !savedPhotoPath.trim().isEmpty()
             );
         }
 
-        // -------------------------------------------------
         // FINISHED
-        // -------------------------------------------------
-
         else if (currentStatus.equals("FINISHED")) {
 
             btnStartJob.setEnabled(false);

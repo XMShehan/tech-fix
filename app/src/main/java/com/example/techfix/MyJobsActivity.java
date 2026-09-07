@@ -3,12 +3,15 @@ package com.example.techfix;
 import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
@@ -17,6 +20,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
+
+import java.io.File;
 
 public class MyJobsActivity extends AppCompatActivity {
 
@@ -35,7 +40,9 @@ public class MyJobsActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_my_jobs);
+        setContentView(
+                R.layout.activity_my_jobs
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -61,7 +68,9 @@ public class MyJobsActivity extends AppCompatActivity {
                 new DatabaseHelper(this);
 
         jobContainer =
-                findViewById(R.id.jobContainer);
+                findViewById(
+                        R.id.jobContainer
+                );
 
         technicianId =
                 getIntent().getStringExtra(
@@ -120,7 +129,6 @@ public class MyJobsActivity extends AppCompatActivity {
 
             if (showHistory) {
 
-                // Completed jobs only
                 query =
                         "SELECT " +
                                 "j.jobId, " +
@@ -143,7 +151,6 @@ public class MyJobsActivity extends AppCompatActivity {
 
             } else {
 
-                // Current assigned jobs
                 query =
                         "SELECT " +
                                 "j.jobId, " +
@@ -451,9 +458,88 @@ public class MyJobsActivity extends AppCompatActivity {
                 statusText
         );
 
-        // -------------------------------------------------
-        // Update Job button
-        // -------------------------------------------------
+        // =================================================
+        // SAVED REPAIR PHOTO
+        // =================================================
+
+        if (photoPath != null &&
+                !photoPath.trim().isEmpty()) {
+
+            File photoFile =
+                    new File(
+                            photoPath
+                    );
+
+            if (photoFile.exists()) {
+
+                TextView photoLabel =
+                        createInfoText(
+                                "Repair Photo"
+                        );
+
+                photoLabel.setTypeface(
+                        null,
+                        Typeface.BOLD
+                );
+
+                photoLabel.setPadding(
+                        0,
+                        15,
+                        0,
+                        8
+                );
+
+                card.addView(
+                        photoLabel
+                );
+
+                ImageView photoView =
+                        new ImageView(
+                                this
+                        );
+
+                Bitmap bitmap =
+                        BitmapFactory.decodeFile(
+                                photoPath
+                        );
+
+                if (bitmap != null) {
+
+                    photoView.setImageBitmap(
+                            bitmap
+                    );
+
+                    photoView.setScaleType(
+                            ImageView.ScaleType.CENTER_CROP
+                    );
+
+                    LinearLayout.LayoutParams imageParams =
+                            new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    220
+                            );
+
+                    imageParams.setMargins(
+                            0,
+                            0,
+                            0,
+                            12
+                    );
+
+                    photoView.setLayoutParams(
+                            imageParams
+                    );
+
+                    card.addView(
+                            photoView
+                    );
+                }
+            }
+        }
+
+        // =================================================
+        // UPDATE JOB BUTTON
+        // =================================================
 
         if (!showHistory) {
 
@@ -464,60 +550,43 @@ public class MyJobsActivity extends AppCompatActivity {
                     "Update Job"
             );
 
-            updateButton.setOnClickListener(v -> {
+            updateButton.setOnClickListener(
+                    v -> {
 
-                Intent intent =
-                        new Intent(
-                                MyJobsActivity.this,
-                                UpdateJobActivity.class
+                        Intent intent =
+                                new Intent(
+                                        MyJobsActivity.this,
+                                        UpdateJobActivity.class
+                                );
+
+                        intent.putExtra(
+                                "jobId",
+                                jobId
                         );
 
-                intent.putExtra(
-                        "jobId",
-                        jobId
-                );
+                        intent.putExtra(
+                                "technicianId",
+                                technicianId
+                        );
 
-                intent.putExtra(
-                        "technicianId",
-                        technicianId
-                );
+                        intent.putExtra(
+                                "productService",
+                                productService
+                        );
 
-                intent.putExtra(
-                        "productService",
-                        productService
-                );
+                        intent.putExtra(
+                                "status",
+                                status
+                        );
 
-                intent.putExtra(
-                        "status",
-                        status
-                );
-
-                startActivity(intent);
-            });
+                        startActivity(
+                                intent
+                        );
+                    }
+            );
 
             card.addView(
                     updateButton
-            );
-        }
-
-        // -------------------------------------------------
-        // Photo information
-        // -------------------------------------------------
-
-        if (photoPath != null &&
-                !photoPath.trim().isEmpty()) {
-
-            TextView photoText =
-                    createInfoText(
-                            "Repair photo attached"
-                    );
-
-            photoText.setTextColor(
-                    Color.DKGRAY
-            );
-
-            card.addView(
-                    photoText
             );
         }
 
@@ -527,7 +596,7 @@ public class MyJobsActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // INFO TEXT
+    // CREATE INFO TEXT
     // =====================================================
 
     private TextView createInfoText(
@@ -537,9 +606,13 @@ public class MyJobsActivity extends AppCompatActivity {
         TextView textView =
                 new TextView(this);
 
-        textView.setText(text);
+        textView.setText(
+                text
+        );
 
-        textView.setTextSize(15);
+        textView.setTextSize(
+                15
+        );
 
         textView.setTextColor(
                 Color.DKGRAY
