@@ -139,7 +139,13 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnRepairStatus.setOnClickListener(v -> {
 
-            // Repair status functionality can be connected later
+            Intent intent =
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            RepairStatusActivity.class
+                    );
+
+            startActivity(intent);
         });
 
         // =====================================================
