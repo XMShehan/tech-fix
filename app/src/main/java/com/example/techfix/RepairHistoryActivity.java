@@ -2,15 +2,20 @@ package com.example.techfix;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.io.File;
 
 public class RepairHistoryActivity extends AppCompatActivity {
 
@@ -411,17 +416,94 @@ public class RepairHistoryActivity extends AppCompatActivity {
         }
 
         // =================================================
-        // PHOTO
+        // REPAIR PHOTO
         // =================================================
 
         if (photoPath != null &&
                 !photoPath.trim().isEmpty()) {
 
-            card.addView(
-                    createInfoText(
-                            "Repair photo: Attached"
-                    )
-            );
+            File photoFile =
+                    new File(
+                            photoPath
+                    );
+
+            if (photoFile.exists()) {
+
+                TextView photoLabel =
+                        createInfoText(
+                                "Repair Photo"
+                        );
+
+                photoLabel.setTypeface(
+                        null,
+                        Typeface.BOLD
+                );
+
+                photoLabel.setPadding(
+                        0,
+                        15,
+                        0,
+                        8
+                );
+
+                card.addView(
+                        photoLabel
+                );
+
+                Bitmap bitmap =
+                        BitmapFactory.decodeFile(
+                                photoPath
+                        );
+
+                if (bitmap != null) {
+
+                    ImageView photoView =
+                            new ImageView(
+                                    this
+                            );
+
+                    photoView.setImageBitmap(
+                            bitmap
+                    );
+
+                    photoView.setScaleType(
+                            ImageView.ScaleType.CENTER_CROP
+                    );
+
+                    LinearLayout.LayoutParams imageParams =
+                            new LinearLayout.LayoutParams(
+                                    ViewGroup.LayoutParams.MATCH_PARENT,
+                                    220
+                            );
+
+                    imageParams.setMargins(
+                            0,
+                            0,
+                            0,
+                            12
+                    );
+
+                    photoView.setLayoutParams(
+                            imageParams
+                    );
+
+                    photoView.setContentDescription(
+                            "Repair photo"
+                    );
+
+                    card.addView(
+                            photoView
+                    );
+                }
+
+            } else {
+
+                card.addView(
+                        createInfoText(
+                                "Repair photo is unavailable"
+                        )
+                );
+            }
         }
 
         // =================================================
