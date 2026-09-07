@@ -18,7 +18,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_admin_dashboard);
+        setContentView(
+                R.layout.activity_admin_dashboard
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -45,17 +47,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnManageServices =
-                findViewById(R.id.btnManageServices);
+                findViewById(
+                        R.id.btnManageServices
+                );
 
         btnManageServices.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageServicesActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -63,17 +66,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnManageBranches =
-                findViewById(R.id.btnManageBranches);
+                findViewById(
+                        R.id.btnManageBranches
+                );
 
         btnManageBranches.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageBranchesActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -81,17 +85,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnTechnicians =
-                findViewById(R.id.btnTechnicians);
+                findViewById(
+                        R.id.btnTechnicians
+                );
 
         btnTechnicians.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageTechniciansActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -99,17 +104,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnInventory =
-                findViewById(R.id.btnInventory);
+                findViewById(
+                        R.id.btnInventory
+                );
 
         btnInventory.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageInventoryActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -117,17 +123,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnAppointments =
-                findViewById(R.id.btnAppointments);
+                findViewById(
+                        R.id.btnAppointments
+                );
 
         btnAppointments.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageAppointmentsActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -135,17 +142,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnRepairStatus =
-                findViewById(R.id.btnRepairStatus);
+                findViewById(
+                        R.id.btnRepairStatus
+                );
 
         btnRepairStatus.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             RepairStatusActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -153,17 +161,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnFeedback =
-                findViewById(R.id.btnFeedback);
+                findViewById(
+                        R.id.btnFeedback
+                );
 
         btnFeedback.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
-                            CustomerFeedbackActivity.class
-                    );
-
-            startActivity(intent);
+                            AdminFeedbackActivity.class
+                    )
+            );
         });
 
         // =====================================================
@@ -171,7 +180,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnPayments =
-                findViewById(R.id.btnPayments);
+                findViewById(
+                        R.id.btnPayments
+                );
 
         btnPayments.setOnClickListener(v -> {
 
@@ -183,17 +194,18 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnManageJobs =
-                findViewById(R.id.btnManageJobs);
+                findViewById(
+                        R.id.btnManageJobs
+                );
 
         btnManageJobs.setOnClickListener(v -> {
 
-            Intent intent =
+            startActivity(
                     new Intent(
                             AdminDashboardActivity.this,
                             ManageJobsActivity.class
-                    );
-
-            startActivity(intent);
+                    )
+            );
         });
 
         // =====================================================
@@ -201,7 +213,9 @@ public class AdminDashboardActivity extends AppCompatActivity {
         // =====================================================
 
         Button btnLogout =
-                findViewById(R.id.btnLogout);
+                findViewById(
+                        R.id.btnLogout
+                );
 
         btnLogout.setOnClickListener(v -> {
 
