@@ -1,5 +1,6 @@
 package com.example.techfix;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.widget.Button;
 import android.widget.TextView;
@@ -89,16 +90,60 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
 
         txtTechnicianInfo.setText(info);
 
-        // My Jobs button
+        // =====================================================
+        // MY JOBS
+        // =====================================================
+
         btnMyJobs.setOnClickListener(v -> {
 
-            // Job functionality will be connected later
+            Intent intent =
+                    new Intent(
+                            TechnicianDashboardActivity.this,
+                            MyJobsActivity.class
+                    );
+
+            intent.putExtra(
+                    "technicianId",
+                    technicianId
+            );
+
+            intent.putExtra(
+                    "technicianName",
+                    technicianName
+            );
+
+            startActivity(intent);
         });
 
-        // Job History button
+        // =====================================================
+        // JOB HISTORY
+        // =====================================================
+
         btnJobHistory.setOnClickListener(v -> {
 
-            // Job history functionality will be connected later
+            Intent intent =
+                    new Intent(
+                            TechnicianDashboardActivity.this,
+                            MyJobsActivity.class
+                    );
+
+            intent.putExtra(
+                    "technicianId",
+                    technicianId
+            );
+
+            intent.putExtra(
+                    "technicianName",
+                    technicianName
+            );
+
+            // Tell MyJobsActivity to show completed jobs
+            intent.putExtra(
+                    "showHistory",
+                    true
+            );
+
+            startActivity(intent);
         });
     }
 }
