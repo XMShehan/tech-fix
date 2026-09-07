@@ -10,9 +10,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
 
-    // Version 10:
-    // Add customerId to feedback table
-    private static final int DATABASE_VERSION = 10;
+    // Version 11:
+    // Add payments table
+    private static final int DATABASE_VERSION = 11;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -129,6 +129,19 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "status TEXT NOT NULL DEFAULT 'PENDING', " +
                 "photoPath TEXT, " +
                 "updatedAt TEXT)");
+
+        // =====================================================
+        // PAYMENTS
+        // =====================================================
+
+        db.execSQL("CREATE TABLE payments (" +
+                "paymentId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                "appointmentId INTEGER NOT NULL, " +
+                "customerId INTEGER NOT NULL, " +
+                "amount REAL NOT NULL, " +
+                "paymentMethod TEXT NOT NULL, " +
+                "paymentStatus TEXT NOT NULL DEFAULT 'PENDING', " +
+                "paymentDate TEXT NOT NULL)");
 
         // =====================================================
         // DEFAULT ADMIN
@@ -466,6 +479,25 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 );
             } catch (Exception ignored) {
             }
+        }
+
+        // =====================================================
+        // VERSION 11
+        // Add payments table
+        // =====================================================
+
+        if (oldVersion < 11) {
+
+            db.execSQL(
+                    "CREATE TABLE IF NOT EXISTS payments (" +
+                            "paymentId INTEGER PRIMARY KEY AUTOINCREMENT, " +
+                            "appointmentId INTEGER NOT NULL, " +
+                            "customerId INTEGER NOT NULL, " +
+                            "amount REAL NOT NULL, " +
+                            "paymentMethod TEXT NOT NULL, " +
+                            "paymentStatus TEXT NOT NULL DEFAULT 'PENDING', " +
+                            "paymentDate TEXT NOT NULL)"
+            );
         }
     }
 
