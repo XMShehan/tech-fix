@@ -1,5 +1,6 @@
 package com.example.techfix;
 
+import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
@@ -7,10 +8,14 @@ import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
 import android.view.ViewGroup;
+import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
+
+import java.util.Locale;
 
 public class MyAppointmentsActivity extends AppCompatActivity {
 
@@ -36,7 +41,10 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // Get logged-in customer ID
+        // =====================================================
+        // GET LOGGED-IN CUSTOMER ID
+        // =====================================================
+
         customerId =
                 getIntent().getStringExtra(
                         "customerId"
@@ -79,14 +87,6 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
         try {
 
-            /*
-             * Get only appointments belonging to
-             * the logged-in customer.
-             *
-             * LEFT JOIN allows appointments to appear
-             * even when the admin has not assigned a
-             * technician yet.
-             */
             cursor = db.rawQuery(
                     "SELECT " +
                             "a.appointmentId, " +
@@ -98,12 +98,24 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                             "a.appointmentTime, " +
                             "j.jobId, " +
                             "j.technicianId, " +
-                            "j.status " +
+                            "j.status, " +
+                            "p.paymentId, " +
+                            "p.paymentMethod, " +
+                            "p.paymentStatus " +
+
                             "FROM appointments a " +
+
                             "LEFT JOIN jobs j " +
                             "ON a.appointmentId = j.appointmentId " +
+
+                            "LEFT JOIN payments p " +
+                            "ON a.appointmentId = p.appointmentId " +
+                            "AND a.customerId = p.customerId " +
+
                             "WHERE a.customerId = ? " +
+
                             "ORDER BY a.appointmentId DESC",
+
                     new String[]{
                             customerId
                     }
@@ -190,6 +202,27 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                                 )
                         );
 
+                int paymentId =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        "paymentId"
+                                )
+                        );
+
+                String paymentMethod =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "paymentMethod"
+                                )
+                        );
+
+                String paymentStatus =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "paymentStatus"
+                                )
+                        );
+
                 createAppointmentCard(
                         appointmentId,
                         productService,
@@ -200,7 +233,10 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                         time,
                         jobId,
                         technicianId,
-                        status
+                        status,
+                        paymentId,
+                        paymentMethod,
+                        paymentStatus
                 );
 
             } while (cursor.moveToNext());
@@ -227,10 +263,15 @@ public class MyAppointmentsActivity extends AppCompatActivity {
             String time,
             int jobId,
             String technicianId,
-            String status
-    ) {
+            String status,
+            int paymentId,
+            String paymentMethod,
+            String paymentStatus) {
 
-        // Main card
+        // =====================================================
+        // MAIN CARD
+        // =====================================================
+
         LinearLayout card =
                 new LinearLayout(this);
 
@@ -270,9 +311,9 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 cardParams
         );
 
-        // =================================================
+        // =====================================================
         // APPOINTMENT NUMBER
-        // =================================================
+        // =====================================================
 
         TextView appointmentText =
                 new TextView(this);
@@ -295,9 +336,9 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 appointmentText
         );
 
-        // =================================================
+        // =====================================================
         // PRODUCT / SERVICE
-        // =================================================
+        // =====================================================
 
         TextView productText =
                 new TextView(this);
@@ -336,9 +377,9 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 productText
         );
 
-        // =================================================
+        // =====================================================
         // REPAIR STATUS
-        // =================================================
+        // =====================================================
 
         String displayStatus;
 
@@ -379,6 +420,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         );
 
         // Status color
+
         if (displayStatus.equals(
                 "FINISHED"
         )) {
@@ -430,28 +472,29 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 statusText
         );
 
-        // =================================================
+        // =====================================================
         // CATEGORY
-        // =================================================
+        // =====================================================
 
         TextView categoryText =
                 createInfoText(
                         "Category: " +
-                                category
+                                safeText(category)
                 );
 
         card.addView(
                 categoryText
         );
 
-        // =================================================
+        // =====================================================
         // PRICE
-        // =================================================
+        // =====================================================
 
         TextView priceText =
                 createInfoText(
                         "Price: Rs. " +
                                 String.format(
+                                        Locale.getDefault(),
                                         "%.2f",
                                         price
                                 )
@@ -461,39 +504,39 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 priceText
         );
 
-        // =================================================
+        // =====================================================
         // BRANCH
-        // =================================================
+        // =====================================================
 
         TextView branchText =
                 createInfoText(
                         "Branch: " +
-                                branch
+                                safeText(branch)
                 );
 
         card.addView(
                 branchText
         );
 
-        // =================================================
+        // =====================================================
         // DATE / TIME
-        // =================================================
+        // =====================================================
 
         TextView dateTimeText =
                 createInfoText(
                         "Date: " +
-                                date +
+                                safeText(date) +
                                 "    Time: " +
-                                time
+                                safeText(time)
                 );
 
         card.addView(
                 dateTimeText
         );
 
-        // =================================================
+        // =====================================================
         // TECHNICIAN
-        // =================================================
+        // =====================================================
 
         String technicianText;
 
@@ -519,9 +562,177 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 technicianTextView
         );
 
+        // =====================================================
+        // PAYMENT INFORMATION
+        // =====================================================
+
+        boolean hasPayment =
+                paymentId > 0 &&
+                        paymentStatus != null &&
+                        !paymentStatus.trim().isEmpty();
+
+        TextView paymentText =
+                createInfoText(
+                        ""
+                );
+
+        paymentText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        if (!hasPayment) {
+
+            paymentText.setText(
+                    "Payment: NOT PAID"
+            );
+
+            paymentText.setTextColor(
+                    Color.rgb(
+                            198,
+                            40,
+                            40
+                    )
+            );
+
+        } else {
+
+            paymentText.setText(
+                    "Payment: " +
+                            paymentStatus +
+                            "\nMethod: " +
+                            safeText(paymentMethod)
+            );
+
+            if (paymentStatus.equals(
+                    "PAID"
+            )) {
+
+                paymentText.setTextColor(
+                        Color.rgb(
+                                46,
+                                125,
+                                50
+                        )
+                );
+
+            } else {
+
+                paymentText.setTextColor(
+                        Color.rgb(
+                                230,
+                                126,
+                                34
+                        )
+                );
+            }
+        }
+
+        paymentText.setPadding(
+                0,
+                12,
+                0,
+                5
+        );
+
+        card.addView(
+                paymentText
+        );
+
+        // =====================================================
+        // MAKE PAYMENT BUTTON
+        // =====================================================
+
+        /*
+         * Payment should only be available after
+         * the repair is FINISHED.
+         */
+
+        if (displayStatus.equals("FINISHED") &&
+                !hasPayment) {
+
+            Button btnMakePayment =
+                    new Button(this);
+
+            btnMakePayment.setText(
+                    "Make Payment"
+            );
+
+            LinearLayout.LayoutParams buttonParams =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+
+            buttonParams.setMargins(
+                    0,
+                    15,
+                    0,
+                    0
+            );
+
+            btnMakePayment.setLayoutParams(
+                    buttonParams
+            );
+
+            btnMakePayment.setOnClickListener(v -> {
+
+                Intent intent =
+                        new Intent(
+                                MyAppointmentsActivity.this,
+                                PaymentActivity.class
+                        );
+
+                intent.putExtra(
+                        "appointmentId",
+                        appointmentId
+                );
+
+                intent.putExtra(
+                        "customerId",
+                        customerId
+                );
+
+                intent.putExtra(
+                        "amount",
+                        price
+                );
+
+                intent.putExtra(
+                        "productService",
+                        productService
+                );
+
+                startActivity(intent);
+            });
+
+            card.addView(
+                    btnMakePayment
+            );
+        }
+
+        // =====================================================
+        // ADD CARD
+        // =====================================================
+
         appointmentListContainer.addView(
                 card
         );
+    }
+
+    // =====================================================
+    // SAFE TEXT
+    // =====================================================
+
+    private String safeText(String text) {
+
+        if (text == null ||
+                text.trim().isEmpty()) {
+
+            return "Not available";
+        }
+
+        return text;
     }
 
     // =====================================================
@@ -529,8 +740,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     // =====================================================
 
     private TextView createInfoText(
-            String text
-    ) {
+            String text) {
 
         TextView textView =
                 new TextView(this);
@@ -572,8 +782,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     // =====================================================
 
     private void showEmptyMessage(
-            String message
-    ) {
+            String message) {
 
         TextView emptyText =
                 new TextView(this);
