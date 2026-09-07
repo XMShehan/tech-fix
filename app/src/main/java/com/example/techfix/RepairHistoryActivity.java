@@ -85,8 +85,8 @@ public class RepairHistoryActivity extends AppCompatActivity {
         try {
 
             /*
-             * Show only completed repairs belonging
-             * to the logged-in customer.
+             * Get completed repairs for the logged-in
+             * customer and retrieve the technician name.
              */
             cursor =
                     db.rawQuery(
@@ -101,10 +101,13 @@ public class RepairHistoryActivity extends AppCompatActivity {
                                     "a.branch, " +
                                     "a.appointmentDate, " +
                                     "a.appointmentTime, " +
-                                    "j.technicianId " +
+                                    "j.technicianId, " +
+                                    "t.technicianName " +
                                     "FROM jobs j " +
                                     "INNER JOIN appointments a " +
                                     "ON j.appointmentId = a.appointmentId " +
+                                    "LEFT JOIN technicians t " +
+                                    "ON j.technicianId = t.technicianId " +
                                     "WHERE a.customerId = ? " +
                                     "AND j.status = 'FINISHED' " +
                                     "ORDER BY j.jobId DESC",
@@ -187,6 +190,13 @@ public class RepairHistoryActivity extends AppCompatActivity {
                                 )
                         );
 
+                String technicianName =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "technicianName"
+                                )
+                        );
+
                 String photoPath =
                         cursor.getString(
                                 cursor.getColumnIndexOrThrow(
@@ -204,6 +214,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
                         date,
                         time,
                         technicianId,
+                        technicianName,
                         photoPath
                 );
 
@@ -231,6 +242,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
             String date,
             String time,
             String technicianId,
+            String technicianName,
             String photoPath
     ) {
 
@@ -404,9 +416,20 @@ public class RepairHistoryActivity extends AppCompatActivity {
         // TECHNICIAN
         // =================================================
 
-        if (technicianId != null &&
+        if (technicianName != null &&
+                !technicianName.trim().isEmpty()) {
+
+            card.addView(
+                    createInfoText(
+                            "Technician: " +
+                                    technicianName
+                    )
+            );
+
+        } else if (technicianId != null &&
                 !technicianId.trim().isEmpty()) {
 
+            // Fallback if technician name cannot be found
             card.addView(
                     createInfoText(
                             "Technician ID: " +
