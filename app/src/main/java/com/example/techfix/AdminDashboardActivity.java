@@ -186,7 +186,12 @@ public class AdminDashboardActivity extends AppCompatActivity {
 
         btnPayments.setOnClickListener(v -> {
 
-            // Payment functionality can be connected later
+            startActivity(
+                    new Intent(
+                            AdminDashboardActivity.this,
+                            AdminPaymentsActivity.class
+                    )
+            );
         });
 
         // =====================================================
