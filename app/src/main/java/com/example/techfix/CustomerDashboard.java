@@ -22,7 +22,9 @@ public class CustomerDashboard extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_customer_dashboard);
+        setContentView(
+                R.layout.activity_customer_dashboard
+        );
 
         btnViewProducts =
                 findViewById(R.id.btnViewProducts);
@@ -41,13 +43,19 @@ public class CustomerDashboard extends AppCompatActivity {
         // =====================================================
 
         customerId =
-                getIntent().getStringExtra("customerId");
+                getIntent().getStringExtra(
+                        "customerId"
+                );
 
         customerName =
-                getIntent().getStringExtra("customerName");
+                getIntent().getStringExtra(
+                        "customerName"
+                );
 
         customerEmail =
-                getIntent().getStringExtra("customerEmail");
+                getIntent().getStringExtra(
+                        "customerEmail"
+                );
 
         // =====================================================
         // VIEW PRODUCTS
@@ -61,7 +69,6 @@ public class CustomerDashboard extends AppCompatActivity {
                             ProductListActivity.class
                     );
 
-            // Pass customer information
             intent.putExtra(
                     "customerId",
                     customerId
@@ -92,7 +99,6 @@ public class CustomerDashboard extends AppCompatActivity {
                             MyAppointmentsActivity.class
                     );
 
-            // Pass customer information
             intent.putExtra(
                     "customerId",
                     customerId
@@ -117,7 +123,28 @@ public class CustomerDashboard extends AppCompatActivity {
 
         btnRepairHistory.setOnClickListener(v -> {
 
-            // Repair History will be connected later
+            Intent intent =
+                    new Intent(
+                            CustomerDashboard.this,
+                            RepairHistoryActivity.class
+                    );
+
+            intent.putExtra(
+                    "customerId",
+                    customerId
+            );
+
+            intent.putExtra(
+                    "customerName",
+                    customerName
+            );
+
+            intent.putExtra(
+                    "customerEmail",
+                    customerEmail
+            );
+
+            startActivity(intent);
         });
 
         // =====================================================
@@ -132,7 +159,6 @@ public class CustomerDashboard extends AppCompatActivity {
                             FeedbackActivity.class
                     );
 
-            // Pass customer information
             intent.putExtra(
                     "customerId",
                     customerId
