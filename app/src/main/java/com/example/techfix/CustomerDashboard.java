@@ -2,16 +2,19 @@ package com.example.techfix;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.widget.Button;
+import android.widget.LinearLayout;
+import android.widget.TextView;
 
 import androidx.appcompat.app.AppCompatActivity;
 
 public class CustomerDashboard extends AppCompatActivity {
 
-    private Button btnViewProducts;
-    private Button btnMyAppointments;
-    private Button btnRepairHistory;
-    private Button btnFeedback;
+    private LinearLayout btnViewProducts;
+    private LinearLayout btnMyAppointments;
+    private LinearLayout btnRepairHistory;
+    private LinearLayout btnFeedback;
+
+    private TextView txtWelcome;
 
     // Logged-in customer information
     private String customerId;
@@ -42,6 +45,9 @@ public class CustomerDashboard extends AppCompatActivity {
         btnFeedback =
                 findViewById(R.id.btnFeedback);
 
+        txtWelcome =
+                findViewById(R.id.txtWelcome);
+
         // =====================================================
         // GET CUSTOMER INFORMATION FROM LOGIN
         // =====================================================
@@ -60,6 +66,26 @@ public class CustomerDashboard extends AppCompatActivity {
                 getIntent().getStringExtra(
                         "customerEmail"
                 );
+
+        // =====================================================
+        // DISPLAY CUSTOMER NAME
+        // =====================================================
+
+        if (customerName != null &&
+                !customerName.trim().isEmpty()) {
+
+            txtWelcome.setText(
+                    "Welcome, " +
+                            customerName +
+                            " 👋"
+            );
+
+        } else {
+
+            txtWelcome.setText(
+                    "Welcome 👋"
+            );
+        }
 
         // =====================================================
         // VIEW PRODUCTS
