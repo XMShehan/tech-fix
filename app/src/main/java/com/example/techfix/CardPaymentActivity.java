@@ -4,8 +4,8 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
-import android.text.InputType;
 import android.text.TextUtils;
+import android.text.method.DigitsKeyListener;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -156,20 +156,19 @@ public class CardPaymentActivity extends AppCompatActivity {
         );
 
         // =====================================================
-        // CARD NUMBER
+        // INPUT TYPES
         // =====================================================
 
-        edtCardNumber.setInputType(
-                InputType.TYPE_CLASS_NUMBER
+        edtCardNumber.setKeyListener(
+                DigitsKeyListener.getInstance(
+                        "0123456789 "
+                )
         );
 
-        // =====================================================
-        // CVV
-        // =====================================================
-
-        edtCvv.setInputType(
-                InputType.TYPE_CLASS_NUMBER |
-                        InputType.TYPE_NUMBER_VARIATION_PASSWORD
+        edtCvv.setKeyListener(
+                DigitsKeyListener.getInstance(
+                        "0123456789"
+                )
         );
 
         // =====================================================
@@ -222,7 +221,7 @@ public class CardPaymentActivity extends AppCompatActivity {
                         .trim();
 
         // =====================================================
-        // VALIDATE CARD HOLDER
+        // CARD HOLDER VALIDATION
         // =====================================================
 
         if (TextUtils.isEmpty(cardHolder)) {
@@ -237,15 +236,13 @@ public class CardPaymentActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // VALIDATE CARD NUMBER
+        // CARD NUMBER VALIDATION
         // =====================================================
 
-        if (!cardNumber.equals(
-                "4242424242424242"
-        )) {
+        if (!isValidCardNumber(cardNumber)) {
 
             edtCardNumber.setError(
-                    "Use the dummy card number: 4242 4242 4242 4242"
+                    "Enter a valid 16-digit card number"
             );
 
             edtCardNumber.requestFocus();
@@ -254,13 +251,13 @@ public class CardPaymentActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // VALIDATE EXPIRY
+        // EXPIRY VALIDATION
         // =====================================================
 
-        if (!expiry.equals("12/30")) {
+        if (!isValidExpiry(expiry)) {
 
             edtExpiry.setError(
-                    "Use dummy expiry: 12/30"
+                    "Enter expiry in MM/YY format"
             );
 
             edtExpiry.requestFocus();
@@ -269,13 +266,13 @@ public class CardPaymentActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // VALIDATE CVV
+        // CVV VALIDATION
         // =====================================================
 
-        if (!cvv.equals("123")) {
+        if (!cvv.matches("\\d{3}")) {
 
             edtCvv.setError(
-                    "Use dummy CVV: 123"
+                    "CVV must contain 3 digits"
             );
 
             edtCvv.requestFocus();
@@ -370,6 +367,59 @@ public class CardPaymentActivity extends AppCompatActivity {
                     "Payment failed. Please try again.",
                     Toast.LENGTH_LONG
             ).show();
+        }
+    }
+
+    // =====================================================
+    // CARD NUMBER VALIDATION
+    // =====================================================
+
+    private boolean isValidCardNumber(
+            String cardNumber) {
+
+        return cardNumber.matches(
+                "\\d{16}"
+        );
+    }
+
+    // =====================================================
+    // EXPIRY VALIDATION
+    // =====================================================
+
+    private boolean isValidExpiry(
+            String expiry) {
+
+        if (!expiry.matches(
+                "(0[1-9]|1[0-2])/\\d{2}"
+        )) {
+
+            return false;
+        }
+
+        try {
+
+            String[] parts =
+                    expiry.split("/");
+
+            int month =
+                    Integer.parseInt(parts[0]);
+
+            int year =
+                    Integer.parseInt(parts[1]);
+
+            /*
+             * We only validate the format and month here.
+             * The dummy gateway is a coursework simulation.
+             */
+
+            return month >= 1 &&
+                    month <= 12 &&
+                    year >= 0 &&
+                    year <= 99;
+
+        } catch (Exception e) {
+
+            return false;
         }
     }
 
