@@ -10,9 +10,9 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
 
-    // Version 11:
-    // Add payments table
-    private static final int DATABASE_VERSION = 11;
+    // Version 12:
+    // Add jobId to feedback table
+    private static final int DATABASE_VERSION = 12;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
@@ -91,6 +91,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         db.execSQL("CREATE TABLE feedback (" +
                 "feedbackId INTEGER PRIMARY KEY AUTOINCREMENT, " +
                 "customerId INTEGER NOT NULL DEFAULT 0, " +
+                "jobId INTEGER NOT NULL DEFAULT 0, " +
                 "customerName TEXT NOT NULL, " +
                 "rating INTEGER NOT NULL, " +
                 "comment TEXT NOT NULL, " +
@@ -308,30 +309,38 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
 
             try {
+
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN address TEXT"
                 );
+
             } catch (Exception ignored) {
             }
 
             try {
+
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN phone TEXT"
                 );
+
             } catch (Exception ignored) {
             }
 
             try {
+
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN email TEXT"
                 );
+
             } catch (Exception ignored) {
             }
 
             try {
+
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN status TEXT DEFAULT 'Active'"
                 );
+
             } catch (Exception ignored) {
             }
         }
@@ -404,6 +413,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         // =====================================================
 
         if (oldVersion < 7) {
+
             insertDefaultAdmin(db);
         }
 
@@ -473,10 +483,12 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 10) {
 
             try {
+
                 db.execSQL(
                         "ALTER TABLE feedback " +
                                 "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
                 );
+
             } catch (Exception ignored) {
             }
         }
@@ -498,6 +510,24 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                             "paymentStatus TEXT NOT NULL DEFAULT 'PENDING', " +
                             "paymentDate TEXT NOT NULL)"
             );
+        }
+
+        // =====================================================
+        // VERSION 12
+        // Add jobId to feedback
+        // =====================================================
+
+        if (oldVersion < 12) {
+
+            try {
+
+                db.execSQL(
+                        "ALTER TABLE feedback " +
+                                "ADD COLUMN jobId INTEGER NOT NULL DEFAULT 0"
+                );
+
+            } catch (Exception ignored) {
+            }
         }
     }
 
@@ -725,6 +755,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 db.rawQuery(
                         "SELECT adminId FROM admins " +
                                 "WHERE email = ?",
+
                         new String[]{
                                 "admin@techfix.com"
                         }

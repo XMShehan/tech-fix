@@ -1,6 +1,7 @@
 package com.example.techfix;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.widget.Button;
@@ -30,11 +31,16 @@ public class FeedbackActivity extends AppCompatActivity {
     private String customerName;
     private String customerEmail;
 
+    private int jobId;
+    private int appointmentId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_feedback);
+        setContentView(
+                R.layout.activity_feedback
+        );
 
         // =====================================================
         // CONNECT UI
@@ -63,7 +69,7 @@ public class FeedbackActivity extends AppCompatActivity {
                 new DatabaseHelper(this);
 
         // =====================================================
-        // GET LOGGED-IN CUSTOMER INFORMATION
+        // GET CUSTOMER
         // =====================================================
 
         customerId =
@@ -81,18 +87,31 @@ public class FeedbackActivity extends AppCompatActivity {
                         "customerEmail"
                 );
 
+        jobId =
+                getIntent().getIntExtra(
+                        "jobId",
+                        -1
+                );
+
+        appointmentId =
+                getIntent().getIntExtra(
+                        "appointmentId",
+                        -1
+                );
+
         // =====================================================
-        // VALIDATE CUSTOMER INFORMATION
+        // VALIDATE
         // =====================================================
 
-        if (customerId == null
-                || customerId.trim().isEmpty()
-                || customerName == null
-                || customerName.trim().isEmpty()) {
+        if (customerId == null ||
+                customerId.trim().isEmpty() ||
+                customerName == null ||
+                customerName.trim().isEmpty() ||
+                jobId == -1) {
 
             Toast.makeText(
                     this,
-                    "Customer information missing",
+                    "Repair information missing",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -101,138 +120,275 @@ public class FeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // DISPLAY CUSTOMER NAME
+        // VALIDATE FINISHED JOB
         // =====================================================
 
-        edtName.setText(customerName);
+        if (!isFinishedJob()) {
 
-        // Customer name comes from login
-        // so don't allow manual editing
-        edtName.setEnabled(false);
+            Toast.makeText(
+                    this,
+                    "Feedback is only available for completed repairs",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+            return;
+        }
 
         // =====================================================
-        // SUBMIT FEEDBACK
+        // CHECK EXISTING FEEDBACK
         // =====================================================
 
-        btnSubmit.setOnClickListener(v -> {
+        if (feedbackAlreadyExists()) {
 
-            String comment =
-                    edtComment.getText()
-                            .toString()
-                            .trim();
+            Toast.makeText(
+                    this,
+                    "Feedback has already been submitted for this repair",
+                    Toast.LENGTH_LONG
+            ).show();
 
-            float rating =
-                    ratingBar.getRating();
+            finish();
+            return;
+        }
 
-            // -------------------------------------------------
-            // Validate rating
-            // -------------------------------------------------
+        // =====================================================
+        // DISPLAY CUSTOMER
+        // =====================================================
 
-            if (rating == 0) {
+        edtName.setText(
+                customerName
+        );
 
-                Toast.makeText(
-                        FeedbackActivity.this,
-                        "Please give a rating",
-                        Toast.LENGTH_SHORT
-                ).show();
+        edtName.setEnabled(
+                false
+        );
 
-                return;
-            }
+        // =====================================================
+        // SUBMIT
+        // =====================================================
 
-            // -------------------------------------------------
-            // Validate comment
-            // -------------------------------------------------
-
-            if (comment.isEmpty()) {
-
-                edtComment.setError(
-                        "Please enter your feedback"
-                );
-
-                edtComment.requestFocus();
-
-                return;
-            }
-
-            // =================================================
-            // SAVE FEEDBACK
-            // =================================================
-
-            SQLiteDatabase db =
-                    databaseHelper.getWritableDatabase();
-
-            ContentValues values =
-                    new ContentValues();
-
-            values.put(
-                    "customerId",
-                    customerId
-            );
-
-            values.put(
-                    "customerName",
-                    customerName
-            );
-
-            values.put(
-                    "rating",
-                    (int) rating
-            );
-
-            values.put(
-                    "comment",
-                    comment
-            );
-
-            String currentDate =
-                    new SimpleDateFormat(
-                            "yyyy-MM-dd HH:mm",
-                            Locale.getDefault()
-                    ).format(new Date());
-
-            values.put(
-                    "date",
-                    currentDate
-            );
-
-            long result =
-                    db.insert(
-                            "feedback",
-                            null,
-                            values
-                    );
-
-            // =================================================
-            // RESULT
-            // =================================================
-
-            if (result != -1) {
-
-                Toast.makeText(
-                        FeedbackActivity.this,
-                        "Thank you! Your feedback has been submitted successfully.",
-                        Toast.LENGTH_LONG
-                ).show();
-
-                finish();
-
-            } else {
-
-                Toast.makeText(
-                        FeedbackActivity.this,
-                        "Failed to save feedback",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
+        btnSubmit.setOnClickListener(
+                v -> submitFeedback()
+        );
 
         // =====================================================
         // CANCEL
         // =====================================================
 
-        btnCancel.setOnClickListener(v -> {
+        btnCancel.setOnClickListener(
+                v -> finish()
+        );
+    }
+
+    // =====================================================
+    // CHECK FINISHED JOB
+    // =====================================================
+
+    private boolean isFinishedJob() {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
+
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT j.jobId " +
+                                "FROM jobs j " +
+                                "INNER JOIN appointments a " +
+                                "ON j.appointmentId = a.appointmentId " +
+                                "WHERE j.jobId = ? " +
+                                "AND a.customerId = ? " +
+                                "AND j.status = 'FINISHED'",
+
+                        new String[]{
+                                String.valueOf(jobId),
+                                customerId
+                        }
+                );
+
+        boolean exists =
+                cursor.moveToFirst();
+
+        cursor.close();
+
+        return exists;
+    }
+
+    // =====================================================
+    // CHECK EXISTING FEEDBACK
+    // =====================================================
+
+    private boolean feedbackAlreadyExists() {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
+
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT feedbackId " +
+                                "FROM feedback " +
+                                "WHERE customerId = ? " +
+                                "AND jobId = ?",
+
+                        new String[]{
+                                customerId,
+                                String.valueOf(jobId)
+                        }
+                );
+
+        boolean exists =
+                cursor.moveToFirst();
+
+        cursor.close();
+
+        return exists;
+    }
+
+    // =====================================================
+    // SUBMIT FEEDBACK
+    // =====================================================
+
+    private void submitFeedback() {
+
+        String comment =
+                edtComment.getText()
+                        .toString()
+                        .trim();
+
+        float rating =
+                ratingBar.getRating();
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (rating == 0) {
+
+            Toast.makeText(
+                    this,
+                    "Please give a rating",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        if (comment.isEmpty()) {
+
+            edtComment.setError(
+                    "Please enter your feedback"
+            );
+
+            edtComment.requestFocus();
+
+            return;
+        }
+
+        // =====================================================
+        // DOUBLE CHECK
+        // =====================================================
+
+        if (!isFinishedJob()) {
+
+            Toast.makeText(
+                    this,
+                    "This repair is no longer available for feedback",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        if (feedbackAlreadyExists()) {
+
+            Toast.makeText(
+                    this,
+                    "Feedback has already been submitted for this repair",
+                    Toast.LENGTH_LONG
+            ).show();
 
             finish();
-        });
+            return;
+        }
+
+        // =====================================================
+        // SAVE
+        // =====================================================
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                "customerId",
+                customerId
+        );
+
+        values.put(
+                "jobId",
+                jobId
+        );
+
+        values.put(
+                "customerName",
+                customerName
+        );
+
+        values.put(
+                "rating",
+                (int) rating
+        );
+
+        values.put(
+                "comment",
+                comment
+        );
+
+        String currentDate =
+                new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm",
+                        Locale.getDefault()
+                ).format(
+                        new Date()
+                );
+
+        values.put(
+                "date",
+                currentDate
+        );
+
+        long result =
+                db.insert(
+                        "feedback",
+                        null,
+                        values
+                );
+
+        // =====================================================
+        // RESULT
+        // =====================================================
+
+        if (result != -1) {
+
+            Toast.makeText(
+                    this,
+                    "Thank you! Your feedback has been submitted successfully.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Failed to save feedback",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 }

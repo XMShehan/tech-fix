@@ -24,6 +24,8 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
     private int feedbackId;
     private String customerId;
 
+    private int jobId;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -82,9 +84,9 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         // VALIDATE
         // =====================================================
 
-        if (feedbackId == -1
-                || customerId == null
-                || customerId.trim().isEmpty()) {
+        if (feedbackId == -1 ||
+                customerId == null ||
+                customerId.trim().isEmpty()) {
 
             Toast.makeText(
                     this,
@@ -100,7 +102,27 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         // LOAD EXISTING FEEDBACK
         // =====================================================
 
-        loadFeedback();
+        if (!loadFeedback()) {
+
+            finish();
+            return;
+        }
+
+        // =====================================================
+        // CHECK FINISHED JOB
+        // =====================================================
+
+        if (!isFinishedJob()) {
+
+            Toast.makeText(
+                    this,
+                    "Feedback can only be edited for completed repairs",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+            return;
+        }
 
         // =====================================================
         // UPDATE
@@ -119,7 +141,11 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         );
     }
 
-    private void loadFeedback() {
+    // =====================================================
+    // LOAD FEEDBACK
+    // =====================================================
+
+    private boolean loadFeedback() {
 
         SQLiteDatabase db =
                 databaseHelper
@@ -127,7 +153,7 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
 
         Cursor cursor =
                 db.rawQuery(
-                        "SELECT rating, comment " +
+                        "SELECT jobId, rating, comment " +
                                 "FROM feedback " +
                                 "WHERE feedbackId = ? " +
                                 "AND customerId = ?",
@@ -141,6 +167,13 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                 );
 
         if (cursor.moveToFirst()) {
+
+            jobId =
+                    cursor.getInt(
+                            cursor.getColumnIndexOrThrow(
+                                    "jobId"
+                            )
+                    );
 
             int rating =
                     cursor.getInt(
@@ -164,7 +197,13 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                     comment
             );
 
+            cursor.close();
+
+            return true;
+
         } else {
+
+            cursor.close();
 
             Toast.makeText(
                     this,
@@ -172,11 +211,47 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
-            finish();
+            return false;
         }
+    }
+
+    // =====================================================
+    // CHECK FINISHED JOB
+    // =====================================================
+
+    private boolean isFinishedJob() {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
+
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT j.jobId " +
+                                "FROM jobs j " +
+                                "INNER JOIN appointments a " +
+                                "ON j.appointmentId = a.appointmentId " +
+                                "WHERE j.jobId = ? " +
+                                "AND a.customerId = ? " +
+                                "AND j.status = 'FINISHED'",
+
+                        new String[]{
+                                String.valueOf(jobId),
+                                customerId
+                        }
+                );
+
+        boolean exists =
+                cursor.moveToFirst();
 
         cursor.close();
+
+        return exists;
     }
+
+    // =====================================================
+    // UPDATE FEEDBACK
+    // =====================================================
 
     private void updateFeedback() {
 
@@ -215,7 +290,7 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // UPDATE DATABASE
+        // DATABASE
         // =====================================================
 
         SQLiteDatabase db =
@@ -239,12 +314,18 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                 db.update(
                         "feedback",
                         values,
-                        "feedbackId = ? AND customerId = ?",
+                        "feedbackId = ? " +
+                                "AND customerId = ? " +
+                                "AND jobId = ?",
+
                         new String[]{
                                 String.valueOf(
                                         feedbackId
                                 ),
-                                customerId
+                                customerId,
+                                String.valueOf(
+                                        jobId
+                                )
                         }
                 );
 
