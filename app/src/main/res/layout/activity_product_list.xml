@@ -1,18 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:padding="20dp">
+    android:background="#F6F9FC"
+    android:paddingStart="20dp"
+    android:paddingEnd="20dp"
+    android:paddingTop="25dp"
+    android:paddingBottom="15dp">
 
-    <!-- Title -->
+    <!-- ================================================= -->
+    <!-- HEADER -->
+    <!-- ================================================= -->
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Available Products"
-        android:textSize="28sp"
+        android:textColor="#263238"
+        android:textSize="27sp"
         android:textStyle="bold"
         android:layout_gravity="center"
         android:layout_marginBottom="5dp" />
@@ -20,64 +28,85 @@
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Select a category to view products"
+        android:text="Find the right repair service for your device"
+        android:textColor="#607D8B"
         android:textSize="14sp"
         android:layout_gravity="center"
-        android:layout_marginBottom="15dp" />
+        android:layout_marginBottom="20dp" />
 
-    <!-- Category Buttons -->
+    <!-- ================================================= -->
+    <!-- CATEGORY FILTER -->
+    <!-- ================================================= -->
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="48dp"
         android:orientation="horizontal"
-        android:layout_marginBottom="15dp">
+        android:layout_marginBottom="14dp">
 
         <Button
             android:id="@+id/btnAll"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="All"
+            android:text="ALL"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_register_button"
             android:layout_marginEnd="5dp" />
 
         <Button
             android:id="@+id/btnMobile"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Mobile"
+            android:text="MOBILE"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_register_button"
             android:layout_marginStart="5dp"
             android:layout_marginEnd="5dp" />
 
         <Button
             android:id="@+id/btnComputer"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
+            android:layout_height="match_parent"
             android:layout_weight="1"
-            android:text="Computer"
+            android:text="COMPUTER"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_register_button"
             android:layout_marginStart="5dp" />
 
     </LinearLayout>
 
-    <!-- Search -->
+    <!-- ================================================= -->
+    <!-- SEARCH -->
+    <!-- ================================================= -->
 
     <EditText
         android:id="@+id/edtSearch"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="52dp"
         android:hint="Search products..."
+        android:textColor="#263238"
+        android:textColorHint="#90A4AE"
         android:inputType="text"
         android:singleLine="true"
-        android:padding="10dp"
-        android:layout_marginBottom="15dp" />
+        android:paddingStart="16dp"
+        android:paddingEnd="16dp"
+        android:background="@drawable/bg_login_input"
+        android:layout_marginBottom="16dp" />
 
-    <!-- Product List -->
+    <!-- ================================================= -->
+    <!-- PRODUCT LIST -->
+    <!-- ================================================= -->
 
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1">
+        android:layout_weight="1"
+        android:clipToPadding="false">
 
         <LinearLayout
             android:id="@+id/productListContainer"
