@@ -14,17 +14,19 @@
         android:layout_height="wrap_content"
         android:orientation="vertical">
 
-        <!-- Header -->
+        <!-- ===================================================== -->
+        <!-- HEADER -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="vertical"
+            android:background="@drawable/bg_dashboard_header"
             android:paddingStart="24dp"
             android:paddingTop="24dp"
             android:paddingEnd="24dp"
-            android:paddingBottom="22dp"
-            android:background="@drawable/bg_dashboard_header">
+            android:paddingBottom="22dp">
 
             <TextView
                 android:layout_width="wrap_content"
@@ -48,13 +50,15 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Give feedback for your completed repairs"
+                android:text="Share your experience with completed repairs"
                 android:textColor="#E3F2FD"
                 android:textSize="14sp" />
 
         </LinearLayout>
 
-        <!-- Content -->
+        <!-- ===================================================== -->
+        <!-- CONTENT -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -63,9 +67,41 @@
             android:paddingStart="16dp"
             android:paddingTop="16dp"
             android:paddingEnd="16dp"
-            android:paddingBottom="16dp">
+            android:paddingBottom="20dp">
 
-            <!-- Search -->
+            <!-- ================================================= -->
+            <!-- INTRODUCTION CARD -->
+            <!-- ================================================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:layout_marginBottom="14dp"
+                android:background="@drawable/bg_dashboard_card">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Completed Repairs"
+                    android:textColor="#263238"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="5dp" />
+
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="You can review each completed repair and leave one feedback for every repair."
+                    android:textColor="#607D8B"
+                    android:textSize="13sp" />
+
+            </LinearLayout>
+
+            <!-- ================================================= -->
+            <!-- SEARCH -->
+            <!-- ================================================= -->
 
             <EditText
                 android:id="@+id/edtSearchFeedback"
@@ -81,7 +117,9 @@
                 android:textColorHint="#90A4AE"
                 android:textSize="14sp" />
 
-            <!-- Completed Jobs -->
+            <!-- ================================================= -->
+            <!-- FEEDBACK / JOB LIST -->
+            <!-- ================================================= -->
 
             <LinearLayout
                 android:id="@+id/feedbackContainer"

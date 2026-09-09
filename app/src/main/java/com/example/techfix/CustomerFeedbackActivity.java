@@ -165,7 +165,8 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
         feedbackContainer.removeAllViews();
 
         SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+                databaseHelper
+                        .getReadableDatabase();
 
         Cursor cursor = null;
 
@@ -754,9 +755,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     feedbackTitle
             );
 
-            // -------------------------------------------------
+            // =================================================
             // RATING
-            // -------------------------------------------------
+            // =================================================
 
             TextView ratingText =
                     new TextView(this);
@@ -789,9 +790,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     ratingText
             );
 
-            // -------------------------------------------------
+            // =================================================
             // COMMENT
-            // -------------------------------------------------
+            // =================================================
 
             TextView commentText =
                     createInfoText(
@@ -803,9 +804,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     commentText
             );
 
-            // -------------------------------------------------
+            // =================================================
             // DATE
-            // -------------------------------------------------
+            // =================================================
 
             TextView dateText =
                     createInfoText(
@@ -844,7 +845,7 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
 
             rowParams.setMargins(
                     0,
-                    dp(12),
+                    dp(14),
                     0,
                     0
             );
@@ -853,35 +854,23 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     rowParams
             );
 
-            // -------------------------------------------------
+            // =================================================
             // EDIT BUTTON
-            // -------------------------------------------------
+            // =================================================
 
             Button btnEdit =
-                    new Button(this);
+                    createSecondaryButton(
+                            "Edit Feedback"
+                    );
 
-            btnEdit.setText(
-                    "Edit Feedback"
-            );
-
-            btnEdit.setAllCaps(
-                    false
-            );
-
-            // -------------------------------------------------
+            // =================================================
             // DELETE BUTTON
-            // -------------------------------------------------
+            // =================================================
 
             Button btnDelete =
-                    new Button(this);
-
-            btnDelete.setText(
-                    "Delete"
-            );
-
-            btnDelete.setAllCaps(
-                    false
-            );
+                    createDeleteButton(
+                            "Delete"
+                    );
 
             LinearLayout.LayoutParams buttonParams =
                     new LinearLayout.LayoutParams(
@@ -911,9 +900,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     buttonRow
             );
 
-            // -------------------------------------------------
-            // EDIT
-            // -------------------------------------------------
+            // =================================================
+            // EDIT ACTION
+            // =================================================
 
             btnEdit.setOnClickListener(
                     v -> {
@@ -940,9 +929,9 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     }
             );
 
-            // -------------------------------------------------
-            // DELETE
-            // -------------------------------------------------
+            // =================================================
+            // DELETE ACTION
+            // =================================================
 
             btnDelete.setOnClickListener(
                     v -> {
@@ -976,33 +965,14 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                     noFeedback
             );
 
-            // -------------------------------------------------
+            // =================================================
             // GIVE FEEDBACK BUTTON
-            // -------------------------------------------------
+            // =================================================
 
             Button btnGiveFeedback =
-                    new Button(this);
-
-            btnGiveFeedback.setText(
-                    "Give Feedback"
-            );
-
-            btnGiveFeedback.setAllCaps(
-                    false
-            );
-
-            btnGiveFeedback.setTextColor(
-                    Color.WHITE
-            );
-
-            btnGiveFeedback.setTypeface(
-                    null,
-                    Typeface.BOLD
-            );
-
-            btnGiveFeedback.setBackgroundResource(
-                    R.drawable.bg_login_button
-            );
+                    createPrimaryButton(
+                            "Give Feedback"
+                    );
 
             LinearLayout.LayoutParams buttonParams =
                     new LinearLayout.LayoutParams(
@@ -1067,12 +1037,178 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // ADD CARD TO CORRECT CONTAINER
+        // ADD CARD TO CONTAINER
         // =====================================================
 
         feedbackContainer.addView(
                 card
         );
+    }
+
+    // =====================================================
+    // PRIMARY BUTTON
+    // =====================================================
+
+    private Button createPrimaryButton(
+            String text) {
+
+        Button button =
+                new Button(this);
+
+        button.setText(
+                text
+        );
+
+        button.setAllCaps(
+                false
+        );
+
+        button.setTextSize(
+                14
+        );
+
+        button.setTextColor(
+                Color.WHITE
+        );
+
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        button.setBackgroundResource(
+                R.drawable.bg_login_button
+        );
+
+        return button;
+    }
+
+    // =====================================================
+    // SECONDARY BUTTON
+    // =====================================================
+
+    private Button createSecondaryButton(
+            String text) {
+
+        Button button =
+                new Button(this);
+
+        button.setText(
+                text
+        );
+
+        button.setAllCaps(
+                false
+        );
+
+        button.setTextSize(
+                14
+        );
+
+        button.setTextColor(
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
+
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                Color.WHITE
+        );
+
+        background.setCornerRadius(
+                dp(10)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
+
+        button.setBackground(
+                background
+        );
+
+        return button;
+    }
+
+    // =====================================================
+    // DELETE BUTTON
+    // =====================================================
+
+    private Button createDeleteButton(
+            String text) {
+
+        Button button =
+                new Button(this);
+
+        button.setText(
+                text
+        );
+
+        button.setAllCaps(
+                false
+        );
+
+        button.setTextSize(
+                14
+        );
+
+        button.setTextColor(
+                Color.rgb(
+                        198,
+                        40,
+                        40
+                )
+        );
+
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                Color.rgb(
+                        255,
+                        245,
+                        245
+                )
+        );
+
+        background.setCornerRadius(
+                dp(10)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(
+                        198,
+                        40,
+                        40
+                )
+        );
+
+        button.setBackground(
+                background
+        );
+
+        return button;
     }
 
     // =====================================================
@@ -1154,12 +1290,10 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                 new StringBuilder();
 
         for (int i = 0; i < rating; i++) {
-
             stars.append("★");
         }
 
         for (int i = rating; i < 5; i++) {
-
             stars.append("☆");
         }
 
