@@ -5,13 +5,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
@@ -19,36 +20,25 @@ import java.util.Locale;
 
 public class MyAppointmentsActivity extends AppCompatActivity {
 
-    LinearLayout appointmentListContainer;
+    private LinearLayout appointmentListContainer;
+    private DatabaseHelper databaseHelper;
 
-    DatabaseHelper databaseHelper;
-
-    String customerId;
+    private String customerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(
-                R.layout.activity_my_appointments
+        setContentView(R.layout.activity_my_appointments);
+
+        appointmentListContainer = findViewById(
+                R.id.appointmentListContainer
         );
 
-        appointmentListContainer =
-                findViewById(
-                        R.id.appointmentListContainer
-                );
+        databaseHelper = new DatabaseHelper(this);
 
-        databaseHelper =
-                new DatabaseHelper(this);
-
-        // =====================================================
-        // GET LOGGED-IN CUSTOMER ID
-        // =====================================================
-
-        customerId =
-                getIntent().getStringExtra(
-                        "customerId"
-                );
+        // Get logged-in customer ID
+        customerId = getIntent().getStringExtra("customerId");
 
         loadAppointments();
     }
@@ -70,18 +60,14 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
         appointmentListContainer.removeAllViews();
 
-        if (customerId == null ||
-                customerId.trim().isEmpty()) {
+        if (customerId == null || customerId.trim().isEmpty()) {
 
-            showEmptyMessage(
-                    "Customer information is missing"
-            );
+            showEmptyMessage("Customer information is missing");
 
             return;
         }
 
-        SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+        SQLiteDatabase db = databaseHelper.getReadableDatabase();
 
         Cursor cursor = null;
 
@@ -123,105 +109,64 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
             if (!cursor.moveToFirst()) {
 
-                showEmptyMessage(
-                        "No appointments found"
-                );
+                showEmptyMessage("No appointments found");
 
                 return;
             }
 
             do {
 
-                int appointmentId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        "appointmentId"
-                                )
-                        );
+                int appointmentId = cursor.getInt(
+                        cursor.getColumnIndexOrThrow("appointmentId")
+                );
 
-                String productService =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "productService"
-                                )
-                        );
+                String productService = cursor.getString(
+                        cursor.getColumnIndexOrThrow("productService")
+                );
 
-                String category =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "category"
-                                )
-                        );
+                String category = cursor.getString(
+                        cursor.getColumnIndexOrThrow("category")
+                );
 
-                double price =
-                        cursor.getDouble(
-                                cursor.getColumnIndexOrThrow(
-                                        "price"
-                                )
-                        );
+                double price = cursor.getDouble(
+                        cursor.getColumnIndexOrThrow("price")
+                );
 
-                String branch =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "branch"
-                                )
-                        );
+                String branch = cursor.getString(
+                        cursor.getColumnIndexOrThrow("branch")
+                );
 
-                String date =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "appointmentDate"
-                                )
-                        );
+                String date = cursor.getString(
+                        cursor.getColumnIndexOrThrow("appointmentDate")
+                );
 
-                String time =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "appointmentTime"
-                                )
-                        );
+                String time = cursor.getString(
+                        cursor.getColumnIndexOrThrow("appointmentTime")
+                );
 
-                int jobId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        "jobId"
-                                )
-                        );
+                int jobId = cursor.getInt(
+                        cursor.getColumnIndexOrThrow("jobId")
+                );
 
-                String technicianId =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "technicianId"
-                                )
-                        );
+                String technicianId = cursor.getString(
+                        cursor.getColumnIndexOrThrow("technicianId")
+                );
 
-                String status =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "status"
-                                )
-                        );
+                String status = cursor.getString(
+                        cursor.getColumnIndexOrThrow("status")
+                );
 
-                int paymentId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        "paymentId"
-                                )
-                        );
+                int paymentId = cursor.getInt(
+                        cursor.getColumnIndexOrThrow("paymentId")
+                );
 
-                String paymentMethod =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "paymentMethod"
-                                )
-                        );
+                String paymentMethod = cursor.getString(
+                        cursor.getColumnIndexOrThrow("paymentMethod")
+                );
 
-                String paymentStatus =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "paymentStatus"
-                                )
-                        );
+                String paymentStatus = cursor.getString(
+                        cursor.getColumnIndexOrThrow("paymentStatus")
+                );
 
                 createAppointmentCard(
                         appointmentId,
@@ -272,27 +217,31 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         // MAIN CARD
         // =====================================================
 
-        LinearLayout card =
-                new LinearLayout(this);
+        LinearLayout card = new LinearLayout(this);
 
-        card.setOrientation(
-                LinearLayout.VERTICAL
-        );
+        card.setOrientation(LinearLayout.VERTICAL);
 
         card.setPadding(
-                25,
-                25,
-                25,
-                25
+                dp(20),
+                dp(20),
+                dp(20),
+                dp(20)
         );
 
-        card.setBackgroundColor(
-                Color.rgb(
-                        245,
-                        247,
-                        250
-                )
+        GradientDrawable cardBackground = new GradientDrawable();
+
+        cardBackground.setColor(Color.WHITE);
+
+        cardBackground.setCornerRadius(
+                dp(18)
         );
+
+        cardBackground.setStroke(
+                dp(1),
+                Color.rgb(226, 234, 240)
+        );
+
+        card.setBackground(cardBackground);
 
         LinearLayout.LayoutParams cardParams =
                 new LinearLayout.LayoutParams(
@@ -304,27 +253,25 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 0,
                 0,
                 0,
-                20
+                dp(16)
         );
 
-        card.setLayoutParams(
-                cardParams
-        );
+        card.setLayoutParams(cardParams);
 
         // =====================================================
         // APPOINTMENT NUMBER
         // =====================================================
 
-        TextView appointmentText =
-                new TextView(this);
+        TextView appointmentText = new TextView(this);
 
         appointmentText.setText(
-                "Appointment #" +
-                        appointmentId
+                "Appointment #" + appointmentId
         );
 
-        appointmentText.setTextSize(
-                21
+        appointmentText.setTextSize(20);
+
+        appointmentText.setTextColor(
+                Color.rgb(38, 50, 56)
         );
 
         appointmentText.setTypeface(
@@ -332,23 +279,22 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 Typeface.BOLD
         );
 
-        card.addView(
-                appointmentText
-        );
+        card.addView(appointmentText);
 
         // =====================================================
-        // PRODUCT / SERVICE
+        // PRODUCT
         // =====================================================
 
-        TextView productText =
-                new TextView(this);
+        TextView productText = new TextView(this);
 
         productText.setText(
-                productService
+                safeText(productService)
         );
 
-        productText.setTextSize(
-                18
+        productText.setTextSize(17);
+
+        productText.setTextColor(
+                Color.rgb(25, 118, 210)
         );
 
         productText.setTypeface(
@@ -364,18 +310,14 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
         productParams.setMargins(
                 0,
-                10,
+                dp(8),
                 0,
                 0
         );
 
-        productText.setLayoutParams(
-                productParams
-        );
+        productText.setLayoutParams(productParams);
 
-        card.addView(
-                productText
-        );
+        card.addView(productText);
 
         // =====================================================
         // REPAIR STATUS
@@ -383,29 +325,22 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
         String displayStatus;
 
-        if (status == null ||
-                status.trim().isEmpty()) {
+        if (status == null || status.trim().isEmpty()) {
 
-            displayStatus =
-                    "WAITING FOR ASSIGNMENT";
+            displayStatus = "WAITING FOR ASSIGNMENT";
 
         } else {
 
-            displayStatus =
-                    status;
+            displayStatus = status.toUpperCase(Locale.getDefault());
         }
 
-        TextView statusText =
-                new TextView(this);
+        TextView statusText = new TextView(this);
 
         statusText.setText(
-                "Repair Status: " +
-                        displayStatus
+                "Repair Status: " + displayStatus
         );
 
-        statusText.setTextSize(
-                15
-        );
+        statusText.setTextSize(14);
 
         statusText.setTypeface(
                 null,
@@ -413,126 +348,125 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         );
 
         statusText.setPadding(
-                0,
-                10,
-                0,
-                10
+                dp(12),
+                dp(10),
+                dp(12),
+                dp(10)
         );
 
-        // Status color
+        GradientDrawable statusBackground = new GradientDrawable();
 
-        if (displayStatus.equals(
-                "FINISHED"
-        )) {
+        if (displayStatus.equals("FINISHED")) {
 
             statusText.setTextColor(
-                    Color.rgb(
-                            46,
-                            125,
-                            50
-                    )
+                    Color.rgb(46, 125, 50)
             );
 
-        } else if (displayStatus.equals(
-                "ONGOING"
-        )) {
-
-            statusText.setTextColor(
-                    Color.rgb(
-                            230,
-                            126,
-                            34
-                    )
+            statusBackground.setColor(
+                    Color.rgb(232, 245, 233)
             );
 
-        } else if (displayStatus.equals(
-                "STARTED"
-        )) {
+        } else if (displayStatus.equals("ONGOING")) {
 
             statusText.setTextColor(
-                    Color.rgb(
-                            41,
-                            98,
-                            255
-                    )
+                    Color.rgb(239, 108, 0)
+            );
+
+            statusBackground.setColor(
+                    Color.rgb(255, 243, 224)
+            );
+
+        } else if (displayStatus.equals("STARTED")) {
+
+            statusText.setTextColor(
+                    Color.rgb(25, 118, 210)
+            );
+
+            statusBackground.setColor(
+                    Color.rgb(227, 242, 253)
             );
 
         } else {
 
             statusText.setTextColor(
-                    Color.rgb(
-                            103,
-                            80,
-                            164
-                    )
+                    Color.rgb(84, 110, 122)
+            );
+
+            statusBackground.setColor(
+                    Color.rgb(241, 245, 248)
             );
         }
 
-        card.addView(
-                statusText
+        statusBackground.setCornerRadius(
+                dp(10)
         );
+
+        statusText.setBackground(statusBackground);
+
+        LinearLayout.LayoutParams statusParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        statusParams.setMargins(
+                0,
+                dp(14),
+                0,
+                dp(4)
+        );
+
+        statusText.setLayoutParams(statusParams);
+
+        card.addView(statusText);
 
         // =====================================================
         // CATEGORY
         // =====================================================
 
-        TextView categoryText =
-                createInfoText(
-                        "Category: " +
-                                safeText(category)
-                );
-
-        card.addView(
-                categoryText
+        TextView categoryText = createInfoText(
+                "Category: " + safeText(category)
         );
+
+        card.addView(categoryText);
 
         // =====================================================
         // PRICE
         // =====================================================
 
-        TextView priceText =
-                createInfoText(
-                        "Price: Rs. " +
-                                String.format(
-                                        Locale.getDefault(),
-                                        "%.2f",
-                                        price
-                                )
-                );
-
-        card.addView(
-                priceText
+        TextView priceText = createInfoText(
+                "Price: Rs. " +
+                        String.format(
+                                Locale.getDefault(),
+                                "%.2f",
+                                price
+                        )
         );
+
+        card.addView(priceText);
 
         // =====================================================
         // BRANCH
         // =====================================================
 
-        TextView branchText =
-                createInfoText(
-                        "Branch: " +
-                                safeText(branch)
-                );
-
-        card.addView(
-                branchText
+        TextView branchText = createInfoText(
+                "Branch: " + safeText(branch)
         );
+
+        card.addView(branchText);
 
         // =====================================================
         // DATE / TIME
         // =====================================================
 
-        TextView dateTimeText =
-                createInfoText(
-                        "Date: " +
-                                safeText(date) +
-                                "    Time: " +
-                                safeText(time)
-                );
-
-        card.addView(
-                dateTimeText
+        TextView dateTimeText = createInfoText(
+                "Date: " +
+                        safeText(date) +
+                        "    Time: " +
+                        safeText(time)
         );
+
+        card.addView(dateTimeText);
 
         // =====================================================
         // TECHNICIAN
@@ -549,18 +483,40 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         } else {
 
             technicianText =
-                    "Technician ID: " +
-                            technicianId;
+                    "Technician ID: " + technicianId;
         }
 
         TextView technicianTextView =
-                createInfoText(
-                        technicianText
+                createInfoText(technicianText);
+
+        card.addView(technicianTextView);
+
+        // =====================================================
+        // DIVIDER
+        // =====================================================
+
+        View divider = new View(this);
+
+        divider.setBackgroundColor(
+                Color.rgb(230, 236, 240)
+        );
+
+        LinearLayout.LayoutParams dividerParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        dp(1)
                 );
 
-        card.addView(
-                technicianTextView
+        dividerParams.setMargins(
+                0,
+                dp(16),
+                0,
+                dp(12)
         );
+
+        divider.setLayoutParams(dividerParams);
+
+        card.addView(divider);
 
         // =====================================================
         // PAYMENT INFORMATION
@@ -571,10 +527,9 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                         paymentStatus != null &&
                         !paymentStatus.trim().isEmpty();
 
-        TextView paymentText =
-                createInfoText(
-                        ""
-                );
+        TextView paymentText = new TextView(this);
+
+        paymentText.setTextSize(14);
 
         paymentText.setTypeface(
                 null,
@@ -588,11 +543,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
             );
 
             paymentText.setTextColor(
-                    Color.rgb(
-                            198,
-                            40,
-                            40
-                    )
+                    Color.rgb(198, 40, 40)
             );
 
         } else {
@@ -604,76 +555,74 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                             safeText(paymentMethod)
             );
 
-            if (paymentStatus.equals(
-                    "PAID"
-            )) {
+            if ("PAID".equalsIgnoreCase(paymentStatus)) {
 
                 paymentText.setTextColor(
-                        Color.rgb(
-                                46,
-                                125,
-                                50
-                        )
+                        Color.rgb(46, 125, 50)
                 );
 
             } else {
 
                 paymentText.setTextColor(
-                        Color.rgb(
-                                230,
-                                126,
-                                34
-                        )
+                        Color.rgb(239, 108, 0)
                 );
             }
         }
 
         paymentText.setPadding(
                 0,
-                12,
+                dp(4),
                 0,
-                5
+                dp(4)
         );
 
-        card.addView(
-                paymentText
-        );
+        card.addView(paymentText);
 
         // =====================================================
         // MAKE PAYMENT BUTTON
         // =====================================================
 
         /*
-         * Payment should only be available after
+         * Payment is available only after
          * the repair is FINISHED.
          */
 
         if (displayStatus.equals("FINISHED") &&
                 !hasPayment) {
 
-            Button btnMakePayment =
-                    new Button(this);
+            Button btnMakePayment = new Button(this);
 
-            btnMakePayment.setText(
-                    "Make Payment"
+            btnMakePayment.setText("MAKE PAYMENT");
+
+            btnMakePayment.setTextSize(14);
+
+            btnMakePayment.setTextColor(Color.WHITE);
+
+            btnMakePayment.setTypeface(
+                    null,
+                    Typeface.BOLD
+            );
+
+            btnMakePayment.setAllCaps(false);
+
+            btnMakePayment.setBackgroundResource(
+                    R.drawable.bg_login_button
             );
 
             LinearLayout.LayoutParams buttonParams =
                     new LinearLayout.LayoutParams(
                             ViewGroup.LayoutParams.MATCH_PARENT,
-                            ViewGroup.LayoutParams.WRAP_CONTENT
+                            dp(52)
                     );
 
             buttonParams.setMargins(
                     0,
-                    15,
+                    dp(14),
                     0,
                     0
             );
 
-            btnMakePayment.setLayoutParams(
-                    buttonParams
-            );
+            btnMakePayment.setLayoutParams(buttonParams);
 
             btnMakePayment.setOnClickListener(v -> {
 
@@ -706,18 +655,48 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                 startActivity(intent);
             });
 
-            card.addView(
-                    btnMakePayment
-            );
+            card.addView(btnMakePayment);
         }
 
         // =====================================================
         // ADD CARD
         // =====================================================
 
-        appointmentListContainer.addView(
-                card
+        appointmentListContainer.addView(card);
+    }
+
+    // =====================================================
+    // CREATE INFO TEXT
+    // =====================================================
+
+    private TextView createInfoText(String text) {
+
+        TextView textView = new TextView(this);
+
+        textView.setText(text);
+
+        textView.setTextSize(14);
+
+        textView.setTextColor(
+                Color.rgb(96, 125, 139)
         );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        params.setMargins(
+                0,
+                dp(6),
+                0,
+                0
+        );
+
+        textView.setLayoutParams(params);
+
+        return textView;
     }
 
     // =====================================================
@@ -736,78 +715,87 @@ public class MyAppointmentsActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // CREATE INFO TEXT
-    // =====================================================
-
-    private TextView createInfoText(
-            String text) {
-
-        TextView textView =
-                new TextView(this);
-
-        textView.setText(
-                text
-        );
-
-        textView.setTextSize(
-                15
-        );
-
-        textView.setTextColor(
-                Color.DKGRAY
-        );
-
-        LinearLayout.LayoutParams params =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
-
-        params.setMargins(
-                0,
-                8,
-                0,
-                0
-        );
-
-        textView.setLayoutParams(
-                params
-        );
-
-        return textView;
-    }
-
-    // =====================================================
     // EMPTY MESSAGE
     // =====================================================
 
-    private void showEmptyMessage(
-            String message) {
+    private void showEmptyMessage(String message) {
+
+        LinearLayout emptyCard = new LinearLayout(this);
+
+        emptyCard.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        emptyCard.setGravity(
+                Gravity.CENTER
+        );
+
+        emptyCard.setPadding(
+                dp(20),
+                dp(40),
+                dp(20),
+                dp(40)
+        );
+
+        GradientDrawable emptyBackground =
+                new GradientDrawable();
+
+        emptyBackground.setColor(Color.WHITE);
+
+        emptyBackground.setCornerRadius(
+                dp(18)
+        );
+
+        emptyBackground.setStroke(
+                dp(1),
+                Color.rgb(226, 234, 240)
+        );
+
+        emptyCard.setBackground(
+                emptyBackground
+        );
 
         TextView emptyText =
                 new TextView(this);
 
-        emptyText.setText(
-                message
-        );
+        emptyText.setText(message);
 
-        emptyText.setTextSize(
-                18
+        emptyText.setTextSize(16);
+
+        emptyText.setTextColor(
+                Color.rgb(96, 125, 139)
         );
 
         emptyText.setGravity(
                 Gravity.CENTER
         );
 
-        emptyText.setPadding(
-                0,
-                50,
-                0,
-                50
-        );
+        emptyCard.addView(emptyText);
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        emptyCard.setLayoutParams(params);
 
         appointmentListContainer.addView(
-                emptyText
+                emptyCard
+        );
+    }
+
+    // =====================================================
+    // DP HELPER
+    // =====================================================
+
+    private int dp(int value) {
+
+        return (int) (
+                value *
+                        getResources()
+                                .getDisplayMetrics()
+                                .density
         );
     }
 }
