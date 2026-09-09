@@ -6,8 +6,10 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Color;
 import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -16,36 +18,32 @@ import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 
 import java.io.File;
+import java.util.Locale;
 
 public class RepairHistoryActivity extends AppCompatActivity {
 
-    LinearLayout historyContainer;
+    private LinearLayout historyContainer;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
-    String customerId;
+    private String customerId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(
-                R.layout.activity_repair_history
+        setContentView(R.layout.activity_repair_history);
+
+        historyContainer = findViewById(
+                R.id.historyContainer
         );
 
-        historyContainer =
-                findViewById(
-                        R.id.historyContainer
-                );
-
-        databaseHelper =
-                new DatabaseHelper(this);
+        databaseHelper = new DatabaseHelper(this);
 
         // Get logged-in customer ID
-        customerId =
-                getIntent().getStringExtra(
-                        "customerId"
-                );
+        customerId = getIntent().getStringExtra(
+                "customerId"
+        );
 
         loadRepairHistory();
     }
@@ -86,35 +84,40 @@ public class RepairHistoryActivity extends AppCompatActivity {
 
             /*
              * Get completed repairs for the logged-in
-             * customer and retrieve the technician name.
+             * customer and retrieve technician information.
              */
-            cursor =
-                    db.rawQuery(
-                            "SELECT " +
-                                    "j.jobId, " +
-                                    "j.status, " +
-                                    "j.photoPath, " +
-                                    "a.appointmentId, " +
-                                    "a.productService, " +
-                                    "a.category, " +
-                                    "a.price, " +
-                                    "a.branch, " +
-                                    "a.appointmentDate, " +
-                                    "a.appointmentTime, " +
-                                    "j.technicianId, " +
-                                    "t.technicianName " +
-                                    "FROM jobs j " +
-                                    "INNER JOIN appointments a " +
-                                    "ON j.appointmentId = a.appointmentId " +
-                                    "LEFT JOIN technicians t " +
-                                    "ON j.technicianId = t.technicianId " +
-                                    "WHERE a.customerId = ? " +
-                                    "AND j.status = 'FINISHED' " +
-                                    "ORDER BY j.jobId DESC",
-                            new String[]{
-                                    customerId
-                            }
-                    );
+            cursor = db.rawQuery(
+                    "SELECT " +
+                            "j.jobId, " +
+                            "j.status, " +
+                            "j.photoPath, " +
+                            "a.appointmentId, " +
+                            "a.productService, " +
+                            "a.category, " +
+                            "a.price, " +
+                            "a.branch, " +
+                            "a.appointmentDate, " +
+                            "a.appointmentTime, " +
+                            "j.technicianId, " +
+                            "t.technicianName " +
+
+                            "FROM jobs j " +
+
+                            "INNER JOIN appointments a " +
+                            "ON j.appointmentId = a.appointmentId " +
+
+                            "LEFT JOIN technicians t " +
+                            "ON j.technicianId = t.technicianId " +
+
+                            "WHERE a.customerId = ? " +
+                            "AND j.status = 'FINISHED' " +
+
+                            "ORDER BY j.jobId DESC",
+
+                    new String[]{
+                            customerId
+                    }
+            );
 
             if (!cursor.moveToFirst()) {
 
@@ -127,19 +130,17 @@ public class RepairHistoryActivity extends AppCompatActivity {
 
             do {
 
-                int jobId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        "jobId"
-                                )
-                        );
+                int jobId = cursor.getInt(
+                        cursor.getColumnIndexOrThrow(
+                                "jobId"
+                        )
+                );
 
-                int appointmentId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow(
-                                        "appointmentId"
-                                )
-                        );
+                int appointmentId = cursor.getInt(
+                        cursor.getColumnIndexOrThrow(
+                                "appointmentId"
+                        )
+                );
 
                 String productService =
                         cursor.getString(
@@ -243,29 +244,43 @@ public class RepairHistoryActivity extends AppCompatActivity {
             String time,
             String technicianId,
             String technicianName,
-            String photoPath
-    ) {
+            String photoPath) {
 
-        LinearLayout card =
-                new LinearLayout(this);
+        // =====================================================
+        // MAIN CARD
+        // =====================================================
+
+        LinearLayout card = new LinearLayout(this);
 
         card.setOrientation(
                 LinearLayout.VERTICAL
         );
 
         card.setPadding(
-                24,
-                24,
-                24,
-                24
+                dp(20),
+                dp(20),
+                dp(20),
+                dp(20)
         );
 
-        card.setBackgroundColor(
-                Color.rgb(
-                        245,
-                        247,
-                        250
-                )
+        GradientDrawable cardBackground =
+                new GradientDrawable();
+
+        cardBackground.setColor(
+                Color.WHITE
+        );
+
+        cardBackground.setCornerRadius(
+                dp(18)
+        );
+
+        cardBackground.setStroke(
+                dp(1),
+                Color.rgb(226, 234, 240)
+        );
+
+        card.setBackground(
+                cardBackground
         );
 
         LinearLayout.LayoutParams cardParams =
@@ -278,16 +293,16 @@ public class RepairHistoryActivity extends AppCompatActivity {
                 0,
                 0,
                 0,
-                20
+                dp(16)
         );
 
         card.setLayoutParams(
                 cardParams
         );
 
-        // =================================================
-        // JOB TITLE
-        // =================================================
+        // =====================================================
+        // REPAIR NUMBER
+        // =====================================================
 
         TextView title =
                 new TextView(this);
@@ -296,9 +311,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
                 "Repair #" + jobId
         );
 
-        title.setTextSize(
-                21
-        );
+        title.setTextSize(20);
 
         title.setTypeface(
                 null,
@@ -306,27 +319,64 @@ public class RepairHistoryActivity extends AppCompatActivity {
         );
 
         title.setTextColor(
-                Color.BLACK
+                Color.rgb(38, 50, 56)
         );
 
-        card.addView(
-                title
+        card.addView(title);
+
+        // =====================================================
+        // PRODUCT
+        // =====================================================
+
+        TextView productText =
+                new TextView(this);
+
+        productText.setText(
+                safeText(productService)
         );
 
-        // =================================================
-        // COMPLETED STATUS
-        // =================================================
+        productText.setTextSize(17);
+
+        productText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        productText.setTextColor(
+                Color.rgb(25, 118, 210)
+        );
+
+        LinearLayout.LayoutParams productParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        productParams.setMargins(
+                0,
+                dp(8),
+                0,
+                0
+        );
+
+        productText.setLayoutParams(
+                productParams
+        );
+
+        card.addView(productText);
+
+        // =====================================================
+        // FINISHED STATUS
+        // =====================================================
 
         TextView status =
                 new TextView(this);
 
         status.setText(
-                "Status: FINISHED"
+                "Repair Status: FINISHED"
         );
 
-        status.setTextSize(
-                15
-        );
+        status.setTextSize(14);
 
         status.setTypeface(
                 null,
@@ -334,128 +384,190 @@ public class RepairHistoryActivity extends AppCompatActivity {
         );
 
         status.setTextColor(
-                Color.rgb(
-                        46,
-                        125,
-                        50
-                )
+                Color.rgb(46, 125, 50)
         );
 
         status.setPadding(
+                dp(12),
+                dp(10),
+                dp(12),
+                dp(10)
+        );
+
+        GradientDrawable statusBackground =
+                new GradientDrawable();
+
+        statusBackground.setColor(
+                Color.rgb(232, 245, 233)
+        );
+
+        statusBackground.setCornerRadius(
+                dp(10)
+        );
+
+        status.setBackground(
+                statusBackground
+        );
+
+        LinearLayout.LayoutParams statusParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        statusParams.setMargins(
                 0,
-                10,
+                dp(14),
                 0,
-                10
+                dp(4)
         );
 
-        card.addView(
-                status
+        status.setLayoutParams(
+                statusParams
         );
 
-        // =================================================
-        // PRODUCT / SERVICE
-        // =================================================
+        card.addView(status);
 
-        card.addView(
-                createInfoText(
-                        "Product / Service: " +
-                                productService
-                )
-        );
-
-        // =================================================
-        // CATEGORY
-        // =================================================
+        // =====================================================
+        // INFORMATION
+        // =====================================================
 
         card.addView(
                 createInfoText(
                         "Category: " +
-                                category
+                                safeText(category)
                 )
         );
-
-        // =================================================
-        // PRICE
-        // =================================================
 
         card.addView(
                 createInfoText(
                         "Price: Rs. " +
                                 String.format(
+                                        Locale.getDefault(),
                                         "%.2f",
                                         price
                                 )
                 )
         );
 
-        // =================================================
-        // BRANCH
-        // =================================================
-
         card.addView(
                 createInfoText(
                         "Branch: " +
-                                branch
+                                safeText(branch)
                 )
         );
-
-        // =================================================
-        // DATE / TIME
-        // =================================================
 
         card.addView(
                 createInfoText(
                         "Date: " +
-                                date +
+                                safeText(date) +
                                 "    Time: " +
-                                time
+                                safeText(time)
                 )
         );
 
-        // =================================================
+        // =====================================================
         // TECHNICIAN
-        // =================================================
+        // =====================================================
+
+        String technicianText;
 
         if (technicianName != null &&
                 !technicianName.trim().isEmpty()) {
 
-            card.addView(
-                    createInfoText(
-                            "Technician: " +
-                                    technicianName
-                    )
-            );
+            technicianText =
+                    "Technician: " +
+                            technicianName;
 
         } else if (technicianId != null &&
                 !technicianId.trim().isEmpty()) {
 
-            // Fallback if technician name cannot be found
-            card.addView(
-                    createInfoText(
-                            "Technician ID: " +
-                                    technicianId
-                    )
-            );
+            technicianText =
+                    "Technician ID: " +
+                            technicianId;
+
+        } else {
+
+            technicianText =
+                    "Technician: Not available";
         }
 
-        // =================================================
+        TextView technicianTextView =
+                createInfoText(
+                        technicianText
+                );
+
+        technicianTextView.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        technicianTextView.setTextColor(
+                Color.rgb(55, 71, 79)
+        );
+
+        card.addView(
+                technicianTextView
+        );
+
+        // =====================================================
+        // DIVIDER
+        // =====================================================
+
+        View divider =
+                new View(this);
+
+        divider.setBackgroundColor(
+                Color.rgb(230, 236, 240)
+        );
+
+        LinearLayout.LayoutParams dividerParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        dp(1)
+                );
+
+        dividerParams.setMargins(
+                0,
+                dp(16),
+                0,
+                dp(14)
+        );
+
+        divider.setLayoutParams(
+                dividerParams
+        );
+
+        card.addView(
+                divider
+        );
+
+        // =====================================================
         // REPAIR PHOTO
-        // =================================================
+        // =====================================================
 
         if (photoPath != null &&
                 !photoPath.trim().isEmpty()) {
 
             File photoFile =
-                    new File(
-                            photoPath
-                    );
+                    new File(photoPath);
 
             if (photoFile.exists()) {
 
                 TextView photoLabel =
-                        createInfoText(
-                                "Repair Photo"
-                        );
+                        new TextView(this);
+
+                photoLabel.setText(
+                        "Repair Photo"
+                );
+
+                photoLabel.setTextSize(
+                        14
+                );
+
+                photoLabel.setTextColor(
+                        Color.rgb(38, 50, 56)
+                );
 
                 photoLabel.setTypeface(
                         null,
@@ -464,9 +576,9 @@ public class RepairHistoryActivity extends AppCompatActivity {
 
                 photoLabel.setPadding(
                         0,
-                        15,
                         0,
-                        8
+                        0,
+                        dp(8)
                 );
 
                 card.addView(
@@ -481,9 +593,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
                 if (bitmap != null) {
 
                     ImageView photoView =
-                            new ImageView(
-                                    this
-                            );
+                            new ImageView(this);
 
                     photoView.setImageBitmap(
                             bitmap
@@ -496,18 +606,37 @@ public class RepairHistoryActivity extends AppCompatActivity {
                     LinearLayout.LayoutParams imageParams =
                             new LinearLayout.LayoutParams(
                                     ViewGroup.LayoutParams.MATCH_PARENT,
-                                    220
+                                    dp(220)
                             );
 
                     imageParams.setMargins(
                             0,
                             0,
                             0,
-                            12
+                            dp(4)
                     );
 
                     photoView.setLayoutParams(
                             imageParams
+                    );
+
+                    GradientDrawable imageBackground =
+                            new GradientDrawable();
+
+                    imageBackground.setColor(
+                            Color.rgb(245, 247, 250)
+                    );
+
+                    imageBackground.setCornerRadius(
+                            dp(14)
+                    );
+
+                    photoView.setBackground(
+                            imageBackground
+                    );
+
+                    photoView.setClipToOutline(
+                            true
                     );
 
                     photoView.setContentDescription(
@@ -516,6 +645,14 @@ public class RepairHistoryActivity extends AppCompatActivity {
 
                     card.addView(
                             photoView
+                    );
+
+                } else {
+
+                    card.addView(
+                            createInfoText(
+                                    "Repair photo could not be loaded"
+                            )
                     );
                 }
 
@@ -527,18 +664,61 @@ public class RepairHistoryActivity extends AppCompatActivity {
                         )
                 );
             }
+
+        } else {
+
+            TextView noPhoto =
+                    createInfoText(
+                            "No repair photo available"
+                    );
+
+            noPhoto.setTextColor(
+                    Color.rgb(120, 130, 138)
+            );
+
+            card.addView(noPhoto);
         }
 
-        // =================================================
-        // APPOINTMENT
-        // =================================================
+        // =====================================================
+        // APPOINTMENT NUMBER
+        // =====================================================
 
-        card.addView(
+        TextView appointmentText =
                 createInfoText(
                         "Appointment #" +
                                 appointmentId
-                )
+                );
+
+        appointmentText.setTextSize(
+                13
         );
+
+        appointmentText.setTextColor(
+                Color.rgb(120, 130, 138)
+        );
+
+        LinearLayout.LayoutParams appointmentParams =
+                (LinearLayout.LayoutParams)
+                        appointmentText.getLayoutParams();
+
+        appointmentParams.setMargins(
+                0,
+                dp(12),
+                0,
+                0
+        );
+
+        appointmentText.setLayoutParams(
+                appointmentParams
+        );
+
+        card.addView(
+                appointmentText
+        );
+
+        // =====================================================
+        // ADD CARD
+        // =====================================================
 
         historyContainer.addView(
                 card
@@ -550,8 +730,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
     // =====================================================
 
     private TextView createInfoText(
-            String text
-    ) {
+            String text) {
 
         TextView textView =
                 new TextView(this);
@@ -561,11 +740,11 @@ public class RepairHistoryActivity extends AppCompatActivity {
         );
 
         textView.setTextSize(
-                15
+                14
         );
 
         textView.setTextColor(
-                Color.DKGRAY
+                Color.rgb(96, 125, 139)
         );
 
         LinearLayout.LayoutParams params =
@@ -576,7 +755,7 @@ public class RepairHistoryActivity extends AppCompatActivity {
 
         params.setMargins(
                 0,
-                7,
+                dp(6),
                 0,
                 0
         );
@@ -593,8 +772,45 @@ public class RepairHistoryActivity extends AppCompatActivity {
     // =====================================================
 
     private void showMessage(
-            String message
-    ) {
+            String message) {
+
+        LinearLayout messageCard =
+                new LinearLayout(this);
+
+        messageCard.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        messageCard.setGravity(
+                Gravity.CENTER
+        );
+
+        messageCard.setPadding(
+                dp(20),
+                dp(40),
+                dp(20),
+                dp(40)
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                Color.WHITE
+        );
+
+        background.setCornerRadius(
+                dp(18)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(226, 234, 240)
+        );
+
+        messageCard.setBackground(
+                background
+        );
 
         TextView messageText =
                 new TextView(this);
@@ -604,26 +820,62 @@ public class RepairHistoryActivity extends AppCompatActivity {
         );
 
         messageText.setTextSize(
-                18
+                16
         );
 
         messageText.setTextColor(
-                Color.GRAY
+                Color.rgb(96, 125, 139)
         );
 
         messageText.setGravity(
                 Gravity.CENTER
         );
 
-        messageText.setPadding(
-                0,
-                50,
-                0,
-                50
+        messageCard.addView(
+                messageText
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        messageCard.setLayoutParams(
+                params
         );
 
         historyContainer.addView(
-                messageText
+                messageCard
         );
+    }
+
+    // =====================================================
+    // DP HELPER
+    // =====================================================
+
+    private int dp(int value) {
+
+        return (int) (
+                value *
+                        getResources()
+                                .getDisplayMetrics()
+                                .density
+        );
+    }
+
+    // =====================================================
+    // SAFE TEXT
+    // =====================================================
+
+    private String safeText(String text) {
+
+        if (text == null ||
+                text.trim().isEmpty()) {
+
+            return "Not available";
+        }
+
+        return text;
     }
 }
