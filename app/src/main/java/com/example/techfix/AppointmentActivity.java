@@ -31,30 +31,31 @@ import android.location.LocationManager;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Locale;
 
 public class AppointmentActivity extends AppCompatActivity {
 
-    RadioGroup radioGroupLocation;
-    RadioButton radioAutoDetect;
-    RadioButton radioManual;
+    private RadioGroup radioGroupLocation;
+    private RadioButton radioAutoDetect;
+    private RadioButton radioManual;
 
-    Spinner spinnerBranch;
+    private Spinner spinnerBranch;
 
-    EditText edtProductService;
-    EditText edtCategory;
-    EditText edtPrice;
-    EditText edtDate;
-    EditText edtTime;
+    private EditText edtProductService;
+    private EditText edtCategory;
+    private EditText edtPrice;
+    private EditText edtDate;
+    private EditText edtTime;
 
-    Button btnAddPhoto;
-    Button btnCancel;
-    Button btnConfirm;
+    private Button btnAddPhoto;
+    private Button btnCancel;
+    private Button btnConfirm;
 
-    ImageView imgProductPhoto;
+    private ImageView imgProductPhoto;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
-    ArrayList<String> branchNames;
+    private ArrayList<String> branchNames;
 
     private static final int LOCATION_PERMISSION_REQUEST = 100;
     private static final int CAMERA_PERMISSION_REQUEST = 200;
@@ -62,10 +63,23 @@ public class AppointmentActivity extends AppCompatActivity {
     private LocationManager locationManager;
     private LocationListener activeLocationListener;
 
-    // Logged-in customer information
-    String customerId;
-    String customerName;
-    String customerEmail;
+    // =====================================================
+    // LOGGED-IN CUSTOMER INFORMATION
+    // =====================================================
+
+    private String customerId;
+    private String customerName;
+    private String customerEmail;
+
+    // =====================================================
+    // SELECTED PRODUCT INFORMATION
+    // These values come from ProductListActivity.
+    // They are the source of truth for the appointment.
+    // =====================================================
+
+    private String selectedProductName;
+    private String selectedCategory;
+    private double selectedPrice;
 
     // =====================================================
     // CAMERA
@@ -89,7 +103,9 @@ public class AppointmentActivity extends AppCompatActivity {
 
                                 if (photo != null) {
 
-                                    imgProductPhoto.setImageBitmap(photo);
+                                    imgProductPhoto.setImageBitmap(
+                                            photo
+                                    );
 
                                     Toast.makeText(
                                             this,
@@ -110,46 +126,78 @@ public class AppointmentActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_appointment);
+        setContentView(
+                R.layout.activity_appointment
+        );
+
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
 
         radioGroupLocation =
-                findViewById(R.id.radioGroupLocation);
+                findViewById(
+                        R.id.radioGroupLocation
+                );
 
         radioAutoDetect =
-                findViewById(R.id.radioAutoDetect);
+                findViewById(
+                        R.id.radioAutoDetect
+                );
 
         radioManual =
-                findViewById(R.id.radioManual);
+                findViewById(
+                        R.id.radioManual
+                );
 
         spinnerBranch =
-                findViewById(R.id.spinnerBranch);
+                findViewById(
+                        R.id.spinnerBranch
+                );
 
         edtProductService =
-                findViewById(R.id.edtProductService);
+                findViewById(
+                        R.id.edtProductService
+                );
 
         edtCategory =
-                findViewById(R.id.edtCategory);
+                findViewById(
+                        R.id.edtCategory
+                );
 
         edtPrice =
-                findViewById(R.id.edtPrice);
+                findViewById(
+                        R.id.edtPrice
+                );
 
         edtDate =
-                findViewById(R.id.edtDate);
+                findViewById(
+                        R.id.edtDate
+                );
 
         edtTime =
-                findViewById(R.id.edtTime);
+                findViewById(
+                        R.id.edtTime
+                );
 
         btnAddPhoto =
-                findViewById(R.id.btnAddPhoto);
+                findViewById(
+                        R.id.btnAddPhoto
+                );
 
         btnCancel =
-                findViewById(R.id.btnCancel);
+                findViewById(
+                        R.id.btnCancel
+                );
 
         btnConfirm =
-                findViewById(R.id.btnConfirm);
+                findViewById(
+                        R.id.btnConfirm
+                );
 
         imgProductPhoto =
-                findViewById(R.id.imgProductPhoto);
+                findViewById(
+                        R.id.imgProductPhoto
+                );
 
         databaseHelper =
                 new DatabaseHelper(this);
@@ -157,101 +205,226 @@ public class AppointmentActivity extends AppCompatActivity {
         branchNames =
                 new ArrayList<>();
 
-        // =================================================
+        // =====================================================
         // GET CUSTOMER INFORMATION
-        // =================================================
+        // =====================================================
 
         customerId =
-                getIntent().getStringExtra("customerId");
+                getIntent().getStringExtra(
+                        "customerId"
+                );
 
         customerName =
-                getIntent().getStringExtra("customerName");
+                getIntent().getStringExtra(
+                        "customerName"
+                );
 
         customerEmail =
-                getIntent().getStringExtra("customerEmail");
+                getIntent().getStringExtra(
+                        "customerEmail"
+                );
 
-        // Product details passed in from previous screen
-        String productName =
-                getIntent().getStringExtra("productName");
+        // =====================================================
+        // GET SELECTED PRODUCT INFORMATION
+        // =====================================================
 
-        String category =
-                getIntent().getStringExtra("category");
+        selectedProductName =
+                getIntent().getStringExtra(
+                        "productName"
+                );
 
-        double price =
-                getIntent().getDoubleExtra("price", 0);
+        selectedCategory =
+                getIntent().getStringExtra(
+                        "category"
+                );
 
-        if (productName != null) {
+        selectedPrice =
+                getIntent().getDoubleExtra(
+                        "price",
+                        0
+                );
 
-            edtProductService.setText(productName);
+        // =====================================================
+        // VALIDATE PRODUCT INFORMATION
+        // =====================================================
+
+        if (selectedProductName == null ||
+                selectedProductName.trim().isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Product information is missing. Please select a product again.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+            return;
         }
 
-        if (category != null) {
+        if (selectedCategory == null ||
+                selectedCategory.trim().isEmpty()) {
 
-            edtCategory.setText(category);
+            Toast.makeText(
+                    this,
+                    "Product category is missing. Please select a product again.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+            return;
         }
 
-        if (price > 0) {
+        if (selectedPrice <= 0) {
 
-            edtPrice.setText(
-                    String.format("%.2f", price)
-            );
+            Toast.makeText(
+                    this,
+                    "Invalid product price. Please select the product again.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+
+            return;
         }
+
+        // =====================================================
+        // DISPLAY SELECTED PRODUCT
+        // =====================================================
+
+        edtProductService.setText(
+                selectedProductName
+        );
+
+        edtCategory.setText(
+                selectedCategory
+        );
+
+        edtPrice.setText(
+                "Rs. " +
+                        String.format(
+                                Locale.getDefault(),
+                                "%.2f",
+                                selectedPrice
+                        )
+        );
+
+        // =====================================================
+        // MAKE PRODUCT INFORMATION READ-ONLY
+        // =====================================================
+
+        /*
+         * The customer selected this information on the
+         * Product List screen.
+         *
+         * It must not be editable here.
+         */
+
+        makeReadOnly(
+                edtProductService
+        );
+
+        makeReadOnly(
+                edtCategory
+        );
+
+        makeReadOnly(
+                edtPrice
+        );
+
+        // =====================================================
+        // LOAD BRANCHES
+        // =====================================================
 
         loadBranches();
 
-        // =================================================
+        // =====================================================
         // LOCATION
-        // =================================================
+        // =====================================================
 
         radioGroupLocation.setOnCheckedChangeListener(
                 (group, checkedId) -> {
 
-                    if (checkedId == R.id.radioAutoDetect) {
+                    if (checkedId ==
+                            R.id.radioAutoDetect) {
 
                         spinnerBranch.setEnabled(false);
 
                         detectCurrentLocation();
 
-                    } else if (checkedId == R.id.radioManual) {
+                    } else if (checkedId ==
+                            R.id.radioManual) {
 
                         spinnerBranch.setEnabled(true);
                     }
                 }
         );
 
-        // =================================================
-        // BUTTONS
-        // =================================================
+        // =====================================================
+        // ADD PHOTO
+        // =====================================================
 
         btnAddPhoto.setOnClickListener(
                 v -> openCamera()
         );
 
+        // =====================================================
+        // DATE
+        // =====================================================
+
         edtDate.setOnClickListener(
                 v -> showDatePicker()
         );
+
+        // =====================================================
+        // TIME
+        // =====================================================
 
         edtTime.setOnClickListener(
                 v -> showTimePicker()
         );
 
+        // =====================================================
+        // CANCEL
+        // =====================================================
+
         btnCancel.setOnClickListener(
                 v -> finish()
         );
+
+        // =====================================================
+        // CONFIRM
+        // =====================================================
 
         btnConfirm.setOnClickListener(
                 v -> saveAppointment()
         );
 
-        // =================================================
-        // INITIAL STATE
-        // =================================================
+        // =====================================================
+        // INITIAL LOCATION STATE
+        // =====================================================
 
         radioAutoDetect.setChecked(true);
 
         spinnerBranch.setEnabled(false);
 
         detectCurrentLocation();
+    }
+
+    // =====================================================
+    // MAKE EDITTEXT READ-ONLY
+    // =====================================================
+
+    private void makeReadOnly(
+            EditText editText) {
+
+        editText.setFocusable(false);
+        editText.setFocusableInTouchMode(false);
+        editText.setClickable(false);
+        editText.setCursorVisible(false);
+        editText.setLongClickable(false);
+        editText.setTextIsSelectable(false);
     }
 
     // =====================================================
@@ -321,7 +494,9 @@ public class AppointmentActivity extends AppCompatActivity {
                 android.R.layout.simple_spinner_dropdown_item
         );
 
-        spinnerBranch.setAdapter(adapter);
+        spinnerBranch.setAdapter(
+                adapter
+        );
     }
 
     // =====================================================
@@ -398,7 +573,9 @@ public class AppointmentActivity extends AppCompatActivity {
 
         locationManager =
                 (LocationManager)
-                        getSystemService(LOCATION_SERVICE);
+                        getSystemService(
+                                LOCATION_SERVICE
+                        );
 
         if (locationManager == null) {
 
@@ -411,7 +588,10 @@ public class AppointmentActivity extends AppCompatActivity {
             return;
         }
 
-        // Clean up previous listener
+        // =====================================================
+        // REMOVE OLD LISTENER
+        // =====================================================
+
         if (activeLocationListener != null) {
 
             try {
@@ -428,6 +608,10 @@ public class AppointmentActivity extends AppCompatActivity {
 
             Location lastLocation = null;
 
+            // =================================================
+            // GPS LOCATION
+            // =================================================
+
             if (locationManager.isProviderEnabled(
                     LocationManager.GPS_PROVIDER
             )) {
@@ -437,6 +621,10 @@ public class AppointmentActivity extends AppCompatActivity {
                                 LocationManager.GPS_PROVIDER
                         );
             }
+
+            // =================================================
+            // NETWORK LOCATION
+            // =================================================
 
             if (lastLocation == null
                     && locationManager.isProviderEnabled(
@@ -449,6 +637,10 @@ public class AppointmentActivity extends AppCompatActivity {
                         );
             }
 
+            // =================================================
+            // USE LAST LOCATION
+            // =================================================
+
             if (lastLocation != null) {
 
                 findNearestBranch(
@@ -459,13 +651,16 @@ public class AppointmentActivity extends AppCompatActivity {
                 return;
             }
 
+            // =================================================
+            // LOCATION LISTENER
+            // =================================================
+
             activeLocationListener =
                     new LocationListener() {
 
                         @Override
                         public void onLocationChanged(
-                                Location location
-                        ) {
+                                Location location) {
 
                             findNearestBranch(
                                     location.getLatitude(),
@@ -479,14 +674,12 @@ public class AppointmentActivity extends AppCompatActivity {
 
                         @Override
                         public void onProviderEnabled(
-                                String provider
-                        ) {
+                                String provider) {
                         }
 
                         @Override
                         public void onProviderDisabled(
-                                String provider
-                        ) {
+                                String provider) {
                         }
 
                         @SuppressWarnings("deprecation")
@@ -494,10 +687,13 @@ public class AppointmentActivity extends AppCompatActivity {
                         public void onStatusChanged(
                                 String provider,
                                 int status,
-                                Bundle extras
-                        ) {
+                                Bundle extras) {
                         }
                     };
+
+            // =================================================
+            // GPS UPDATES
+            // =================================================
 
             if (locationManager.isProviderEnabled(
                     LocationManager.GPS_PROVIDER
@@ -510,6 +706,10 @@ public class AppointmentActivity extends AppCompatActivity {
                         activeLocationListener
                 );
             }
+
+            // =================================================
+            // NETWORK UPDATES
+            // =================================================
 
             if (locationManager.isProviderEnabled(
                     LocationManager.NETWORK_PROVIDER
@@ -539,8 +739,7 @@ public class AppointmentActivity extends AppCompatActivity {
 
     private void findNearestBranch(
             double userLatitude,
-            double userLongitude
-    ) {
+            double userLongitude) {
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
@@ -595,7 +794,8 @@ public class AppointmentActivity extends AppCompatActivity {
                         distance
                 );
 
-                if (distance[0] < shortestDistance) {
+                if (distance[0] <
+                        shortestDistance) {
 
                     shortestDistance =
                             distance[0];
@@ -632,7 +832,9 @@ public class AppointmentActivity extends AppCompatActivity {
                         nearestBranch
                 )) {
 
-                    spinnerBranch.setSelection(i);
+                    spinnerBranch.setSelection(
+                            i
+                    );
 
                     break;
                 }
@@ -647,6 +849,7 @@ public class AppointmentActivity extends AppCompatActivity {
                             nearestBranch +
                             "\nDistance: " +
                             String.format(
+                                    Locale.getDefault(),
                                     "%.2f",
                                     distanceKm
                             ) +
@@ -665,7 +868,7 @@ public class AppointmentActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // DATE / TIME PICKERS
+    // DATE PICKER
     // =====================================================
 
     private void showDatePicker() {
@@ -674,13 +877,19 @@ public class AppointmentActivity extends AppCompatActivity {
                 Calendar.getInstance();
 
         int year =
-                calendar.get(Calendar.YEAR);
+                calendar.get(
+                        Calendar.YEAR
+                );
 
         int month =
-                calendar.get(Calendar.MONTH);
+                calendar.get(
+                        Calendar.MONTH
+                );
 
         int day =
-                calendar.get(Calendar.DAY_OF_MONTH);
+                calendar.get(
+                        Calendar.DAY_OF_MONTH
+                );
 
         new DatePickerDialog(
                 this,
@@ -691,13 +900,16 @@ public class AppointmentActivity extends AppCompatActivity {
 
                     String date =
                             String.format(
+                                    Locale.getDefault(),
                                     "%02d/%02d/%04d",
                                     selectedDay,
                                     selectedMonth + 1,
                                     selectedYear
                             );
 
-                    edtDate.setText(date);
+                    edtDate.setText(
+                            date
+                    );
 
                 },
                 year,
@@ -706,16 +918,24 @@ public class AppointmentActivity extends AppCompatActivity {
         ).show();
     }
 
+    // =====================================================
+    // TIME PICKER
+    // =====================================================
+
     private void showTimePicker() {
 
         Calendar calendar =
                 Calendar.getInstance();
 
         int hour =
-                calendar.get(Calendar.HOUR_OF_DAY);
+                calendar.get(
+                        Calendar.HOUR_OF_DAY
+                );
 
         int minute =
-                calendar.get(Calendar.MINUTE);
+                calendar.get(
+                        Calendar.MINUTE
+                );
 
         new TimePickerDialog(
                 this,
@@ -725,12 +945,15 @@ public class AppointmentActivity extends AppCompatActivity {
 
                     String time =
                             String.format(
+                                    Locale.getDefault(),
                                     "%02d:%02d",
                                     selectedHour,
                                     selectedMinute
                             );
 
-                    edtTime.setText(time);
+                    edtTime.setText(
+                            time
+                    );
 
                 },
                 hour,
@@ -745,40 +968,19 @@ public class AppointmentActivity extends AppCompatActivity {
 
     private void saveAppointment() {
 
-        String productService =
-                edtProductService
-                        .getText()
-                        .toString()
-                        .trim();
-
-        String category =
-                edtCategory
-                        .getText()
-                        .toString()
-                        .trim();
-
-        String priceText =
-                edtPrice
-                        .getText()
-                        .toString()
-                        .replace("Rs.", "")
-                        .trim();
-
         String date =
-                edtDate
-                        .getText()
+                edtDate.getText()
                         .toString()
                         .trim();
 
         String time =
-                edtTime
-                        .getText()
+                edtTime.getText()
                         .toString()
                         .trim();
 
-        // =================================================
-        // VALIDATION
-        // =================================================
+        // =====================================================
+        // CUSTOMER VALIDATION
+        // =====================================================
 
         if (customerId == null ||
                 customerId.trim().isEmpty()) {
@@ -792,14 +994,48 @@ public class AppointmentActivity extends AppCompatActivity {
             return;
         }
 
-        if (productService.isEmpty()) {
+        // =====================================================
+        // PRODUCT VALIDATION
+        // =====================================================
 
-            edtProductService.setError(
-                    "Product / Service is required"
-            );
+        if (selectedProductName == null ||
+                selectedProductName.trim().isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Product information is missing.",
+                    Toast.LENGTH_LONG
+            ).show();
 
             return;
         }
+
+        if (selectedCategory == null ||
+                selectedCategory.trim().isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Product category is missing.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        if (selectedPrice <= 0) {
+
+            Toast.makeText(
+                    this,
+                    "Invalid product price.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        // =====================================================
+        // DATE VALIDATION
+        // =====================================================
 
         if (date.isEmpty()) {
 
@@ -807,8 +1043,14 @@ public class AppointmentActivity extends AppCompatActivity {
                     "Please select a date"
             );
 
+            edtDate.requestFocus();
+
             return;
         }
+
+        // =====================================================
+        // TIME VALIDATION
+        // =====================================================
 
         if (time.isEmpty()) {
 
@@ -816,10 +1058,17 @@ public class AppointmentActivity extends AppCompatActivity {
                     "Please select a time"
             );
 
+            edtTime.requestFocus();
+
             return;
         }
 
-        if (spinnerBranch.getSelectedItem() == null) {
+        // =====================================================
+        // BRANCH VALIDATION
+        // =====================================================
+
+        if (spinnerBranch.getSelectedItem() == null ||
+                branchNames.isEmpty()) {
 
             Toast.makeText(
                     this,
@@ -833,33 +1082,23 @@ public class AppointmentActivity extends AppCompatActivity {
         String branch =
                 spinnerBranch
                         .getSelectedItem()
-                        .toString();
+                        .toString()
+                        .trim();
 
-        double price;
-
-        try {
-
-            price =
-                    priceText.isEmpty()
-                            ? 0
-                            : Double.parseDouble(
-                            priceText
-                    );
-
-        } catch (NumberFormatException e) {
+        if (branch.isEmpty()) {
 
             Toast.makeText(
                     this,
-                    "Invalid price",
+                    "Please select a valid branch",
                     Toast.LENGTH_SHORT
             ).show();
 
             return;
         }
 
-        // =================================================
+        // =====================================================
         // INSERT APPOINTMENT
-        // =================================================
+        // =====================================================
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -867,25 +1106,29 @@ public class AppointmentActivity extends AppCompatActivity {
         ContentValues values =
                 new ContentValues();
 
-        // NEW: Save logged-in customer ID
+        // Logged-in customer
         values.put(
                 "customerId",
                 Integer.parseInt(customerId)
         );
 
+        // IMPORTANT:
+        // Use the original selected product values.
+        // Do NOT read these from editable fields.
+
         values.put(
                 "productService",
-                productService
+                selectedProductName
         );
 
         values.put(
                 "category",
-                category
+                selectedCategory
         );
 
         values.put(
                 "price",
-                price
+                selectedPrice
         );
 
         values.put(
@@ -909,6 +1152,10 @@ public class AppointmentActivity extends AppCompatActivity {
                         null,
                         values
                 );
+
+        // =====================================================
+        // RESULT
+        // =====================================================
 
         if (result != -1) {
 
@@ -938,8 +1185,7 @@ public class AppointmentActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(
             int requestCode,
             String[] permissions,
-            int[] grantResults
-    ) {
+            int[] grantResults) {
 
         super.onRequestPermissionsResult(
                 requestCode,
