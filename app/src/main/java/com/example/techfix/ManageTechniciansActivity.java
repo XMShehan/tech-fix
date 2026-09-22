@@ -73,7 +73,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         // Database
         databaseHelper = new DatabaseHelper(this);
 
-        // Add Technician button
+        // Add Technician
         btnAddTechnician.setOnClickListener(v -> {
 
             Intent intent = new Intent(
@@ -84,7 +84,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
             startActivity(intent);
         });
 
-        // Delete Technician button
+        // Delete Technician
         btnDeleteTechnician.setOnClickListener(v -> {
 
             Intent intent = new Intent(
@@ -124,6 +124,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 }
         );
 
+        // Load technicians
         loadTechnicians("");
     }
 
@@ -132,6 +133,7 @@ public class ManageTechniciansActivity extends AppCompatActivity {
         super.onResume();
 
         if (databaseHelper != null) {
+
             loadTechnicians(
                     edtSearchTechnicians.getText().toString()
             );
@@ -147,28 +149,30 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
         Cursor cursor;
 
-        if (searchText == null || searchText.trim().isEmpty()) {
+        // Load all technicians
+        if (searchText == null ||
+                searchText.trim().isEmpty()) {
 
             cursor = db.rawQuery(
-                    "SELECT technicianId, technicianName, phone, email, specialization " +
+                    "SELECT technicianId, technicianName, phone, email " +
                             "FROM technicians",
                     null
             );
 
         } else {
 
-            String search = "%" + searchText.trim() + "%";
+            String search =
+                    "%" + searchText.trim() + "%";
 
+            // Search without specialization
             cursor = db.rawQuery(
-                    "SELECT technicianId, technicianName, phone, email, specialization " +
+                    "SELECT technicianId, technicianName, phone, email " +
                             "FROM technicians " +
                             "WHERE technicianId LIKE ? " +
                             "OR technicianName LIKE ? " +
                             "OR phone LIKE ? " +
-                            "OR email LIKE ? " +
-                            "OR specialization LIKE ?",
+                            "OR email LIKE ?",
                     new String[]{
-                            search,
                             search,
                             search,
                             search,
@@ -177,24 +181,39 @@ public class ManageTechniciansActivity extends AppCompatActivity {
             );
         }
 
+        // No technicians
         if (cursor.getCount() == 0) {
 
             TextView emptyText = new TextView(this);
 
-            if (searchText == null || searchText.trim().isEmpty()) {
-                emptyText.setText("No technicians available");
+            if (searchText == null ||
+                    searchText.trim().isEmpty()) {
+
+                emptyText.setText(
+                        "No technicians available"
+                );
+
             } else {
-                emptyText.setText("No technicians found");
+
+                emptyText.setText(
+                        "No technicians found"
+                );
             }
 
             emptyText.setTextSize(16);
             emptyText.setTextColor(Color.GRAY);
-            emptyText.setPadding(10, 20, 10, 20);
+            emptyText.setPadding(
+                    10,
+                    20,
+                    10,
+                    20
+            );
 
             technicianContainer.addView(emptyText);
 
         } else {
 
+            // Load each technician
             while (cursor.moveToNext()) {
 
                 String technicianId =
@@ -225,13 +244,6 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                                 )
                         );
 
-                String specialization =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "specialization"
-                                )
-                        );
-
                 // Container for one technician
                 LinearLayout technicianLayout =
                         new LinearLayout(this);
@@ -248,7 +260,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 );
 
                 // Technician ID
-                TextView txtId = new TextView(this);
+                TextView txtId =
+                        new TextView(this);
 
                 txtId.setText(
                         "Technician ID: " + technicianId
@@ -260,7 +273,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtId);
 
                 // Technician Name
-                TextView txtName = new TextView(this);
+                TextView txtName =
+                        new TextView(this);
 
                 txtName.setText(
                         "Technician Name: " + technicianName
@@ -272,7 +286,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtName);
 
                 // Phone
-                TextView txtPhone = new TextView(this);
+                TextView txtPhone =
+                        new TextView(this);
 
                 txtPhone.setText(
                         "Phone: " + phone
@@ -284,7 +299,8 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                 technicianLayout.addView(txtPhone);
 
                 // Email
-                TextView txtEmail = new TextView(this);
+                TextView txtEmail =
+                        new TextView(this);
 
                 txtEmail.setText(
                         "Email: " + email
@@ -295,23 +311,9 @@ public class ManageTechniciansActivity extends AppCompatActivity {
 
                 technicianLayout.addView(txtEmail);
 
-                // Specialization
-                TextView txtSpecialization =
-                        new TextView(this);
-
-                txtSpecialization.setText(
-                        "Specialization: " + specialization
-                );
-
-                txtSpecialization.setTextSize(16);
-                txtSpecialization.setTextColor(Color.BLACK);
-
-                technicianLayout.addView(
-                        txtSpecialization
-                );
-
                 // Update Technician button
-                Button btnUpdate = new Button(this);
+                Button btnUpdate =
+                        new Button(this);
 
                 btnUpdate.setText(
                         "Update Technician"
@@ -332,17 +334,22 @@ public class ManageTechniciansActivity extends AppCompatActivity {
                         10
                 );
 
-                btnUpdate.setLayoutParams(buttonParams);
+                btnUpdate.setLayoutParams(
+                        buttonParams
+                );
 
-                technicianLayout.addView(btnUpdate);
+                technicianLayout.addView(
+                        btnUpdate
+                );
 
                 // Update button click
                 btnUpdate.setOnClickListener(v -> {
 
-                    Intent intent = new Intent(
-                            ManageTechniciansActivity.this,
-                            UpdateTechnicianActivity.class
-                    );
+                    Intent intent =
+                            new Intent(
+                                    ManageTechniciansActivity.this,
+                                    UpdateTechnicianActivity.class
+                            );
 
                     intent.putExtra(
                             "technicianId",

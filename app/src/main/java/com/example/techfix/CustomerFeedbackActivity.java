@@ -4,112 +4,105 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
+import android.graphics.Typeface;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
+import android.view.Gravity;
+import android.view.View;
+import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.Locale;
 
 public class CustomerFeedbackActivity extends AppCompatActivity {
 
-    EditText edtSearchFeedback;
+    private EditText edtSearchFeedback;
+    private LinearLayout feedbackContainer;
 
-    Button btnAddFeedback;
-    Button btnDeleteFeedback;
+    private DatabaseHelper databaseHelper;
 
-    LinearLayout feedbackContainer;
-
-    DatabaseHelper databaseHelper;
+    private String customerId;
+    private String customerName;
+    private String customerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EdgeToEdge.enable(this);
-
-        setContentView(R.layout.activity_customer_feedback);
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(R.id.main),
-                (v, insets) -> {
-
-                    Insets systemBars =
-                            insets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                            );
-
-                    v.setPadding(
-                            systemBars.left,
-                            systemBars.top,
-                            systemBars.right,
-                            systemBars.bottom
-                    );
-
-                    return insets;
-                }
+        setContentView(
+                R.layout.activity_customer_feedback
         );
 
-        // Find views
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
+
         edtSearchFeedback =
-                findViewById(R.id.edtSearchFeedback);
-
-        btnAddFeedback =
-                findViewById(R.id.btnAddFeedback);
-
-        btnDeleteFeedback =
-                findViewById(R.id.btnDeleteFeedback);
+                findViewById(
+                        R.id.edtSearchFeedback
+                );
 
         feedbackContainer =
-                findViewById(R.id.feedbackContainer);
+                findViewById(
+                        R.id.feedbackContainer
+                );
 
-        // Database
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // =========================
-        // Add Feedback
-        // =========================
+        // =====================================================
+        // GET CUSTOMER INFORMATION
+        // =====================================================
 
-        btnAddFeedback.setOnClickListener(v -> {
+        customerId =
+                getIntent().getStringExtra(
+                        "customerId"
+                );
 
-            Intent intent =
-                    new Intent(
-                            CustomerFeedbackActivity.this,
-                            AddFeedbackActivity.class
-                    );
+        customerName =
+                getIntent().getStringExtra(
+                        "customerName"
+                );
 
-            startActivity(intent);
-        });
+        customerEmail =
+                getIntent().getStringExtra(
+                        "customerEmail"
+                );
 
-        // =========================
-        // Delete Feedback
-        // =========================
+        // =====================================================
+        // VALIDATE CUSTOMER
+        // =====================================================
 
-        btnDeleteFeedback.setOnClickListener(v -> {
+        if (customerId == null ||
+                customerId.trim().isEmpty()) {
 
-            Intent intent =
-                    new Intent(
-                            CustomerFeedbackActivity.this,
-                            DeleteFeedbackActivity.class
-                    );
+            Toast.makeText(
+                    this,
+                    "Customer information missing",
+                    Toast.LENGTH_LONG
+            ).show();
 
-            startActivity(intent);
-        });
+            finish();
+            return;
+        }
 
-        // =========================
-        // Search Feedback
-        // =========================
+        // =====================================================
+        // SEARCH
+        // =====================================================
 
         edtSearchFeedback.addTextChangedListener(
-                new TextWatcher() {
+                new android.text.TextWatcher() {
 
                     @Override
                     public void beforeTextChanged(
@@ -126,29 +119,34 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
                             int before,
                             int count) {
 
-                        loadFeedback(
+                        loadCompletedJobs(
                                 s.toString().trim()
                         );
                     }
 
                     @Override
                     public void afterTextChanged(
-                            Editable s) {
+                            android.text.Editable s) {
                     }
                 }
         );
 
-        // Load feedback
-        loadFeedback("");
+        // =====================================================
+        // INITIAL LOAD
+        // =====================================================
+
+        loadCompletedJobs("");
     }
 
     @Override
     protected void onResume() {
+
         super.onResume();
 
-        if (databaseHelper != null) {
+        if (databaseHelper != null &&
+                customerId != null) {
 
-            loadFeedback(
+            loadCompletedJobs(
                     edtSearchFeedback
                             .getText()
                             .toString()
@@ -157,247 +155,1298 @@ public class CustomerFeedbackActivity extends AppCompatActivity {
         }
     }
 
-    // =========================
-    // Load Feedback
-    // =========================
+    // =====================================================
+    // LOAD FINISHED JOBS
+    // =====================================================
 
-    private void loadFeedback(String searchText) {
+    private void loadCompletedJobs(
+            String searchText) {
 
         feedbackContainer.removeAllViews();
 
         SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+                databaseHelper
+                        .getReadableDatabase();
 
-        Cursor cursor;
+        Cursor cursor = null;
 
-        if (searchText.isEmpty()) {
+        try {
+
+            String searchPattern =
+                    "%" + searchText + "%";
 
             cursor = db.rawQuery(
-                    "SELECT id, customerName, customerEmail, feedback " +
-                            "FROM feedback " +
-                            "ORDER BY id DESC",
-                    null
+                    "SELECT " +
+                            "j.jobId, " +
+                            "j.technicianId, " +
+                            "t.technicianName, " +
+                            "a.appointmentId, " +
+                            "a.productService, " +
+                            "a.category, " +
+                            "a.price, " +
+                            "a.branch, " +
+                            "a.appointmentDate, " +
+                            "a.appointmentTime, " +
+                            "f.feedbackId, " +
+                            "f.rating, " +
+                            "f.comment, " +
+                            "f.date " +
+
+                            "FROM jobs j " +
+
+                            "INNER JOIN appointments a " +
+                            "ON j.appointmentId = a.appointmentId " +
+
+                            "LEFT JOIN technicians t " +
+                            "ON j.technicianId = t.technicianId " +
+
+                            "LEFT JOIN feedback f " +
+                            "ON f.jobId = j.jobId " +
+                            "AND f.customerId = a.customerId " +
+
+                            "WHERE a.customerId = ? " +
+                            "AND j.status = 'FINISHED' " +
+
+                            "AND (" +
+                            "a.productService LIKE ? " +
+                            "OR a.category LIKE ? " +
+                            "OR a.branch LIKE ? " +
+                            "OR t.technicianName LIKE ? " +
+                            "OR f.comment LIKE ? " +
+                            "OR a.appointmentDate LIKE ?" +
+                            ") " +
+
+                            "ORDER BY j.jobId DESC",
+
+                    new String[]{
+                            customerId,
+                            searchPattern,
+                            searchPattern,
+                            searchPattern,
+                            searchPattern,
+                            searchPattern,
+                            searchPattern
+                    }
+            );
+
+            if (!cursor.moveToFirst()) {
+
+                if (searchText.isEmpty()) {
+
+                    showMessage(
+                            "No completed repairs available for feedback."
+                    );
+
+                } else {
+
+                    showMessage(
+                            "No matching completed repairs found."
+                    );
+                }
+
+                return;
+            }
+
+            do {
+
+                int jobId =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        "jobId"
+                                )
+                        );
+
+                int appointmentId =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        "appointmentId"
+                                )
+                        );
+
+                String technicianId =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "technicianId"
+                                )
+                        );
+
+                String technicianName =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "technicianName"
+                                )
+                        );
+
+                String productService =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "productService"
+                                )
+                        );
+
+                String category =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "category"
+                                )
+                        );
+
+                double price =
+                        cursor.getDouble(
+                                cursor.getColumnIndexOrThrow(
+                                        "price"
+                                )
+                        );
+
+                String branch =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "branch"
+                                )
+                        );
+
+                String appointmentDate =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "appointmentDate"
+                                )
+                        );
+
+                String appointmentTime =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "appointmentTime"
+                                )
+                        );
+
+                int feedbackId =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        "feedbackId"
+                                )
+                        );
+
+                int rating =
+                        cursor.getInt(
+                                cursor.getColumnIndexOrThrow(
+                                        "rating"
+                                )
+                        );
+
+                String comment =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "comment"
+                                )
+                        );
+
+                String feedbackDate =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "date"
+                                )
+                        );
+
+                createJobFeedbackCard(
+                        jobId,
+                        appointmentId,
+                        technicianId,
+                        technicianName,
+                        productService,
+                        category,
+                        price,
+                        branch,
+                        appointmentDate,
+                        appointmentTime,
+                        feedbackId,
+                        rating,
+                        comment,
+                        feedbackDate
+                );
+
+            } while (cursor.moveToNext());
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    // =====================================================
+    // CREATE FINISHED JOB CARD
+    // =====================================================
+
+    private void createJobFeedbackCard(
+            int jobId,
+            int appointmentId,
+            String technicianId,
+            String technicianName,
+            String productService,
+            String category,
+            double price,
+            String branch,
+            String appointmentDate,
+            String appointmentTime,
+            int feedbackId,
+            int rating,
+            String comment,
+            String feedbackDate) {
+
+        // =====================================================
+        // MAIN CARD
+        // =====================================================
+
+        LinearLayout card =
+                new LinearLayout(this);
+
+        card.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        card.setPadding(
+                dp(20),
+                dp(20),
+                dp(20),
+                dp(20)
+        );
+
+        GradientDrawable cardBackground =
+                new GradientDrawable();
+
+        cardBackground.setColor(
+                Color.WHITE
+        );
+
+        cardBackground.setCornerRadius(
+                dp(18)
+        );
+
+        cardBackground.setStroke(
+                dp(1),
+                Color.rgb(
+                        226,
+                        234,
+                        240
+                )
+        );
+
+        card.setBackground(
+                cardBackground
+        );
+
+        LinearLayout.LayoutParams cardParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        cardParams.setMargins(
+                0,
+                0,
+                0,
+                dp(16)
+        );
+
+        card.setLayoutParams(
+                cardParams
+        );
+
+        // =====================================================
+        // REPAIR NUMBER
+        // =====================================================
+
+        TextView jobText =
+                new TextView(this);
+
+        jobText.setText(
+                "Repair #" + jobId
+        );
+
+        jobText.setTextSize(
+                20
+        );
+
+        jobText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        jobText.setTextColor(
+                Color.rgb(
+                        38,
+                        50,
+                        56
+                )
+        );
+
+        card.addView(
+                jobText
+        );
+
+        // =====================================================
+        // PRODUCT
+        // =====================================================
+
+        TextView productText =
+                new TextView(this);
+
+        productText.setText(
+                safeText(productService)
+        );
+
+        productText.setTextSize(
+                17
+        );
+
+        productText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        productText.setTextColor(
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
+
+        productText.setPadding(
+                0,
+                dp(8),
+                0,
+                0
+        );
+
+        card.addView(
+                productText
+        );
+
+        // =====================================================
+        // FINISHED STATUS
+        // =====================================================
+
+        TextView statusText =
+                new TextView(this);
+
+        statusText.setText(
+                "Repair Status: FINISHED"
+        );
+
+        statusText.setTextSize(
+                14
+        );
+
+        statusText.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        statusText.setTextColor(
+                Color.rgb(
+                        46,
+                        125,
+                        50
+                )
+        );
+
+        statusText.setPadding(
+                dp(12),
+                dp(10),
+                dp(12),
+                dp(10)
+        );
+
+        GradientDrawable statusBackground =
+                new GradientDrawable();
+
+        statusBackground.setColor(
+                Color.rgb(
+                        232,
+                        245,
+                        233
+                )
+        );
+
+        statusBackground.setCornerRadius(
+                dp(10)
+        );
+
+        statusText.setBackground(
+                statusBackground
+        );
+
+        LinearLayout.LayoutParams statusParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        statusParams.setMargins(
+                0,
+                dp(14),
+                0,
+                dp(4)
+        );
+
+        statusText.setLayoutParams(
+                statusParams
+        );
+
+        card.addView(
+                statusText
+        );
+
+        // =====================================================
+        // DETAILS
+        // =====================================================
+
+        card.addView(
+                createInfoText(
+                        "Category: " +
+                                safeText(category)
+                )
+        );
+
+        card.addView(
+                createInfoText(
+                        "Price: Rs. " +
+                                String.format(
+                                        Locale.getDefault(),
+                                        "%.2f",
+                                        price
+                                )
+                )
+        );
+
+        card.addView(
+                createInfoText(
+                        "Branch: " +
+                                safeText(branch)
+                )
+        );
+
+        card.addView(
+                createInfoText(
+                        "Date: " +
+                                safeText(appointmentDate) +
+                                "    Time: " +
+                                safeText(appointmentTime)
+                )
+        );
+
+        // =====================================================
+        // TECHNICIAN
+        // =====================================================
+
+        String technicianText;
+
+        if (technicianName != null &&
+                !technicianName.trim().isEmpty()) {
+
+            technicianText =
+                    "Technician: " +
+                            technicianName;
+
+        } else if (technicianId != null &&
+                !technicianId.trim().isEmpty()) {
+
+            technicianText =
+                    "Technician ID: " +
+                            technicianId;
+
+        } else {
+
+            technicianText =
+                    "Technician: Not available";
+        }
+
+        TextView technicianTextView =
+                createInfoText(
+                        technicianText
+                );
+
+        technicianTextView.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        technicianTextView.setTextColor(
+                Color.rgb(
+                        55,
+                        71,
+                        79
+                )
+        );
+
+        card.addView(
+                technicianTextView
+        );
+
+        // =====================================================
+        // DIVIDER
+        // =====================================================
+
+        View divider =
+                new View(this);
+
+        divider.setBackgroundColor(
+                Color.rgb(
+                        230,
+                        236,
+                        240
+                )
+        );
+
+        LinearLayout.LayoutParams dividerParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        dp(1)
+                );
+
+        dividerParams.setMargins(
+                0,
+                dp(16),
+                0,
+                dp(14)
+        );
+
+        divider.setLayoutParams(
+                dividerParams
+        );
+
+        card.addView(
+                divider
+        );
+
+        // =====================================================
+        // EXISTING FEEDBACK
+        // =====================================================
+
+        if (feedbackId > 0) {
+
+            TextView feedbackTitle =
+                    new TextView(this);
+
+            feedbackTitle.setText(
+                    "Your Feedback"
+            );
+
+            feedbackTitle.setTextSize(
+                    15
+            );
+
+            feedbackTitle.setTypeface(
+                    null,
+                    Typeface.BOLD
+            );
+
+            feedbackTitle.setTextColor(
+                    Color.rgb(
+                            38,
+                            50,
+                            56
+                    )
+            );
+
+            card.addView(
+                    feedbackTitle
+            );
+
+            // =================================================
+            // RATING
+            // =================================================
+
+            TextView ratingText =
+                    new TextView(this);
+
+            ratingText.setText(
+                    "Rating: " +
+                            getStars(rating)
+            );
+
+            ratingText.setTextSize(
+                    17
+            );
+
+            ratingText.setTextColor(
+                    Color.rgb(
+                            245,
+                            166,
+                            35
+                    )
+            );
+
+            ratingText.setPadding(
+                    0,
+                    dp(8),
+                    0,
+                    dp(4)
+            );
+
+            card.addView(
+                    ratingText
+            );
+
+            // =================================================
+            // COMMENT
+            // =================================================
+
+            TextView commentText =
+                    createInfoText(
+                            "Comment: " +
+                                    safeText(comment)
+                    );
+
+            card.addView(
+                    commentText
+            );
+
+            // =================================================
+            // DATE
+            // =================================================
+
+            TextView dateText =
+                    createInfoText(
+                            "Submitted: " +
+                                    safeText(feedbackDate)
+                    );
+
+            dateText.setTextSize(
+                    13
+            );
+
+            card.addView(
+                    dateText
+            );
+
+            // =================================================
+            // BUTTON ROW
+            // =================================================
+
+            LinearLayout buttonRow =
+                    new LinearLayout(this);
+
+            buttonRow.setOrientation(
+                    LinearLayout.HORIZONTAL
+            );
+
+            buttonRow.setGravity(
+                    Gravity.CENTER
+            );
+
+            LinearLayout.LayoutParams rowParams =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+
+            rowParams.setMargins(
+                    0,
+                    dp(14),
+                    0,
+                    0
+            );
+
+            buttonRow.setLayoutParams(
+                    rowParams
+            );
+
+            // =================================================
+            // EDIT BUTTON
+            // =================================================
+
+            Button btnEdit =
+                    createSecondaryButton(
+                            "Edit Feedback"
+                    );
+
+            // =================================================
+            // DELETE BUTTON
+            // =================================================
+
+            Button btnDelete =
+                    createDeleteButton(
+                            "Delete"
+                    );
+
+            LinearLayout.LayoutParams buttonParams =
+                    new LinearLayout.LayoutParams(
+                            0,
+                            dp(48),
+                            1
+                    );
+
+            buttonParams.setMargins(
+                    dp(4),
+                    0,
+                    dp(4),
+                    0
+            );
+
+            buttonRow.addView(
+                    btnEdit,
+                    buttonParams
+            );
+
+            buttonRow.addView(
+                    btnDelete,
+                    buttonParams
+            );
+
+            card.addView(
+                    buttonRow
+            );
+
+            // =================================================
+            // EDIT ACTION
+            // =================================================
+
+            btnEdit.setOnClickListener(
+                    v -> {
+
+                        Intent intent =
+                                new Intent(
+                                        CustomerFeedbackActivity.this,
+                                        UpdateFeedbackActivity.class
+                                );
+
+                        intent.putExtra(
+                                "feedbackId",
+                                feedbackId
+                        );
+
+                        intent.putExtra(
+                                "customerId",
+                                customerId
+                        );
+
+                        startActivity(
+                                intent
+                        );
+                    }
+            );
+
+            // =================================================
+            // DELETE ACTION
+            // =================================================
+
+            btnDelete.setOnClickListener(
+                    v -> {
+
+                        showDeleteConfirmation(
+                                feedbackId
+                        );
+                    }
             );
 
         } else {
 
-            cursor = db.rawQuery(
-                    "SELECT id, customerName, customerEmail, feedback " +
-                            "FROM feedback " +
-                            "WHERE customerName LIKE ? " +
-                            "OR customerEmail LIKE ? " +
-                            "OR feedback LIKE ? " +
-                            "ORDER BY id DESC",
-                    new String[]{
-                            "%" + searchText + "%",
-                            "%" + searchText + "%",
-                            "%" + searchText + "%"
+            // =================================================
+            // NO FEEDBACK YET
+            // =================================================
+
+            TextView noFeedback =
+                    createInfoText(
+                            "You have not submitted feedback for this repair yet."
+                    );
+
+            noFeedback.setTextColor(
+                    Color.rgb(
+                            96,
+                            125,
+                            139
+                    )
+            );
+
+            card.addView(
+                    noFeedback
+            );
+
+            // =================================================
+            // GIVE FEEDBACK BUTTON
+            // =================================================
+
+            Button btnGiveFeedback =
+                    createPrimaryButton(
+                            "Give Feedback"
+                    );
+
+            LinearLayout.LayoutParams buttonParams =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            dp(50)
+                    );
+
+            buttonParams.setMargins(
+                    0,
+                    dp(14),
+                    0,
+                    0
+            );
+
+            btnGiveFeedback.setLayoutParams(
+                    buttonParams
+            );
+
+            card.addView(
+                    btnGiveFeedback
+            );
+
+            btnGiveFeedback.setOnClickListener(
+                    v -> {
+
+                        Intent intent =
+                                new Intent(
+                                        CustomerFeedbackActivity.this,
+                                        FeedbackActivity.class
+                                );
+
+                        intent.putExtra(
+                                "customerId",
+                                customerId
+                        );
+
+                        intent.putExtra(
+                                "customerName",
+                                customerName
+                        );
+
+                        intent.putExtra(
+                                "customerEmail",
+                                customerEmail
+                        );
+
+                        intent.putExtra(
+                                "jobId",
+                                jobId
+                        );
+
+                        intent.putExtra(
+                                "appointmentId",
+                                appointmentId
+                        );
+
+                        startActivity(
+                                intent
+                        );
                     }
             );
         }
 
-        if (cursor.getCount() == 0) {
+        // =====================================================
+        // ADD CARD TO CONTAINER
+        // =====================================================
 
-            TextView emptyText =
-                    new TextView(this);
+        feedbackContainer.addView(
+                card
+        );
+    }
 
-            emptyText.setText(
-                    "No feedback available"
-            );
+    // =====================================================
+    // PRIMARY BUTTON
+    // =====================================================
 
-            emptyText.setTextSize(16);
-            emptyText.setTextColor(Color.GRAY);
+    private Button createPrimaryButton(
+            String text) {
 
-            emptyText.setPadding(
-                    10,
-                    20,
-                    10,
-                    20
-            );
+        Button button =
+                new Button(this);
 
-            feedbackContainer.addView(
-                    emptyText
-            );
+        button.setText(
+                text
+        );
 
-        } else {
+        button.setAllCaps(
+                false
+        );
 
-            while (cursor.moveToNext()) {
+        button.setTextSize(
+                14
+        );
 
-                int feedbackId =
-                        cursor.getInt(
-                                cursor.getColumnIndexOrThrow("id")
-                        );
+        button.setTextColor(
+                Color.WHITE
+        );
 
-                String customerName =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "customerName"
-                                )
-                        );
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
 
-                String customerEmail =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "customerEmail"
-                                )
-                        );
+        button.setBackgroundResource(
+                R.drawable.bg_login_button
+        );
 
-                String feedback =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "feedback"
-                                )
-                        );
+        return button;
+    }
 
-                // =========================
-                // Feedback Layout
-                // =========================
+    // =====================================================
+    // SECONDARY BUTTON
+    // =====================================================
 
-                LinearLayout feedbackLayout =
-                        new LinearLayout(this);
+    private Button createSecondaryButton(
+            String text) {
 
-                feedbackLayout.setOrientation(
-                        LinearLayout.VERTICAL
-                );
+        Button button =
+                new Button(this);
 
-                feedbackLayout.setPadding(
-                        5,
-                        15,
-                        5,
-                        15
-                );
+        button.setText(
+                text
+        );
 
-                // Feedback ID
+        button.setAllCaps(
+                false
+        );
 
-                TextView txtId =
-                        new TextView(this);
+        button.setTextSize(
+                14
+        );
 
-                txtId.setText(
-                        "Feedback ID: " + feedbackId
-                );
+        button.setTextColor(
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
 
-                txtId.setTextSize(16);
-                txtId.setTextColor(Color.BLACK);
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
 
-                feedbackLayout.addView(txtId);
+        GradientDrawable background =
+                new GradientDrawable();
 
-                // Customer Name
+        background.setColor(
+                Color.WHITE
+        );
 
-                TextView txtName =
-                        new TextView(this);
+        background.setCornerRadius(
+                dp(10)
+        );
 
-                txtName.setText(
-                        "Customer Name: " + customerName
-                );
+        background.setStroke(
+                dp(1),
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
 
-                txtName.setTextSize(16);
-                txtName.setTextColor(Color.BLACK);
+        button.setBackground(
+                background
+        );
 
-                feedbackLayout.addView(txtName);
+        return button;
+    }
 
-                // Customer Email
+    // =====================================================
+    // DELETE BUTTON
+    // =====================================================
 
-                TextView txtEmail =
-                        new TextView(this);
+    private Button createDeleteButton(
+            String text) {
 
-                txtEmail.setText(
-                        "Customer Email: " + customerEmail
-                );
+        Button button =
+                new Button(this);
 
-                txtEmail.setTextSize(16);
-                txtEmail.setTextColor(Color.BLACK);
+        button.setText(
+                text
+        );
 
-                feedbackLayout.addView(txtEmail);
+        button.setAllCaps(
+                false
+        );
 
-                // Feedback
+        button.setTextSize(
+                14
+        );
 
-                TextView txtFeedback =
-                        new TextView(this);
+        button.setTextColor(
+                Color.rgb(
+                        198,
+                        40,
+                        40
+                )
+        );
 
-                txtFeedback.setText(
-                        "Feedback: " + feedback
-                );
+        button.setTypeface(
+                null,
+                Typeface.BOLD
+        );
 
-                txtFeedback.setTextSize(16);
-                txtFeedback.setTextColor(Color.BLACK);
+        GradientDrawable background =
+                new GradientDrawable();
 
-                feedbackLayout.addView(txtFeedback);
+        background.setColor(
+                Color.rgb(
+                        255,
+                        245,
+                        245
+                )
+        );
 
-                // =========================
-                // Update Button
-                // =========================
+        background.setCornerRadius(
+                dp(10)
+        );
 
-                Button btnUpdate =
-                        new Button(this);
+        background.setStroke(
+                dp(1),
+                Color.rgb(
+                        198,
+                        40,
+                        40
+                )
+        );
 
-                btnUpdate.setText(
-                        "UPDATE FEEDBACK"
-                );
+        button.setBackground(
+                background
+        );
 
-                LinearLayout.LayoutParams buttonParams =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
+        return button;
+    }
 
-                buttonParams.setMargins(
-                        5,
-                        10,
-                        5,
-                        10
-                );
+    // =====================================================
+    // DELETE CONFIRMATION
+    // =====================================================
 
-                btnUpdate.setLayoutParams(
-                        buttonParams
-                );
+    private void showDeleteConfirmation(
+            int feedbackId) {
 
-                feedbackLayout.addView(
-                        btnUpdate
-                );
+        new AlertDialog.Builder(this)
+                .setTitle(
+                        "Delete Feedback"
+                )
+                .setMessage(
+                        "Are you sure you want to delete this feedback?"
+                )
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
+                .setPositiveButton(
+                        "Delete",
+                        (dialog, which) -> {
 
-                // =========================
-                // Update Navigation
-                // =========================
+                            SQLiteDatabase db =
+                                    databaseHelper
+                                            .getWritableDatabase();
 
-                btnUpdate.setOnClickListener(v -> {
+                            int deleted =
+                                    db.delete(
+                                            "feedback",
+                                            "feedbackId = ? " +
+                                                    "AND customerId = ?",
 
-                    Intent intent =
-                            new Intent(
-                                    CustomerFeedbackActivity.this,
-                                    UpdateFeedbackActivity.class
-                            );
+                                            new String[]{
+                                                    String.valueOf(
+                                                            feedbackId
+                                                    ),
+                                                    customerId
+                                            }
+                                    );
 
-                    intent.putExtra(
-                            "feedbackId",
-                            feedbackId
-                    );
+                            if (deleted > 0) {
 
-                    intent.putExtra(
-                            "customerName",
-                            customerName
-                    );
+                                Toast.makeText(
+                                        CustomerFeedbackActivity.this,
+                                        "Feedback deleted successfully",
+                                        Toast.LENGTH_SHORT
+                                ).show();
 
-                    intent.putExtra(
-                            "customerEmail",
-                            customerEmail
-                    );
+                                loadCompletedJobs(
+                                        edtSearchFeedback
+                                                .getText()
+                                                .toString()
+                                                .trim()
+                                );
 
-                    intent.putExtra(
-                            "feedback",
-                            feedback
-                    );
+                            } else {
 
-                    startActivity(intent);
-                });
+                                Toast.makeText(
+                                        CustomerFeedbackActivity.this,
+                                        "Unable to delete feedback",
+                                        Toast.LENGTH_SHORT
+                                ).show();
+                            }
+                        }
+                )
+                .show();
+    }
 
-                // Add to container
+    // =====================================================
+    // STAR DISPLAY
+    // =====================================================
 
-                feedbackContainer.addView(
-                        feedbackLayout
-                );
-            }
+    private String getStars(
+            int rating) {
+
+        StringBuilder stars =
+                new StringBuilder();
+
+        for (int i = 0; i < rating; i++) {
+            stars.append("★");
         }
 
-        cursor.close();
+        for (int i = rating; i < 5; i++) {
+            stars.append("☆");
+        }
+
+        return stars.toString();
+    }
+
+    // =====================================================
+    // INFO TEXT
+    // =====================================================
+
+    private TextView createInfoText(
+            String text) {
+
+        TextView textView =
+                new TextView(this);
+
+        textView.setText(
+                text
+        );
+
+        textView.setTextSize(
+                14
+        );
+
+        textView.setTextColor(
+                Color.rgb(
+                        96,
+                        125,
+                        139
+                )
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        params.setMargins(
+                0,
+                dp(6),
+                0,
+                0
+        );
+
+        textView.setLayoutParams(
+                params
+        );
+
+        return textView;
+    }
+
+    // =====================================================
+    // EMPTY MESSAGE
+    // =====================================================
+
+    private void showMessage(
+            String message) {
+
+        TextView messageText =
+                new TextView(this);
+
+        messageText.setText(
+                message
+        );
+
+        messageText.setTextSize(
+                16
+        );
+
+        messageText.setTextColor(
+                Color.rgb(
+                        96,
+                        125,
+                        139
+                )
+        );
+
+        messageText.setGravity(
+                Gravity.CENTER
+        );
+
+        messageText.setPadding(
+                dp(20),
+                dp(40),
+                dp(20),
+                dp(40)
+        );
+
+        GradientDrawable background =
+                new GradientDrawable();
+
+        background.setColor(
+                Color.WHITE
+        );
+
+        background.setCornerRadius(
+                dp(18)
+        );
+
+        background.setStroke(
+                dp(1),
+                Color.rgb(
+                        226,
+                        234,
+                        240
+                )
+        );
+
+        messageText.setBackground(
+                background
+        );
+
+        LinearLayout.LayoutParams params =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        feedbackContainer.addView(
+                messageText,
+                params
+        );
+    }
+
+    // =====================================================
+    // SAFE TEXT
+    // =====================================================
+
+    private String safeText(
+            String text) {
+
+        if (text == null ||
+                text.trim().isEmpty()) {
+
+            return "Not available";
+        }
+
+        return text;
+    }
+
+    // =====================================================
+    // DP HELPER
+    // =====================================================
+
+    private int dp(
+            int value) {
+
+        return (int) (
+                value *
+                        getResources()
+                                .getDisplayMetrics()
+                                .density
+        );
     }
 }

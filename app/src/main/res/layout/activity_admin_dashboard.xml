@@ -1,4 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
+
 <ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
@@ -14,6 +15,7 @@
         android:padding="24dp">
 
         <!-- Header -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -43,15 +45,17 @@
         </LinearLayout>
 
 
-        <!-- Dashboard Grid -->
+        <!-- ================================================= -->
+        <!-- ROW 1 -->
+        <!-- ================================================= -->
 
-        <!-- Row 1 -->
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:orientation="horizontal">
 
             <!-- Manage Services -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -91,7 +95,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+
             <!-- Manage Branches -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -134,7 +140,10 @@
         </LinearLayout>
 
 
-        <!-- Row 2 -->
+        <!-- ================================================= -->
+        <!-- ROW 2 -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -142,6 +151,7 @@
             android:orientation="horizontal">
 
             <!-- Technicians -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -181,7 +191,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+
             <!-- Inventory -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -224,7 +236,10 @@
         </LinearLayout>
 
 
-        <!-- Row 3 -->
+        <!-- ================================================= -->
+        <!-- ROW 3 -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -232,6 +247,7 @@
             android:orientation="horizontal">
 
             <!-- Appointments -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -271,7 +287,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+
             <!-- Repair Status -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -314,7 +332,10 @@
         </LinearLayout>
 
 
-        <!-- Row 4 -->
+        <!-- ================================================= -->
+        <!-- ROW 4 -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -322,6 +343,7 @@
             android:orientation="horizontal">
 
             <!-- Customer Feedback -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -361,7 +383,9 @@
 
             </com.google.android.material.card.MaterialCardView>
 
+
             <!-- Payments -->
+
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="0dp"
                 android:layout_height="120dp"
@@ -404,13 +428,70 @@
         </LinearLayout>
 
 
+        <!-- ================================================= -->
+        <!-- ROW 5 - MANAGE JOBS -->
+        <!-- ================================================= -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="16dp"
+            android:orientation="horizontal">
+
+            <!-- Manage Jobs -->
+
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:layout_marginEnd="8dp"
+                android:layout_weight="1"
+                app:cardBackgroundColor="#FFFFFF"
+                app:cardCornerRadius="20dp"
+                app:cardElevation="0dp"
+                app:strokeColor="#E0E2EC"
+                app:strokeWidth="1dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:gravity="center"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <ImageView
+                        android:layout_width="32dp"
+                        android:layout_height="32dp"
+                        android:src="@android:drawable/ic_menu_edit"
+                        app:tint="#6750A4" />
+
+                    <Button
+                        android:id="@+id/btnManageJobs"
+                        style="@style/Widget.Material3.Button.TextButton"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:text="Manage Jobs"
+                        android:textAllCaps="false"
+                        android:textColor="#1C1B1F"
+                        android:textSize="14sp"
+                        android:textStyle="bold" />
+
+                </LinearLayout>
+
+            </com.google.android.material.card.MaterialCardView>
+
+        </LinearLayout>
+
+
         <!-- Spacer -->
+
         <View
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="1" />
 
+
         <!-- Logout -->
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnLogout"
             style="@style/Widget.Material3.Button.OutlinedButton"

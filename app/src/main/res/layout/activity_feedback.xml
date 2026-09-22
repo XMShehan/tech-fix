@@ -41,7 +41,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Edit Feedback"
+                android:text="Give Feedback"
                 android:textColor="#FFFFFF"
                 android:textSize="28sp"
                 android:textStyle="bold"
@@ -50,7 +50,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Update your repair experience"
+                android:text="Tell us about your repair experience"
                 android:textColor="#E3F2FD"
                 android:textSize="14sp" />
 
@@ -70,6 +70,51 @@
             android:paddingBottom="24dp">
 
             <!-- ================================================= -->
+            <!-- CUSTOMER INFORMATION -->
+            <!-- ================================================= -->
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="vertical"
+                android:padding="18dp"
+                android:background="@drawable/bg_dashboard_card"
+                android:layout_marginBottom="14dp">
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Customer Information"
+                    android:textColor="#263238"
+                    android:textSize="16sp"
+                    android:textStyle="bold"
+                    android:layout_marginBottom="8dp" />
+
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="Your Name"
+                    android:textColor="#607D8B"
+                    android:textSize="13sp"
+                    android:layout_marginBottom="5dp" />
+
+                <EditText
+                    android:id="@+id/edtName"
+                    android:layout_width="match_parent"
+                    android:layout_height="52dp"
+                    android:background="@drawable/bg_login_input"
+                    android:enabled="false"
+                    android:hint="Customer name"
+                    android:inputType="textPersonName"
+                    android:paddingStart="14dp"
+                    android:paddingEnd="14dp"
+                    android:textColor="#263238"
+                    android:textColorHint="#90A4AE"
+                    android:textSize="14sp" />
+
+            </LinearLayout>
+
+            <!-- ================================================= -->
             <!-- RATING CARD -->
             <!-- ================================================= -->
 
@@ -85,7 +130,7 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Your Rating"
+                    android:text="Rate Your Experience"
                     android:textColor="#263238"
                     android:textSize="17sp"
                     android:textStyle="bold"
@@ -94,11 +139,11 @@
                 <TextView
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Update your rating for this repair"
+                    android:text="How satisfied are you with our repair service?"
                     android:textColor="#607D8B"
                     android:textSize="13sp"
                     android:gravity="center"
-                    android:layout_marginBottom="10dp" />
+                    android:layout_marginBottom="12dp" />
 
                 <RatingBar
                     android:id="@+id/ratingBar"
@@ -106,7 +151,8 @@
                     android:layout_height="wrap_content"
                     android:numStars="5"
                     android:stepSize="1"
-                    android:layout_marginBottom="2dp" />
+                    android:rating="0"
+                    android:layout_marginBottom="4dp" />
 
             </LinearLayout>
 
@@ -134,7 +180,7 @@
                 <TextView
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Update your comments about the repair service."
+                    android:text="Tell us what you liked or how we can improve."
                     android:textColor="#607D8B"
                     android:textSize="13sp"
                     android:layout_marginBottom="10dp" />
@@ -145,7 +191,7 @@
                     android:layout_height="150dp"
                     android:background="@drawable/bg_login_input"
                     android:gravity="top|start"
-                    android:hint="Update your feedback here..."
+                    android:hint="Write your feedback here..."
                     android:inputType="textMultiLine|textCapSentences"
                     android:padding="14dp"
                     android:textColor="#263238"
@@ -155,24 +201,20 @@
             </LinearLayout>
 
             <!-- ================================================= -->
-            <!-- UPDATE BUTTON -->
+            <!-- ACTION BUTTONS -->
             <!-- ================================================= -->
 
             <Button
-                android:id="@+id/btnUpdate"
+                android:id="@+id/btnSubmit"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:layout_marginBottom="10dp"
                 android:background="@drawable/bg_login_button"
-                android:text="Update Feedback"
+                android:text="Submit Feedback"
                 android:textAllCaps="false"
                 android:textColor="#FFFFFF"
                 android:textSize="15sp"
                 android:textStyle="bold" />
-
-            <!-- ================================================= -->
-            <!-- CANCEL BUTTON -->
-            <!-- ================================================= -->
 
             <Button
                 android:id="@+id/btnCancel"

@@ -1,70 +1,257 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:gravity="center"
-    android:padding="30dp">
+    android:fillViewport="true"
+    android:background="#F6F9FC">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="TECHFIX"
-        android:textSize="32sp"
-        android:textStyle="bold"
-        android:layout_marginBottom="10dp" />
-
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Create Account"
-        android:textSize="20sp"
-        android:layout_marginBottom="30dp" />
-
-    <EditText
-        android:id="@+id/edtName"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Full Name"
-        android:inputType="textPersonName"
-        android:layout_marginBottom="15dp" />
+        android:orientation="vertical"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
+        android:paddingTop="30dp"
+        android:paddingBottom="30dp">
 
-    <EditText
-        android:id="@+id/edtEmail"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Email"
-        android:inputType="textEmailAddress"
-        android:layout_marginBottom="15dp" />
+        <!-- ================================================= -->
+        <!-- BRANDING -->
+        <!-- ================================================= -->
 
-    <EditText
-        android:id="@+id/edtPhone"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Phone Number"
-        android:inputType="phone"
-        android:layout_marginBottom="15dp" />
+        <TextView
+            android:layout_width="64dp"
+            android:layout_height="64dp"
+            android:gravity="center"
+            android:text="TF"
+            android:textColor="#FFFFFF"
+            android:textSize="22sp"
+            android:textStyle="bold"
+            android:background="@drawable/bg_logo"
+            android:elevation="4dp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="14dp" />
 
-    <EditText
-        android:id="@+id/edtPassword"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:hint="Password"
-        android:inputType="textPassword"
-        android:layout_marginBottom="20dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="TECHFIX"
+            android:textColor="#1976D2"
+            android:textSize="30sp"
+            android:textStyle="bold"
+            android:letterSpacing="0.08"
+            android:layout_gravity="center"
+            android:layout_marginBottom="5dp" />
 
-    <Button
-        android:id="@+id/btnRegister"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Create Account"
-        android:layout_marginBottom="15dp" />
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Computer &amp; Mobile Repair"
+            android:textColor="#607D8B"
+            android:textSize="14sp"
+            android:layout_gravity="center"
+            android:layout_marginBottom="26dp" />
 
-    <Button
-        android:id="@+id/btnBackToLogin"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:text="Back to Login" />
+        <!-- ================================================= -->
+        <!-- REGISTER CARD -->
+        <!-- ================================================= -->
 
-</LinearLayout>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:background="@drawable/bg_login_card"
+            android:elevation="5dp"
+            android:padding="24dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create Account"
+                android:textColor="#263238"
+                android:textSize="25sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="5dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Create your TechFix customer account"
+                android:textColor="#607D8B"
+                android:textSize="14sp"
+                android:layout_marginBottom="24dp" />
+
+            <!-- ================================================= -->
+            <!-- FULL NAME -->
+            <!-- ================================================= -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Full Name"
+                android:textColor="#37474F"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="7dp" />
+
+            <EditText
+                android:id="@+id/edtName"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="Enter your full name"
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:inputType="textPersonName"
+                android:singleLine="true"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/bg_login_input"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ================================================= -->
+            <!-- EMAIL -->
+            <!-- ================================================= -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email Address"
+                android:textColor="#37474F"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="7dp" />
+
+            <EditText
+                android:id="@+id/edtEmail"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="Enter your email"
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:inputType="textEmailAddress"
+                android:singleLine="true"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/bg_login_input"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ================================================= -->
+            <!-- PHONE -->
+            <!-- ================================================= -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone Number"
+                android:textColor="#37474F"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="7dp" />
+
+            <EditText
+                android:id="@+id/edtPhone"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="Enter your phone number"
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:inputType="phone"
+                android:singleLine="true"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/bg_login_input"
+                android:layout_marginBottom="16dp" />
+
+            <!-- ================================================= -->
+            <!-- PASSWORD -->
+            <!-- ================================================= -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Password"
+                android:textColor="#37474F"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="7dp" />
+
+            <EditText
+                android:id="@+id/edtPassword"
+                android:layout_width="match_parent"
+                android:layout_height="54dp"
+                android:hint="Create a password"
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:inputType="textPassword"
+                android:singleLine="true"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:background="@drawable/bg_login_input"
+                android:drawableEnd="@drawable/ic_visibility_off"
+                android:drawablePadding="10dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Use at least 6 characters"
+                android:textColor="#78909C"
+                android:textSize="12sp"
+                android:layout_marginBottom="22dp" />
+
+            <!-- ================================================= -->
+            <!-- CREATE ACCOUNT -->
+            <!-- ================================================= -->
+
+            <Button
+                android:id="@+id/btnRegister"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:text="CREATE ACCOUNT"
+                android:textColor="#FFFFFF"
+                android:textSize="15sp"
+                android:textStyle="bold"
+                android:letterSpacing="0.05"
+                android:background="@drawable/bg_login_button"
+                android:elevation="2dp"
+                android:layout_marginBottom="18dp" />
+
+            <!-- ================================================= -->
+            <!-- BACK TO LOGIN -->
+            <!-- ================================================= -->
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="1dp"
+                android:background="#E5EBEF"
+                android:layout_marginBottom="16dp" />
+
+            <Button
+                android:id="@+id/btnBackToLogin"
+                android:layout_width="match_parent"
+                android:layout_height="48dp"
+                android:text="BACK TO LOGIN"
+                android:textColor="#1976D2"
+                android:textSize="14sp"
+                android:textStyle="bold"
+                android:background="@drawable/bg_register_button" />
+
+        </LinearLayout>
+
+        <!-- ================================================= -->
+        <!-- FOOTER -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="Join TechFix today."
+            android:textColor="#78909C"
+            android:textSize="13sp"
+            android:layout_gravity="center"
+            android:layout_marginTop="22dp" />
+
+    </LinearLayout>
+
+</ScrollView>

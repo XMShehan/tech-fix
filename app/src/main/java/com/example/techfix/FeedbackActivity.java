@@ -11,52 +11,55 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 
-public class UpdateFeedbackActivity extends AppCompatActivity {
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
-    private RatingBar ratingBar;
+public class FeedbackActivity extends AppCompatActivity {
+
+    private EditText edtName;
     private EditText edtComment;
 
-    private Button btnUpdate;
+    private RatingBar ratingBar;
+
+    private Button btnSubmit;
     private Button btnCancel;
 
     private DatabaseHelper databaseHelper;
 
-    private int feedbackId;
     private String customerId;
+    private String customerName;
+    private String customerEmail;
 
     private int jobId;
+    private int appointmentId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         setContentView(
-                R.layout.activity_update_feedback
+                R.layout.activity_feedback
         );
 
         // =====================================================
         // CONNECT UI
         // =====================================================
 
-        ratingBar =
-                findViewById(
-                        R.id.ratingBar
-                );
+        edtName =
+                findViewById(R.id.edtName);
 
         edtComment =
-                findViewById(
-                        R.id.edtComment
-                );
+                findViewById(R.id.edtComment);
 
-        btnUpdate =
-                findViewById(
-                        R.id.btnUpdate
-                );
+        ratingBar =
+                findViewById(R.id.ratingBar);
+
+        btnSubmit =
+                findViewById(R.id.btnSubmit);
 
         btnCancel =
-                findViewById(
-                        R.id.btnCancel
-                );
+                findViewById(R.id.btnCancel);
 
         // =====================================================
         // DATABASE
@@ -66,31 +69,49 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                 new DatabaseHelper(this);
 
         // =====================================================
-        // GET DATA
+        // GET CUSTOMER
         // =====================================================
-
-        feedbackId =
-                getIntent().getIntExtra(
-                        "feedbackId",
-                        -1
-                );
 
         customerId =
                 getIntent().getStringExtra(
                         "customerId"
                 );
 
+        customerName =
+                getIntent().getStringExtra(
+                        "customerName"
+                );
+
+        customerEmail =
+                getIntent().getStringExtra(
+                        "customerEmail"
+                );
+
+        jobId =
+                getIntent().getIntExtra(
+                        "jobId",
+                        -1
+                );
+
+        appointmentId =
+                getIntent().getIntExtra(
+                        "appointmentId",
+                        -1
+                );
+
         // =====================================================
         // VALIDATE
         // =====================================================
 
-        if (feedbackId == -1 ||
-                customerId == null ||
-                customerId.trim().isEmpty()) {
+        if (customerId == null ||
+                customerId.trim().isEmpty() ||
+                customerName == null ||
+                customerName.trim().isEmpty() ||
+                jobId == -1) {
 
             Toast.makeText(
                     this,
-                    "Feedback information missing",
+                    "Repair information missing",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -99,24 +120,14 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // LOAD EXISTING FEEDBACK
-        // =====================================================
-
-        if (!loadFeedback()) {
-
-            finish();
-            return;
-        }
-
-        // =====================================================
-        // CHECK FINISHED JOB
+        // VALIDATE FINISHED JOB
         // =====================================================
 
         if (!isFinishedJob()) {
 
             Toast.makeText(
                     this,
-                    "Feedback can only be edited for completed repairs",
+                    "Feedback is only available for completed repairs",
                     Toast.LENGTH_LONG
             ).show();
 
@@ -125,11 +136,39 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // UPDATE
+        // CHECK EXISTING FEEDBACK
         // =====================================================
 
-        btnUpdate.setOnClickListener(
-                v -> updateFeedback()
+        if (feedbackAlreadyExists()) {
+
+            Toast.makeText(
+                    this,
+                    "Feedback has already been submitted for this repair",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+            return;
+        }
+
+        // =====================================================
+        // DISPLAY CUSTOMER
+        // =====================================================
+
+        edtName.setText(
+                customerName
+        );
+
+        edtName.setEnabled(
+                false
+        );
+
+        // =====================================================
+        // SUBMIT
+        // =====================================================
+
+        btnSubmit.setOnClickListener(
+                v -> submitFeedback()
         );
 
         // =====================================================
@@ -139,80 +178,6 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         btnCancel.setOnClickListener(
                 v -> finish()
         );
-    }
-
-    // =====================================================
-    // LOAD FEEDBACK
-    // =====================================================
-
-    private boolean loadFeedback() {
-
-        SQLiteDatabase db =
-                databaseHelper
-                        .getReadableDatabase();
-
-        Cursor cursor =
-                db.rawQuery(
-                        "SELECT jobId, rating, comment " +
-                                "FROM feedback " +
-                                "WHERE feedbackId = ? " +
-                                "AND customerId = ?",
-
-                        new String[]{
-                                String.valueOf(
-                                        feedbackId
-                                ),
-                                customerId
-                        }
-                );
-
-        if (cursor.moveToFirst()) {
-
-            jobId =
-                    cursor.getInt(
-                            cursor.getColumnIndexOrThrow(
-                                    "jobId"
-                            )
-                    );
-
-            int rating =
-                    cursor.getInt(
-                            cursor.getColumnIndexOrThrow(
-                                    "rating"
-                            )
-                    );
-
-            String comment =
-                    cursor.getString(
-                            cursor.getColumnIndexOrThrow(
-                                    "comment"
-                            )
-                    );
-
-            ratingBar.setRating(
-                    rating
-            );
-
-            edtComment.setText(
-                    comment
-            );
-
-            cursor.close();
-
-            return true;
-
-        } else {
-
-            cursor.close();
-
-            Toast.makeText(
-                    this,
-                    "Feedback not found",
-                    Toast.LENGTH_SHORT
-            ).show();
-
-            return false;
-        }
     }
 
     // =====================================================
@@ -250,18 +215,49 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
     }
 
     // =====================================================
-    // UPDATE FEEDBACK
+    // CHECK EXISTING FEEDBACK
     // =====================================================
 
-    private void updateFeedback() {
+    private boolean feedbackAlreadyExists() {
 
-        float rating =
-                ratingBar.getRating();
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
+
+        Cursor cursor =
+                db.rawQuery(
+                        "SELECT feedbackId " +
+                                "FROM feedback " +
+                                "WHERE customerId = ? " +
+                                "AND jobId = ?",
+
+                        new String[]{
+                                customerId,
+                                String.valueOf(jobId)
+                        }
+                );
+
+        boolean exists =
+                cursor.moveToFirst();
+
+        cursor.close();
+
+        return exists;
+    }
+
+    // =====================================================
+    // SUBMIT FEEDBACK
+    // =====================================================
+
+    private void submitFeedback() {
 
         String comment =
                 edtComment.getText()
                         .toString()
                         .trim();
+
+        float rating =
+                ratingBar.getRating();
 
         // =====================================================
         // VALIDATION
@@ -290,7 +286,34 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
         }
 
         // =====================================================
-        // DATABASE
+        // DOUBLE CHECK
+        // =====================================================
+
+        if (!isFinishedJob()) {
+
+            Toast.makeText(
+                    this,
+                    "This repair is no longer available for feedback",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        if (feedbackAlreadyExists()) {
+
+            Toast.makeText(
+                    this,
+                    "Feedback has already been submitted for this repair",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
+            return;
+        }
+
+        // =====================================================
+        // SAVE
         // =====================================================
 
         SQLiteDatabase db =
@@ -299,6 +322,21 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
 
         ContentValues values =
                 new ContentValues();
+
+        values.put(
+                "customerId",
+                customerId
+        );
+
+        values.put(
+                "jobId",
+                jobId
+        );
+
+        values.put(
+                "customerName",
+                customerName
+        );
 
         values.put(
                 "rating",
@@ -310,35 +348,36 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
                 comment
         );
 
-        int updated =
-                db.update(
-                        "feedback",
-                        values,
-                        "feedbackId = ? " +
-                                "AND customerId = ? " +
-                                "AND jobId = ?",
+        String currentDate =
+                new SimpleDateFormat(
+                        "yyyy-MM-dd HH:mm",
+                        Locale.getDefault()
+                ).format(
+                        new Date()
+                );
 
-                        new String[]{
-                                String.valueOf(
-                                        feedbackId
-                                ),
-                                customerId,
-                                String.valueOf(
-                                        jobId
-                                )
-                        }
+        values.put(
+                "date",
+                currentDate
+        );
+
+        long result =
+                db.insert(
+                        "feedback",
+                        null,
+                        values
                 );
 
         // =====================================================
         // RESULT
         // =====================================================
 
-        if (updated > 0) {
+        if (result != -1) {
 
             Toast.makeText(
                     this,
-                    "Feedback updated successfully",
-                    Toast.LENGTH_SHORT
+                    "Thank you! Your feedback has been submitted successfully.",
+                    Toast.LENGTH_LONG
             ).show();
 
             finish();
@@ -347,7 +386,7 @@ public class UpdateFeedbackActivity extends AppCompatActivity {
 
             Toast.makeText(
                     this,
-                    "Unable to update feedback",
+                    "Failed to save feedback",
                     Toast.LENGTH_SHORT
             ).show();
         }
