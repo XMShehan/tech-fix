@@ -18,22 +18,18 @@ public class CustomerDashboard extends AppCompatActivity {
 
     private TextView txtWelcome;
 
-    // Logged-in customer information
     private String customerId;
     private String customerName;
     private String customerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(
                 R.layout.activity_customer_dashboard
         );
-
-        // =====================================================
-        // CONNECT UI
-        // =====================================================
 
         btnViewProducts =
                 findViewById(R.id.btnViewProducts);
@@ -53,10 +49,6 @@ public class CustomerDashboard extends AppCompatActivity {
         txtWelcome =
                 findViewById(R.id.txtWelcome);
 
-        // =====================================================
-        // GET CUSTOMER INFORMATION FROM LOGIN
-        // =====================================================
-
         customerId =
                 getIntent().getStringExtra(
                         "customerId"
@@ -71,10 +63,6 @@ public class CustomerDashboard extends AppCompatActivity {
                 getIntent().getStringExtra(
                         "customerEmail"
                 );
-
-        // =====================================================
-        // DISPLAY CUSTOMER NAME
-        // =====================================================
 
         if (customerName != null &&
                 !customerName.trim().isEmpty()) {
@@ -93,7 +81,7 @@ public class CustomerDashboard extends AppCompatActivity {
         }
 
         // =====================================================
-        // VIEW PRODUCTS
+        // CREATE NEW BOOKING
         // =====================================================
 
         btnViewProducts.setOnClickListener(v -> {
@@ -216,23 +204,20 @@ public class CustomerDashboard extends AppCompatActivity {
         // LOGOUT
         // =====================================================
 
-        btnLogout.setOnClickListener(v -> {
-
-            showLogoutConfirmation();
-        });
+        btnLogout.setOnClickListener(
+                v -> showLogoutConfirmation()
+        );
     }
 
-    // =====================================================
+    // =========================================================
     // LOGOUT CONFIRMATION
-    // =====================================================
+    // =========================================================
 
     private void showLogoutConfirmation() {
 
         new AlertDialog.Builder(this)
 
-                .setTitle(
-                        "Logout"
-                )
+                .setTitle("Logout")
 
                 .setMessage(
                         "Are you sure you want to logout?"
@@ -251,9 +236,9 @@ public class CustomerDashboard extends AppCompatActivity {
                 .show();
     }
 
-    // =====================================================
-    // LOGOUT USER
-    // =====================================================
+    // =========================================================
+    // LOGOUT
+    // =========================================================
 
     private void logoutUser() {
 

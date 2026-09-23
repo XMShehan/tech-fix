@@ -1,3 +1,4 @@
+
 package com.example.techfix;
 
 import android.content.Intent;
@@ -79,6 +80,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                             "a.productService, " +
                             "a.category, " +
                             "a.price, " +
+                            "a.finalPrice, " +
                             "a.branch, " +
                             "a.appointmentDate, " +
                             "a.appointmentTime, " +
@@ -132,6 +134,10 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                         cursor.getColumnIndexOrThrow("price")
                 );
 
+                double finalPrice = cursor.getDouble(
+                        cursor.getColumnIndexOrThrow("finalPrice")
+                );
+
                 String branch = cursor.getString(
                         cursor.getColumnIndexOrThrow("branch")
                 );
@@ -173,6 +179,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
                         productService,
                         category,
                         price,
+                        finalPrice,
                         branch,
                         date,
                         time,
@@ -203,6 +210,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
             String productService,
             String category,
             double price,
+            double finalPrice,
             String branch,
             String date,
             String time,
@@ -434,16 +442,74 @@ public class MyAppointmentsActivity extends AppCompatActivity {
         // PRICE
         // =====================================================
 
+        String estimatedPriceText;
+
+        if (price > 0) {
+
+            estimatedPriceText =
+                    "Estimated Price: Rs. " +
+                            String.format(
+                                    Locale.getDefault(),
+                                    "%.2f",
+                                    price
+                            );
+
+        } else {
+
+            estimatedPriceText =
+                    "Estimated Price: To be confirmed";
+        }
+
         TextView priceText = createInfoText(
-                "Price: Rs. " +
-                        String.format(
-                                Locale.getDefault(),
-                                "%.2f",
-                                price
-                        )
+                estimatedPriceText
         );
 
         card.addView(priceText);
+
+        // =====================================================
+        // FINAL REPAIR AMOUNT
+        // =====================================================
+
+        if (displayStatus.equals("FINISHED")) {
+
+            String finalPriceText;
+
+            if (finalPrice > 0) {
+
+                finalPriceText =
+                        "Final Repair Amount: Rs. " +
+                                String.format(
+                                        Locale.getDefault(),
+                                        "%.2f",
+                                        finalPrice
+                                );
+
+            } else {
+
+                finalPriceText =
+                        "Final Repair Amount: Awaiting admin confirmation";
+            }
+
+            TextView finalPriceView = createInfoText(
+                    finalPriceText
+            );
+
+            finalPriceView.setTypeface(null, Typeface.BOLD);
+
+            finalPriceView.setTextColor(
+                    finalPrice > 0
+                            ? Color.rgb(46, 125, 50)
+                            : Color.rgb(239, 108, 0)
+            );
+
+            card.addView(finalPriceView);
+
+        } else {
+
+            card.addView(createInfoText(
+                    "Final Repair Amount: Available after repair is finished"
+            ));
+        }
 
         // =====================================================
         // BRANCH
@@ -538,13 +604,27 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
         if (!hasPayment) {
 
-            paymentText.setText(
-                    "Payment: NOT PAID"
-            );
+            if (displayStatus.equals("FINISHED") &&
+                    finalPrice <= 0) {
 
-            paymentText.setTextColor(
-                    Color.rgb(198, 40, 40)
-            );
+                paymentText.setText(
+                        "Payment: Waiting for final repair amount"
+                );
+
+                paymentText.setTextColor(
+                        Color.rgb(239, 108, 0)
+                );
+
+            } else {
+
+                paymentText.setText(
+                        "Payment: NOT PAID"
+                );
+
+                paymentText.setTextColor(
+                        Color.rgb(198, 40, 40)
+                );
+            }
 
         } else {
 
@@ -588,6 +668,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
          */
 
         if (displayStatus.equals("FINISHED") &&
+                finalPrice > 0 &&
                 !hasPayment) {
 
             Button btnMakePayment = new Button(this);
@@ -644,7 +725,7 @@ public class MyAppointmentsActivity extends AppCompatActivity {
 
                 intent.putExtra(
                         "amount",
-                        price
+                        finalPrice
                 );
 
                 intent.putExtra(

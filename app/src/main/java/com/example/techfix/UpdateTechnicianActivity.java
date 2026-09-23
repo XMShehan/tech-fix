@@ -4,59 +4,56 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.ArrayList;
 
 public class UpdateTechnicianActivity extends AppCompatActivity {
 
-    EditText edtTechnicianId;
-    EditText edtTechnicianName;
-    EditText edtTechnicianPhone;
-    EditText edtTechnicianEmail;
-    EditText edtTechnicianPassword;
+    private EditText edtTechnicianId;
+    private EditText edtTechnicianName;
+    private EditText edtTechnicianPhone;
+    private EditText edtTechnicianEmail;
+    private EditText edtTechnicianPassword;
 
-    Button btnUpdateTechnician;
+    private Spinner spinnerBranch;
 
-    DatabaseHelper databaseHelper;
+    private Button btnUpdateTechnician;
 
-    String technicianId;
+    private DatabaseHelper databaseHelper;
+
+    private String technicianId;
+
+    private final ArrayList<String> branchNames =
+            new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EdgeToEdge.enable(this);
+        // =====================================================
+        // KEYBOARD / SCROLL HANDLING
+        // =====================================================
 
-        setContentView(R.layout.activity_update_technician);
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(R.id.main),
-                (v, insets) -> {
-
-                    Insets systemBars =
-                            insets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                            );
-
-                    v.setPadding(
-                            systemBars.left,
-                            systemBars.top,
-                            systemBars.right,
-                            systemBars.bottom
-                    );
-
-                    return insets;
-                }
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         );
 
-        // Find views
+        setContentView(
+                R.layout.activity_update_technician
+        );
+
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
+
         edtTechnicianId =
                 findViewById(R.id.edtTechnicianId);
 
@@ -72,123 +69,307 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         edtTechnicianPassword =
                 findViewById(R.id.edtTechnicianPassword);
 
+        spinnerBranch =
+                findViewById(R.id.spinnerBranch);
+
         btnUpdateTechnician =
                 findViewById(R.id.btnUpdateTechnician);
 
-        // Database
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // Get technician ID
+        // =====================================================
+        // GET ID
+        // =====================================================
+
         technicianId =
-                getIntent().getStringExtra("technicianId");
+                getIntent()
+                        .getStringExtra("technicianId");
 
-        // Show technician ID and load details
-        if (technicianId != null) {
+        if (technicianId == null ||
+                technicianId.trim().isEmpty()) {
 
-            edtTechnicianId.setText(technicianId);
+            Toast.makeText(
+                    this,
+                    "Technician information is missing",
+                    Toast.LENGTH_LONG
+            ).show();
 
-            // Technician ID should not be changed
-            edtTechnicianId.setEnabled(false);
+            finish();
 
-            loadTechnicianDetails();
+            return;
         }
 
-        // Update Technician
-        btnUpdateTechnician.setOnClickListener(v -> {
+        edtTechnicianId.setText(
+                technicianId
+        );
 
-            updateTechnician();
-        });
+        edtTechnicianId.setEnabled(false);
+
+        // =====================================================
+        // LOAD BRANCHES
+        // =====================================================
+
+        loadBranches();
+
+        // =====================================================
+        // LOAD TECHNICIAN
+        // =====================================================
+
+        loadTechnicianDetails();
+
+        // =====================================================
+        // UPDATE
+        // =====================================================
+
+        btnUpdateTechnician.setOnClickListener(
+                v -> updateTechnician()
+        );
     }
+
+    // =========================================================
+    // LOAD ACTIVE BRANCHES
+    // =========================================================
+
+    private void loadBranches() {
+
+        branchNames.clear();
+
+        branchNames.add("Select Branch");
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT branchName " +
+                                    "FROM branches " +
+                                    "WHERE status = ? " +
+                                    "ORDER BY branchName",
+
+                            new String[]{
+                                    "Active"
+                            }
+                    );
+
+            while (cursor.moveToNext()) {
+
+                branchNames.add(
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "branchName"
+                                )
+                        )
+                );
+            }
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to load branches",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        branchNames
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerBranch.setAdapter(adapter);
+    }
+
+    // =========================================================
+    // LOAD TECHNICIAN DETAILS
+    // =========================================================
 
     private void loadTechnicianDetails() {
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor = db.query(
-                "technicians",
-                new String[]{
-                        "technicianName",
-                        "phone",
-                        "email",
-                        "password"
-                },
-                "technicianId = ?",
-                new String[]{technicianId},
-                null,
-                null,
-                null
-        );
+        Cursor cursor =
+                db.query(
+                        "technicians",
+
+                        new String[]{
+                                "technicianName",
+                                "phone",
+                                "email",
+                                "password",
+                                "branch"
+                        },
+
+                        "technicianId = ?",
+
+                        new String[]{
+                                technicianId
+                        },
+
+                        null,
+                        null,
+                        null
+                );
 
         if (cursor.moveToFirst()) {
 
-            String technicianName =
+            edtTechnicianName.setText(
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
                                     "technicianName"
                             )
-                    );
+                    )
+            );
 
-            String phone =
+            edtTechnicianPhone.setText(
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
                                     "phone"
                             )
-                    );
+                    )
+            );
 
-            String email =
+            edtTechnicianEmail.setText(
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
                                     "email"
                             )
-                    );
+                    )
+            );
 
-            String password =
+            edtTechnicianPassword.setText(
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
                                     "password"
                             )
+                    )
+            );
+
+            String branch =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "branch"
+                            )
                     );
 
-            // Display current details
-            edtTechnicianName.setText(technicianName);
-            edtTechnicianPhone.setText(phone);
-            edtTechnicianEmail.setText(email);
-            edtTechnicianPassword.setText(password);
+            if (branch != null) {
+
+                for (int i = 0;
+                     i < spinnerBranch.getCount();
+                     i++) {
+
+                    if (spinnerBranch
+                            .getItemAtPosition(i)
+                            .toString()
+                            .equalsIgnoreCase(
+                                    branch.trim()
+                            )) {
+
+                        spinnerBranch.setSelection(i);
+
+                        break;
+                    }
+                }
+            }
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Technician not found",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
         }
 
         cursor.close();
     }
 
+    // =========================================================
+    // UPDATE TECHNICIAN
+    // =========================================================
+
     private void updateTechnician() {
 
         String technicianName =
-                edtTechnicianName.getText().toString().trim();
+                edtTechnicianName
+                        .getText()
+                        .toString()
+                        .trim();
 
         String phone =
-                edtTechnicianPhone.getText().toString().trim();
+                edtTechnicianPhone
+                        .getText()
+                        .toString()
+                        .trim();
 
         String email =
-                edtTechnicianEmail.getText().toString().trim();
+                edtTechnicianEmail
+                        .getText()
+                        .toString()
+                        .trim();
 
         String password =
-                edtTechnicianPassword.getText().toString().trim();
+                edtTechnicianPassword
+                        .getText()
+                        .toString()
+                        .trim();
 
-        // Validation
         if (technicianName.isEmpty() ||
                 phone.isEmpty() ||
                 email.isEmpty() ||
                 password.isEmpty()) {
 
             Toast.makeText(
-                    UpdateTechnicianActivity.this,
+                    this,
                     "Please fill all fields",
                     Toast.LENGTH_SHORT
             ).show();
 
             return;
         }
+
+        if (spinnerBranch.getSelectedItemPosition() == 0) {
+
+            Toast.makeText(
+                    this,
+                    "Please select an assigned branch",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        String branch =
+                spinnerBranch
+                        .getSelectedItem()
+                        .toString();
+
+        // =====================================================
+        // UPDATE
+        // =====================================================
 
         SQLiteDatabase db =
                 databaseHelper.getWritableDatabase();
@@ -216,17 +397,25 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
                 password
         );
 
-        int result = db.update(
-                "technicians",
-                values,
-                "technicianId = ?",
-                new String[]{technicianId}
+        values.put(
+                "branch",
+                branch
         );
+
+        int result =
+                db.update(
+                        "technicians",
+                        values,
+                        "technicianId = ?",
+                        new String[]{
+                                technicianId
+                        }
+                );
 
         if (result > 0) {
 
             Toast.makeText(
-                    UpdateTechnicianActivity.this,
+                    this,
                     "Technician updated successfully",
                     Toast.LENGTH_SHORT
             ).show();
@@ -236,7 +425,7 @@ public class UpdateTechnicianActivity extends AppCompatActivity {
         } else {
 
             Toast.makeText(
-                    UpdateTechnicianActivity.this,
+                    this,
                     "Failed to update technician",
                     Toast.LENGTH_SHORT
             ).show();

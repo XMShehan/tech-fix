@@ -42,6 +42,9 @@ public class UpdateJobActivity extends AppCompatActivity {
 
     int jobId;
     String technicianId;
+    String technicianName;
+    String technicianEmail;
+
     String productService;
     String currentStatus;
 
@@ -73,9 +76,7 @@ public class UpdateJobActivity extends AppCompatActivity {
                                 if (photo != null) {
 
                                     // Display photo immediately
-                                    imgRepairPhoto.setImageBitmap(
-                                            photo
-                                    );
+                                    imgRepairPhoto.setImageBitmap(photo);
 
                                     // Save actual photo file
                                     saveRepairPhoto(photo);
@@ -141,6 +142,16 @@ public class UpdateJobActivity extends AppCompatActivity {
         technicianId =
                 getIntent().getStringExtra(
                         "technicianId"
+                );
+
+        technicianName =
+                getIntent().getStringExtra(
+                        "technicianName"
+                );
+
+        technicianEmail =
+                getIntent().getStringExtra(
+                        "technicianEmail"
                 );
 
         productService =
@@ -239,6 +250,47 @@ public class UpdateJobActivity extends AppCompatActivity {
 
         // Initial button state
         updateButtonStates();
+    }
+
+    // =====================================================
+    // RETURN TO TECHNICIAN DASHBOARD
+    // =====================================================
+
+    private void returnToTechnicianDashboard() {
+
+        Intent intent =
+                new Intent(
+                        UpdateJobActivity.this,
+                        TechnicianDashboardActivity.class
+                );
+
+        intent.putExtra(
+                "technicianId",
+                technicianId
+        );
+
+        intent.putExtra(
+                "technicianName",
+                technicianName
+        );
+
+        intent.putExtra(
+                "technicianEmail",
+                technicianEmail
+        );
+
+        /*
+         * Bring the existing Technician Dashboard
+         * back to the front and remove the previous
+         * My Jobs / Update Job screens from the stack.
+         */
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_CLEAR_TOP |
+                        Intent.FLAG_ACTIVITY_SINGLE_TOP
+        );
+
+        startActivity(intent);
+        finish();
     }
 
     // =====================================================
@@ -362,6 +414,7 @@ public class UpdateJobActivity extends AppCompatActivity {
 
                 try {
                     outputStream.close();
+
                 } catch (IOException ignored) {
                 }
             }
@@ -544,11 +597,6 @@ public class UpdateJobActivity extends AppCompatActivity {
             currentStatus =
                     newStatus;
 
-            txtCurrentStatus.setText(
-                    "Current Status: " +
-                            currentStatus
-            );
-
             Toast.makeText(
                     this,
                     "Job status updated to " +
@@ -556,7 +604,11 @@ public class UpdateJobActivity extends AppCompatActivity {
                     Toast.LENGTH_SHORT
             ).show();
 
-            updateButtonStates();
+            /*
+             * After successfully changing the status,
+             * return directly to the Technician Dashboard.
+             */
+            returnToTechnicianDashboard();
 
         } else {
 
@@ -627,17 +679,16 @@ public class UpdateJobActivity extends AppCompatActivity {
             currentStatus =
                     "FINISHED";
 
-            txtCurrentStatus.setText(
-                    "Current Status: FINISHED"
-            );
-
             Toast.makeText(
                     this,
                     "Job finished successfully",
                     Toast.LENGTH_LONG
             ).show();
 
-            updateButtonStates();
+            /*
+             * Return to dashboard after finishing.
+             */
+            returnToTechnicianDashboard();
 
         } else {
 

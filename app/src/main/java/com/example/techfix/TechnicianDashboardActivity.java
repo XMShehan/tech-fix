@@ -6,6 +6,7 @@ import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
@@ -18,6 +19,7 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
 
     Button btnMyJobs;
     Button btnJobHistory;
+    Button btnLogout;
 
     String technicianId;
     String technicianName;
@@ -29,7 +31,9 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_technician_dashboard);
+        setContentView(
+                R.layout.activity_technician_dashboard
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -51,7 +55,10 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
                 }
         );
 
-        // Find views
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
+
         txtWelcome =
                 findViewById(R.id.txtWelcome);
 
@@ -64,31 +71,58 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
         btnJobHistory =
                 findViewById(R.id.btnJobHistory);
 
-        // Get technician information from LoginActivity
+        btnLogout =
+                findViewById(R.id.btnLogout);
+
+        // =====================================================
+        // GET TECHNICIAN INFORMATION
+        // =====================================================
+
         technicianId =
-                getIntent().getStringExtra("technicianId");
+                getIntent().getStringExtra(
+                        "technicianId"
+                );
 
         technicianName =
-                getIntent().getStringExtra("technicianName");
+                getIntent().getStringExtra(
+                        "technicianName"
+                );
 
         technicianEmail =
-                getIntent().getStringExtra("technicianEmail");
+                getIntent().getStringExtra(
+                        "technicianEmail"
+                );
 
-        // Display technician information
-        if (technicianName != null) {
+        // =====================================================
+        // DISPLAY TECHNICIAN INFORMATION
+        // =====================================================
+
+        if (technicianName != null &&
+                !technicianName.trim().isEmpty()) {
 
             txtWelcome.setText(
-                    "Welcome, " + technicianName
+                    "Welcome, " +
+                            technicianName
             );
         }
 
         String info =
                 "Technician ID: " +
-                        (technicianId != null ? technicianId : "") +
+                        (
+                                technicianId != null
+                                        ? technicianId
+                                        : ""
+                        ) +
                         "\nEmail: " +
-                        (technicianEmail != null ? technicianEmail : "");
+                        (
+                                technicianEmail != null
+                                        ? technicianEmail
+                                        : ""
+                        );
 
-        txtTechnicianInfo.setText(info);
+        txtTechnicianInfo.setText(
+                info
+        );
 
         // =====================================================
         // MY JOBS
@@ -137,7 +171,6 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
                     technicianName
             );
 
-            // Tell MyJobsActivity to show completed jobs
             intent.putExtra(
                     "showHistory",
                     true
@@ -145,5 +178,73 @@ public class TechnicianDashboardActivity extends AppCompatActivity {
 
             startActivity(intent);
         });
+
+        // =====================================================
+        // LOGOUT
+        // =====================================================
+
+        btnLogout.setOnClickListener(v -> {
+
+            showLogoutConfirmation();
+        });
+    }
+
+    // =========================================================
+    // LOGOUT CONFIRMATION
+    // =========================================================
+
+    private void showLogoutConfirmation() {
+
+        new AlertDialog.Builder(this)
+
+                .setTitle(
+                        "Logout"
+                )
+
+                .setMessage(
+                        "Are you sure you want to logout?"
+                )
+
+                .setNegativeButton(
+                        "Cancel",
+                        null
+                )
+
+                .setPositiveButton(
+                        "Logout",
+                        (dialog, which) -> logout()
+                )
+
+                .show();
+    }
+
+    // =========================================================
+    // LOGOUT
+    // =========================================================
+
+    private void logout() {
+
+        /*
+         * Clear the current activity stack and return
+         * to the common Login screen.
+         *
+         * This prevents the technician from pressing
+         * Back and returning to the dashboard.
+         */
+
+        Intent intent =
+                new Intent(
+                        TechnicianDashboardActivity.this,
+                        LoginActivity.class
+                );
+
+        intent.addFlags(
+                Intent.FLAG_ACTIVITY_NEW_TASK |
+                        Intent.FLAG_ACTIVITY_CLEAR_TASK
+        );
+
+        startActivity(intent);
+
+        finish();
     }
 }

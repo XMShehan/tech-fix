@@ -1,10 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#F8F9FA"
+    android:fillViewport="true"
     android:clipToPadding="false"
     android:scrollbars="none">
 
@@ -14,24 +17,29 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title -->
+        <!-- ================================================= -->
+        <!-- TITLE -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="8dp"
-            android:layout_marginBottom="24dp"
-            android:letterSpacing="0.02"
+            android:layout_marginBottom="20dp"
             android:text="Update Branch"
             android:textColor="#1C1B1F"
             android:textSize="28sp"
             android:textStyle="bold" />
 
-        <!-- Branch ID -->
+        <!-- ================================================= -->
+        <!-- BRANCH CODE -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Branch ID"
+            android:text="Branch Code"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -39,7 +47,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="18dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -47,13 +55,13 @@
             app:strokeWidth="1dp">
 
             <EditText
-                android:id="@+id/edtBranchId"
+                android:id="@+id/edtBranchCode"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
-                android:hint="Example: B001"
-                android:imeOptions="actionNext"
+                android:hint="Enter branch code"
                 android:inputType="text"
+                android:imeOptions="actionNext"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -62,7 +70,10 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Branch Name -->
+        <!-- ================================================= -->
+        <!-- BRANCH NAME -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -75,7 +86,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="18dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -88,8 +99,8 @@
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
                 android:hint="Enter branch name"
+                android:inputType="textCapWords"
                 android:imeOptions="actionNext"
-                android:inputType="text"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -98,7 +109,10 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Address -->
+        <!-- ================================================= -->
+        <!-- ADDRESS -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -111,7 +125,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="18dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -121,25 +135,30 @@
             <EditText
                 android:id="@+id/edtAddress"
                 android:layout_width="match_parent"
-                android:layout_height="100dp"
+                android:layout_height="80dp"
                 android:background="@android:color/transparent"
+                android:hint="Enter address"
+                android:inputType="textCapSentences|textMultiLine"
                 android:gravity="top"
-                android:hint="Enter branch address"
-                android:inputType="textMultiLine"
-                android:minLines="2"
-                android:padding="16dp"
+                android:paddingStart="16dp"
+                android:paddingTop="14dp"
+                android:paddingEnd="16dp"
+                android:paddingBottom="14dp"
                 android:textColor="#1C1B1F"
                 android:textColorHint="#79747E"
                 android:textSize="15sp" />
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone -->
+        <!-- ================================================= -->
+        <!-- PHONE -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Phone Number"
+            android:text="Phone"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -147,7 +166,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="18dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -160,8 +179,8 @@
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
                 android:hint="Enter phone number"
-                android:imeOptions="actionNext"
                 android:inputType="phone"
+                android:imeOptions="actionNext"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -170,12 +189,15 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Email -->
+        <!-- ================================================= -->
+        <!-- EMAIL -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginBottom="6dp"
-            android:text="Email Address"
+            android:text="Email"
             android:textColor="#1C1B1F"
             android:textSize="14sp"
             android:textStyle="bold" />
@@ -183,7 +205,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="20dp"
+            android:layout_marginBottom="18dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -196,8 +218,8 @@
                 android:layout_height="52dp"
                 android:background="@android:color/transparent"
                 android:hint="Enter email"
-                android:imeOptions="actionNext"
                 android:inputType="textEmailAddress"
+                android:imeOptions="actionNext"
                 android:paddingStart="16dp"
                 android:paddingEnd="16dp"
                 android:textColor="#1C1B1F"
@@ -206,7 +228,88 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Status -->
+        <!-- ================================================= -->
+        <!-- LATITUDE -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Latitude"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <EditText
+                android:id="@+id/edtLatitude"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:hint="Example: 6.927079"
+                android:inputType="numberDecimal|numberSigned"
+                android:imeOptions="actionNext"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================================================= -->
+        <!-- LONGITUDE -->
+        <!-- ================================================= -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Longitude"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="18dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <EditText
+                android:id="@+id/edtLongitude"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:background="@android:color/transparent"
+                android:hint="Example: 79.861244"
+                android:inputType="numberDecimal|numberSigned"
+                android:imeOptions="actionNext"
+                android:paddingStart="16dp"
+                android:paddingEnd="16dp"
+                android:textColor="#1C1B1F"
+                android:textColorHint="#79747E"
+                android:textSize="15sp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- ================================================= -->
+        <!-- STATUS -->
+        <!-- ================================================= -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -235,7 +338,10 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Buttons -->
+        <!-- ================================================= -->
+        <!-- BUTTONS -->
+        <!-- ================================================= -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -251,11 +357,11 @@
                 android:layout_weight="1"
                 android:text="Cancel"
                 android:textAllCaps="false"
-                android:textColor="#6750A4"
+                android:textColor="#B3261E"
                 android:textSize="15sp"
                 android:textStyle="bold"
                 app:cornerRadius="16dp"
-                app:strokeColor="#6750A4"
+                app:strokeColor="#B3261E"
                 app:strokeWidth="1dp" />
 
             <com.google.android.material.button.MaterialButton

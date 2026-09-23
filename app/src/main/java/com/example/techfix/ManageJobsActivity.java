@@ -3,14 +3,17 @@ package com.example.techfix;
 import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
+import android.graphics.Color;
+import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Gravity;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.graphics.Color;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -22,12 +25,9 @@ import java.util.ArrayList;
 
 public class ManageJobsActivity extends AppCompatActivity {
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
-    LinearLayout jobContainer;
-
-    ArrayList<String> technicianIds;
-    ArrayList<String> technicianNames;
+    private LinearLayout jobContainer;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +35,9 @@ public class ManageJobsActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_manage_jobs);
+        setContentView(
+                R.layout.activity_manage_jobs
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -57,103 +59,53 @@ public class ManageJobsActivity extends AppCompatActivity {
                 }
         );
 
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
         databaseHelper =
                 new DatabaseHelper(this);
 
+        // =====================================================
+        // JOB CONTAINER
+        // =====================================================
+
         jobContainer =
-                findViewById(R.id.jobContainer);
+                findViewById(
+                        R.id.jobContainer
+                );
 
-        technicianIds =
-                new ArrayList<>();
+        // =====================================================
+        // LOAD JOBS
+        // =====================================================
 
-        technicianNames =
-                new ArrayList<>();
-
-        // Load technicians first
-        loadTechnicians();
-
-        // Then load appointments
         loadAppointments();
     }
+
+    // =========================================================
+    // REFRESH
+    // =========================================================
 
     @Override
     protected void onResume() {
         super.onResume();
 
         if (databaseHelper != null) {
-
-            technicianIds.clear();
-            technicianNames.clear();
-
-            loadTechnicians();
             loadAppointments();
         }
     }
 
-    // =====================================================
-    // LOAD TECHNICIANS
-    // =====================================================
-
-    private void loadTechnicians() {
-
-        SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
-
-        Cursor cursor = null;
-
-        try {
-
-            cursor =
-                    db.rawQuery(
-                            "SELECT technicianId, technicianName " +
-                                    "FROM technicians " +
-                                    "ORDER BY technicianName",
-                            null
-                    );
-
-            while (cursor.moveToNext()) {
-
-                String technicianId =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "technicianId"
-                                )
-                        );
-
-                String technicianName =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow(
-                                        "technicianName"
-                                )
-                        );
-
-                technicianIds.add(
-                        technicianId
-                );
-
-                technicianNames.add(
-                        technicianName
-                );
-            }
-
-        } finally {
-
-            if (cursor != null) {
-                cursor.close();
-            }
-        }
-    }
-
-    // =====================================================
-    // LOAD APPOINTMENTS
-    // =====================================================
+    // =========================================================
+    // LOAD APPOINTMENTS / JOBS
+    // =========================================================
 
     private void loadAppointments() {
 
         jobContainer.removeAllViews();
 
         SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+                databaseHelper
+                        .getReadableDatabase();
 
         Cursor cursor = null;
 
@@ -173,10 +125,14 @@ public class ManageJobsActivity extends AppCompatActivity {
                                     "j.jobId, " +
                                     "j.technicianId, " +
                                     "j.status " +
+
                                     "FROM appointments a " +
+
                                     "LEFT JOIN jobs j " +
                                     "ON a.appointmentId = j.appointmentId " +
+
                                     "ORDER BY a.appointmentId DESC",
+
                             null
                     );
 
@@ -316,9 +272,9 @@ public class ManageJobsActivity extends AppCompatActivity {
         }
     }
 
-    // =====================================================
+    // =========================================================
     // CREATE JOB CARD
-    // =====================================================
+    // =========================================================
 
     private void createJobCard(
             int appointmentId,
@@ -369,15 +325,16 @@ public class ManageJobsActivity extends AppCompatActivity {
                 cardParams
         );
 
-        // =================================================
+        // =====================================================
         // APPOINTMENT
-        // =================================================
+        // =====================================================
 
         TextView title =
                 new TextView(this);
 
         title.setText(
-                "Appointment #" + appointmentId
+                "Appointment #" +
+                        appointmentId
         );
 
         title.setTextSize(20);
@@ -388,268 +345,529 @@ public class ManageJobsActivity extends AppCompatActivity {
 
         title.setTypeface(
                 null,
-                android.graphics.Typeface.BOLD
+                Typeface.BOLD
         );
 
         card.addView(title);
 
-        // Customer ID
-        TextView customerText =
+        // =====================================================
+        // CUSTOMER
+        // =====================================================
+
+        card.addView(
                 createInfoText(
-                        "Customer ID: " + customerId
-                );
+                        "Customer ID: " +
+                                customerId
+                )
+        );
 
-        card.addView(customerText);
+        // =====================================================
+        // PRODUCT / SERVICE
+        // =====================================================
 
-        // Product / Service
-        TextView productText =
+        card.addView(
                 createInfoText(
                         "Product / Service: " +
                                 productService
-                );
+                )
+        );
 
-        card.addView(productText);
+        // =====================================================
+        // CATEGORY
+        // =====================================================
 
-        // Category
-        TextView categoryText =
+        card.addView(
                 createInfoText(
                         "Category: " +
                                 category
-                );
+                )
+        );
 
-        card.addView(categoryText);
+        // =====================================================
+        // PRICE
+        // =====================================================
 
-        // Price
-        TextView priceText =
+        card.addView(
                 createInfoText(
-                        "Price: Rs. " +
+                        "Estimated Price: Rs. " +
                                 String.format(
                                         "%.2f",
                                         price
                                 )
-                );
+                )
+        );
 
-        card.addView(priceText);
+        // =====================================================
+        // BRANCH
+        // =====================================================
 
-        // Branch
-        TextView branchText =
+        card.addView(
                 createInfoText(
                         "Branch: " +
-                                branch
-                );
+                                safeText(branch)
+                )
+        );
 
-        card.addView(branchText);
+        // =====================================================
+        // DATE
+        // =====================================================
 
-        // Date
-        TextView dateText =
+        card.addView(
                 createInfoText(
                         "Date: " +
-                                appointmentDate
-                );
+                                safeText(
+                                        appointmentDate
+                                )
+                )
+        );
 
-        card.addView(dateText);
+        // =====================================================
+        // TIME
+        // =====================================================
 
-        // Time
-        TextView timeText =
+        card.addView(
                 createInfoText(
                         "Time: " +
-                                appointmentTime
-                );
+                                safeText(
+                                        appointmentTime
+                                )
+                )
+        );
 
-        card.addView(timeText);
+        // =====================================================
+        // NORMALIZE STATUS
+        // =====================================================
 
-        // =================================================
-        // CURRENT JOB STATUS
-        // =================================================
+        String displayStatus;
+
+        if (jobId <= 0) {
+
+            displayStatus =
+                    "NOT ASSIGNED";
+
+        } else if (jobStatus == null ||
+                jobStatus.trim().isEmpty()) {
+
+            displayStatus =
+                    "PENDING";
+
+        } else {
+
+            displayStatus =
+                    jobStatus.trim().toUpperCase();
+        }
+
+        // =====================================================
+        // JOB STATUS
+        // =====================================================
 
         TextView statusText =
                 createInfoText(
                         "Job Status: " +
-                                (
-                                        jobStatus == null
-                                                ? "NOT ASSIGNED"
-                                                : jobStatus
-                                )
+                                displayStatus
                 );
 
         statusText.setTypeface(
                 null,
-                android.graphics.Typeface.BOLD
-        );
-
-        card.addView(statusText);
-
-        // =================================================
-        // TECHNICIAN LABEL
-        // =================================================
-
-        TextView technicianLabel =
-                createInfoText(
-                        "Assign Technician"
-                );
-
-        technicianLabel.setTypeface(
-                null,
-                android.graphics.Typeface.BOLD
-        );
-
-        technicianLabel.setPadding(
-                0,
-                20,
-                0,
-                8
+                Typeface.BOLD
         );
 
         card.addView(
-                technicianLabel
+                statusText
         );
 
-        // =================================================
-        // TECHNICIAN SPINNER
-        // =================================================
+        // =====================================================
+        // TECHNICIAN DETAILS
+        // =====================================================
 
-        Spinner technicianSpinner =
-                new Spinner(this);
+        String technicianText;
 
-        ArrayList<String> spinnerNames =
-                new ArrayList<>();
+        if (assignedTechnicianId == null ||
+                assignedTechnicianId.trim().isEmpty()) {
 
-        spinnerNames.add(
-                "Select Technician"
-        );
+            technicianText =
+                    "Technician: Not assigned yet";
 
-        spinnerNames.addAll(
-                technicianNames
-        );
+        } else {
 
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<>(
-                        this,
-                        android.R.layout.simple_spinner_item,
-                        spinnerNames
-                );
-
-        adapter.setDropDownViewResource(
-                android.R.layout.simple_spinner_dropdown_item
-        );
-
-        technicianSpinner.setAdapter(
-                adapter
-        );
-
-        // Select currently assigned technician
-        if (assignedTechnicianId != null) {
-
-            for (
-                    int i = 0;
-                    i < technicianIds.size();
-                    i++
-            ) {
-
-                if (technicianIds
-                        .get(i)
-                        .equals(
-                                assignedTechnicianId
-                        )) {
-
-                    technicianSpinner.setSelection(
-                            i + 1
-                    );
-
-                    break;
-                }
-            }
+            technicianText =
+                    "Technician ID: " +
+                            assignedTechnicianId;
         }
 
+        TextView technicianTextView =
+                createInfoText(
+                        technicianText
+                );
+
+        technicianTextView.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
         card.addView(
-                technicianSpinner
+                technicianTextView
         );
 
-        // =================================================
-        // ASSIGN BUTTON
-        // =================================================
+        // =====================================================
+        // TECHNICIAN ASSIGNMENT
+        // =====================================================
 
-        Button assignButton =
-                new Button(this);
+        /*
+         * Technician can only be assigned/changed while
+         * the job has NOT started.
+         *
+         * Allowed:
+         *      NOT ASSIGNED
+         *      PENDING
+         *
+         * Locked:
+         *      STARTED
+         *      ONGOING
+         *      FINISHED
+         */
 
-        assignButton.setText(
-                jobId > 0
-                        ? "Update Technician"
-                        : "Assign Technician"
-        );
+        boolean technicianAssignmentAllowed =
+                displayStatus.equals("NOT ASSIGNED") ||
+                        displayStatus.equals("PENDING");
 
-        assignButton.setOnClickListener(
-                v -> {
+        if (technicianAssignmentAllowed) {
 
-                    int selectedPosition =
-                            technicianSpinner
-                                    .getSelectedItemPosition();
+            // -------------------------------------------------
+            // LABEL
+            // -------------------------------------------------
 
-                    if (selectedPosition <= 0) {
-
-                        android.widget.Toast.makeText(
-                                ManageJobsActivity.this,
-                                "Please select a technician",
-                                android.widget.Toast.LENGTH_SHORT
-                        ).show();
-
-                        return;
-                    }
-
-                    String selectedTechnicianId =
-                            technicianIds.get(
-                                    selectedPosition - 1
-                            );
-
-                    assignTechnician(
-                            appointmentId,
-                            jobId,
-                            selectedTechnicianId
+            TextView technicianLabel =
+                    createInfoText(
+                            "Assign Technician"
                     );
-                }
-        );
 
-        card.addView(
-                assignButton
-        );
+            technicianLabel.setTypeface(
+                    null,
+                    Typeface.BOLD
+            );
+
+            technicianLabel.setPadding(
+                    0,
+                    20,
+                    0,
+                    8
+            );
+
+            card.addView(
+                    technicianLabel
+            );
+
+            // -------------------------------------------------
+            // LOAD TECHNICIANS FOR THIS BRANCH
+            // -------------------------------------------------
+
+            ArrayList<String> technicianIds =
+                    new ArrayList<>();
+
+            ArrayList<String> technicianNames =
+                    new ArrayList<>();
+
+            loadTechniciansForBranch(
+                    branch,
+                    technicianIds,
+                    technicianNames
+            );
+
+            // -------------------------------------------------
+            // SPINNER
+            // -------------------------------------------------
+
+            Spinner technicianSpinner =
+                    new Spinner(this);
+
+            ArrayList<String> spinnerNames =
+                    new ArrayList<>();
+
+            spinnerNames.add(
+                    "Select Technician"
+            );
+
+            if (technicianNames.isEmpty()) {
+
+                spinnerNames.add(
+                        "No technicians available at this branch"
+                );
+
+            } else {
+
+                spinnerNames.addAll(
+                        technicianNames
+                );
+            }
+
+            ArrayAdapter<String> adapter =
+                    new ArrayAdapter<>(
+                            this,
+                            android.R.layout.simple_spinner_item,
+                            spinnerNames
+                    );
+
+            adapter.setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+            );
+
+            technicianSpinner.setAdapter(
+                    adapter
+            );
+
+            if (technicianNames.isEmpty()) {
+
+                technicianSpinner.setEnabled(
+                        false
+                );
+            }
+
+            // -------------------------------------------------
+            // SELECT CURRENT TECHNICIAN
+            // -------------------------------------------------
+
+            if (assignedTechnicianId != null &&
+                    !assignedTechnicianId.trim().isEmpty()) {
+
+                for (
+                        int i = 0;
+                        i < technicianIds.size();
+                        i++
+                ) {
+
+                    if (technicianIds
+                            .get(i)
+                            .equals(
+                                    assignedTechnicianId
+                            )) {
+
+                        technicianSpinner.setSelection(
+                                i + 1
+                        );
+
+                        break;
+                    }
+                }
+            }
+
+            card.addView(
+                    technicianSpinner
+            );
+
+            // -------------------------------------------------
+            // ASSIGN / UPDATE BUTTON
+            // -------------------------------------------------
+
+            Button assignButton =
+                    new Button(this);
+
+            if (jobId > 0) {
+
+                assignButton.setText(
+                        "Update Technician"
+                );
+
+            } else {
+
+                assignButton.setText(
+                        "Assign Technician"
+                );
+            }
+
+            if (technicianNames.isEmpty()) {
+
+                assignButton.setEnabled(
+                        false
+                );
+            }
+
+            assignButton.setOnClickListener(
+                    v -> {
+
+                        int selectedPosition =
+                                technicianSpinner
+                                        .getSelectedItemPosition();
+
+                        if (selectedPosition <= 0) {
+
+                            Toast.makeText(
+                                    ManageJobsActivity.this,
+                                    "Please select a technician",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            return;
+                        }
+
+                        if (technicianIds.isEmpty()) {
+
+                            Toast.makeText(
+                                    ManageJobsActivity.this,
+                                    "No technicians available at this branch",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            return;
+                        }
+
+                        if (selectedPosition - 1 >=
+                                technicianIds.size()) {
+
+                            Toast.makeText(
+                                    ManageJobsActivity.this,
+                                    "Invalid technician selection",
+                                    Toast.LENGTH_SHORT
+                            ).show();
+
+                            return;
+                        }
+
+                        String selectedTechnicianId =
+                                technicianIds.get(
+                                        selectedPosition - 1
+                                );
+
+                        assignTechnician(
+                                appointmentId,
+                                jobId,
+                                selectedTechnicianId
+                        );
+                    }
+            );
+
+            card.addView(
+                    assignButton
+            );
+
+        } else {
+
+            // =================================================
+            // LOCKED MESSAGE
+            // =================================================
+
+            TextView lockedText =
+                    createInfoText(
+                            "Technician assignment is locked because the repair has started."
+                    );
+
+            lockedText.setTextColor(
+                    Color.DKGRAY
+            );
+
+            lockedText.setTypeface(
+                    null,
+                    Typeface.ITALIC
+            );
+
+            lockedText.setPadding(
+                    0,
+                    16,
+                    0,
+                    4
+            );
+
+            card.addView(
+                    lockedText
+            );
+        }
+
+        // =====================================================
+        // ADD CARD
+        // =====================================================
 
         jobContainer.addView(
                 card
         );
     }
 
-    // =====================================================
-    // CREATE INFO TEXT
-    // =====================================================
+    // =========================================================
+    // LOAD TECHNICIANS FOR SELECTED BRANCH
+    // =========================================================
 
-    private TextView createInfoText(
-            String text
+    private void loadTechniciansForBranch(
+            String branch,
+            ArrayList<String> technicianIds,
+            ArrayList<String> technicianNames
     ) {
 
-        TextView textView =
-                new TextView(this);
+        technicianIds.clear();
+        technicianNames.clear();
 
-        textView.setText(text);
+        if (branch == null ||
+                branch.trim().isEmpty()) {
 
-        textView.setTextSize(15);
+            return;
+        }
 
-        textView.setTextColor(
-                Color.DKGRAY
-        );
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
 
-        textView.setPadding(
-                0,
-                5,
-                0,
-                5
-        );
+        Cursor cursor = null;
 
-        return textView;
+        try {
+
+            /*
+             * Only technicians belonging to the
+             * appointment branch are loaded.
+             *
+             * Example:
+             *
+             * Job Branch = Gampaha
+             * ↓
+             * Only Gampaha technicians appear.
+             */
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT technicianId, technicianName " +
+                                    "FROM technicians " +
+                                    "WHERE LOWER(TRIM(COALESCE(branch, ''))) " +
+                                    "= LOWER(TRIM(?)) " +
+                                    "ORDER BY technicianName",
+
+                            new String[]{
+                                    branch.trim()
+                            }
+                    );
+
+            while (cursor.moveToNext()) {
+
+                String technicianId =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "technicianId"
+                                )
+                        );
+
+                String technicianName =
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "technicianName"
+                                )
+                        );
+
+                technicianIds.add(
+                        technicianId
+                );
+
+                technicianNames.add(
+                        technicianName
+                );
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
     }
 
-    // =====================================================
+    // =========================================================
     // ASSIGN TECHNICIAN
-    // =====================================================
+    // =========================================================
 
     private void assignTechnician(
             int appointmentId,
@@ -658,7 +876,82 @@ public class ManageJobsActivity extends AppCompatActivity {
     ) {
 
         SQLiteDatabase db =
-                databaseHelper.getWritableDatabase();
+                databaseHelper
+                        .getWritableDatabase();
+
+        // =====================================================
+        // EXTRA SAFETY CHECK
+        // =====================================================
+
+        /*
+         * Even if an old screen somehow remains open,
+         * do not allow technician changes after the repair
+         * has started.
+         */
+
+        if (jobId > 0) {
+
+            Cursor statusCursor = null;
+
+            try {
+
+                statusCursor =
+                        db.rawQuery(
+                                "SELECT status " +
+                                        "FROM jobs " +
+                                        "WHERE jobId = ?",
+
+                                new String[]{
+                                        String.valueOf(
+                                                jobId
+                                        )
+                                }
+                        );
+
+                if (statusCursor.moveToFirst()) {
+
+                    String currentStatus =
+                            statusCursor.getString(0);
+
+                    if (currentStatus != null) {
+
+                        currentStatus =
+                                currentStatus
+                                        .trim()
+                                        .toUpperCase();
+                    }
+
+                    if ("STARTED".equals(
+                            currentStatus
+                    ) ||
+                            "ONGOING".equals(
+                                    currentStatus
+                            ) ||
+                            "FINISHED".equals(
+                                    currentStatus
+                            )) {
+
+                        Toast.makeText(
+                                this,
+                                "Technician cannot be changed after the repair has started",
+                                Toast.LENGTH_LONG
+                        ).show();
+
+                        return;
+                    }
+                }
+
+            } finally {
+
+                if (statusCursor != null) {
+                    statusCursor.close();
+                }
+            }
+        }
+
+        // =====================================================
+        // VALUES
+        // =====================================================
 
         ContentValues values =
                 new ContentValues();
@@ -673,6 +966,9 @@ public class ManageJobsActivity extends AppCompatActivity {
                 technicianId
         );
 
+        /*
+         * A newly assigned job starts as PENDING.
+         */
         values.put(
                 "status",
                 "PENDING"
@@ -687,9 +983,9 @@ public class ManageJobsActivity extends AppCompatActivity {
 
         long result;
 
-        // -------------------------------------------------
+        // =====================================================
         // UPDATE EXISTING JOB
-        // -------------------------------------------------
+        // =====================================================
 
         if (jobId > 0) {
 
@@ -707,9 +1003,9 @@ public class ManageJobsActivity extends AppCompatActivity {
 
         } else {
 
-            // -------------------------------------------------
+            // =================================================
             // CREATE NEW JOB
-            // -------------------------------------------------
+            // =================================================
 
             result =
                     db.insert(
@@ -719,23 +1015,77 @@ public class ManageJobsActivity extends AppCompatActivity {
                     );
         }
 
+        // =====================================================
+        // RESULT
+        // =====================================================
+
         if (result > 0) {
 
-            android.widget.Toast.makeText(
+            Toast.makeText(
                     this,
                     "Technician assigned successfully",
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
             ).show();
 
             loadAppointments();
 
         } else {
 
-            android.widget.Toast.makeText(
+            Toast.makeText(
                     this,
                     "Failed to assign technician",
-                    android.widget.Toast.LENGTH_SHORT
+                    Toast.LENGTH_SHORT
             ).show();
         }
+    }
+
+    // =========================================================
+    // INFO TEXT
+    // =========================================================
+
+    private TextView createInfoText(
+            String text
+    ) {
+
+        TextView textView =
+                new TextView(this);
+
+        textView.setText(
+                text
+        );
+
+        textView.setTextSize(
+                15
+        );
+
+        textView.setTextColor(
+                Color.DKGRAY
+        );
+
+        textView.setPadding(
+                0,
+                5,
+                0,
+                5
+        );
+
+        return textView;
+    }
+
+    // =========================================================
+    // SAFE TEXT
+    // =========================================================
+
+    private String safeText(
+            String value
+    ) {
+
+        if (value == null ||
+                value.trim().isEmpty()) {
+
+            return "Not provided";
+        }
+
+        return value;
     }
 }

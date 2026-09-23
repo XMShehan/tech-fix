@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -14,7 +16,6 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,6 +28,7 @@
             android:textStyle="bold" />
 
         <!-- Service ID -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,6 +65,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Service Name -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,7 +101,38 @@
 
         </com.google.android.material.card.MaterialCardView>
 
+        <!-- Category -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Category"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="20dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <Spinner
+                android:id="@+id/spinnerCategory"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
         <!-- Description -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -134,6 +168,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Price -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -170,6 +205,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Duration -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -206,6 +242,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Status -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -235,6 +272,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Buttons -->
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

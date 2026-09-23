@@ -4,155 +4,240 @@ import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
 
 public class UpdateServiceActivity extends AppCompatActivity {
 
-    EditText edtServiceId;
-    EditText edtServiceName;
-    EditText edtDescription;
-    EditText edtPrice;
-    EditText edtDuration;
+    private EditText edtServiceId;
+    private EditText edtServiceName;
+    private EditText edtDescription;
+    private EditText edtPrice;
+    private EditText edtDuration;
 
-    Spinner spinnerStatus;
+    private Spinner spinnerCategory;
+    private Spinner spinnerStatus;
 
-    Button btnCancel;
-    Button btnUpdateService;
+    private Button btnCancel;
+    private Button btnUpdateService;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
-    String serviceId;
+    private String serviceId;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        EdgeToEdge.enable(this);
+        // =====================================================
+        // KEYBOARD HANDLING
+        // =====================================================
 
-        setContentView(R.layout.activity_update_service);
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(R.id.main),
-                (v, insets) -> {
-
-                    Insets systemBars =
-                            insets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                            );
-
-                    v.setPadding(
-                            systemBars.left,
-                            systemBars.top,
-                            systemBars.right,
-                            systemBars.bottom
-                    );
-
-                    return insets;
-                }
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         );
 
-        // Find views
+        setContentView(
+                R.layout.activity_update_service
+        );
+
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
+
         edtServiceId =
-                findViewById(R.id.edtServiceId);
+                findViewById(
+                        R.id.edtServiceId
+                );
 
         edtServiceName =
-                findViewById(R.id.edtServiceName);
+                findViewById(
+                        R.id.edtServiceName
+                );
 
         edtDescription =
-                findViewById(R.id.edtDescription);
+                findViewById(
+                        R.id.edtDescription
+                );
 
         edtPrice =
-                findViewById(R.id.edtPrice);
+                findViewById(
+                        R.id.edtPrice
+                );
 
         edtDuration =
-                findViewById(R.id.edtDuration);
+                findViewById(
+                        R.id.edtDuration
+                );
+
+        spinnerCategory =
+                findViewById(
+                        R.id.spinnerCategory
+                );
 
         spinnerStatus =
-                findViewById(R.id.spinnerStatus);
+                findViewById(
+                        R.id.spinnerStatus
+                );
 
         btnCancel =
-                findViewById(R.id.btnCancel);
+                findViewById(
+                        R.id.btnCancel
+                );
 
         btnUpdateService =
-                findViewById(R.id.btnUpdateService);
+                findViewById(
+                        R.id.btnUpdateService
+                );
 
-        // Database
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
         databaseHelper =
                 new DatabaseHelper(this);
 
-        // Status options
+        // =====================================================
+        // CATEGORY OPTIONS
+        // =====================================================
+
+        String[] categoryOptions = {
+                "Mobile",
+                "Computer",
+                "Other"
+        };
+
+        ArrayAdapter<String> categoryAdapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        categoryOptions
+                );
+
+        categoryAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerCategory.setAdapter(
+                categoryAdapter
+        );
+
+        // =====================================================
+        // STATUS OPTIONS
+        // =====================================================
+
         String[] statusOptions = {
                 "Active",
                 "Inactive"
         };
 
-        ArrayAdapter<String> adapter =
+        ArrayAdapter<String> statusAdapter =
                 new ArrayAdapter<>(
                         this,
                         android.R.layout.simple_spinner_item,
                         statusOptions
                 );
 
-        adapter.setDropDownViewResource(
+        statusAdapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item
         );
 
-        spinnerStatus.setAdapter(adapter);
+        spinnerStatus.setAdapter(
+                statusAdapter
+        );
 
-        // Get Service ID
+        // =====================================================
+        // GET SERVICE ID
+        // =====================================================
+
         serviceId =
-                getIntent().getStringExtra("serviceId");
+                getIntent().getStringExtra(
+                        "serviceId"
+                );
 
-        if (serviceId != null) {
+        if (serviceId != null &&
+                !serviceId.trim().isEmpty()) {
 
-            edtServiceId.setText(serviceId);
+            edtServiceId.setText(
+                    serviceId
+            );
 
-            // Load existing service details
+            // Service ID cannot be changed
+            edtServiceId.setEnabled(
+                    false
+            );
+
             loadServiceDetails();
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Service information is missing",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
         }
 
-        // Cancel button
-        btnCancel.setOnClickListener(v -> {
-            finish();
-        });
+        // =====================================================
+        // CANCEL
+        // =====================================================
 
-        // Update Service button
-        btnUpdateService.setOnClickListener(v -> {
+        btnCancel.setOnClickListener(
+                v -> finish()
+        );
 
-            updateService();
-        });
+        // =====================================================
+        // UPDATE SERVICE
+        // =====================================================
+
+        btnUpdateService.setOnClickListener(
+                v -> updateService()
+        );
     }
+
+    // =========================================================
+    // LOAD SERVICE DETAILS
+    // =========================================================
 
     private void loadServiceDetails() {
 
         SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+                databaseHelper
+                        .getReadableDatabase();
 
-        Cursor cursor = db.query(
-                "services",
-                new String[]{
-                        "serviceName",
-                        "description",
-                        "price",
-                        "duration",
-                        "status"
-                },
-                "serviceId = ?",
-                new String[]{serviceId},
-                null,
-                null,
-                null
-        );
+        Cursor cursor =
+                db.query(
+                        "services",
+
+                        new String[]{
+                                "serviceName",
+                                "category",
+                                "description",
+                                "price",
+                                "duration",
+                                "status"
+                        },
+
+                        "serviceId = ?",
+
+                        new String[]{
+                                serviceId
+                        },
+
+                        null,
+                        null,
+                        null
+                );
 
         if (cursor.moveToFirst()) {
 
@@ -160,6 +245,13 @@ public class UpdateServiceActivity extends AppCompatActivity {
                     cursor.getString(
                             cursor.getColumnIndexOrThrow(
                                     "serviceName"
+                            )
+                    );
+
+            String category =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "category"
                             )
                     );
 
@@ -191,63 +283,129 @@ public class UpdateServiceActivity extends AppCompatActivity {
                             )
                     );
 
-            // Display current details
-            edtServiceName.setText(serviceName);
-            edtDescription.setText(description);
-            edtPrice.setText(String.valueOf(price));
-            edtDuration.setText(duration);
+            edtServiceName.setText(
+                    serviceName
+            );
 
-            // Set current status in Spinner
-            if (status != null) {
+            edtDescription.setText(
+                    description
+            );
 
-                for (int i = 0;
-                     i < spinnerStatus.getCount();
-                     i++) {
+            edtPrice.setText(
+                    String.valueOf(price)
+            );
 
-                    if (spinnerStatus
-                            .getItemAtPosition(i)
-                            .toString()
-                            .equalsIgnoreCase(status)) {
+            edtDuration.setText(
+                    duration
+            );
 
-                        spinnerStatus.setSelection(i);
-                        break;
-                    }
-                }
-            }
+            setSpinnerSelection(
+                    spinnerCategory,
+                    category
+            );
+
+            setSpinnerSelection(
+                    spinnerStatus,
+                    status
+            );
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Service not found",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            finish();
         }
 
         cursor.close();
     }
 
+    // =========================================================
+    // SET SPINNER SELECTION
+    // =========================================================
+
+    private void setSpinnerSelection(
+            Spinner spinner,
+            String value) {
+
+        if (value == null) {
+            return;
+        }
+
+        for (int i = 0;
+             i < spinner.getCount();
+             i++) {
+
+            String item =
+                    spinner
+                            .getItemAtPosition(i)
+                            .toString();
+
+            if (item.equalsIgnoreCase(
+                    value.trim()
+            )) {
+
+                spinner.setSelection(i);
+
+                break;
+            }
+        }
+    }
+
+    // =========================================================
+    // UPDATE SERVICE
+    // =========================================================
+
     private void updateService() {
 
-        String id =
-                edtServiceId.getText().toString().trim();
-
         String serviceName =
-                edtServiceName.getText().toString().trim();
+                edtServiceName
+                        .getText()
+                        .toString()
+                        .trim();
 
         String description =
-                edtDescription.getText().toString().trim();
+                edtDescription
+                        .getText()
+                        .toString()
+                        .trim();
 
         String priceText =
-                edtPrice.getText().toString().trim();
+                edtPrice
+                        .getText()
+                        .toString()
+                        .trim();
 
         String duration =
-                edtDuration.getText().toString().trim();
+                edtDuration
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String category =
+                spinnerCategory
+                        .getSelectedItem()
+                        .toString();
 
         String status =
-                spinnerStatus.getSelectedItem().toString();
+                spinnerStatus
+                        .getSelectedItem()
+                        .toString();
 
-        // Validation
-        if (id.isEmpty() ||
-                serviceName.isEmpty() ||
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (serviceName.isEmpty() ||
                 description.isEmpty() ||
                 priceText.isEmpty() ||
                 duration.isEmpty()) {
 
             Toast.makeText(
-                    UpdateServiceActivity.this,
+                    this,
                     "Please fill all fields",
                     Toast.LENGTH_SHORT
             ).show();
@@ -255,16 +413,34 @@ public class UpdateServiceActivity extends AppCompatActivity {
             return;
         }
 
+        // =====================================================
+        // PRICE VALIDATION
+        // =====================================================
+
         double price;
 
         try {
 
-            price = Double.parseDouble(priceText);
+            price =
+                    Double.parseDouble(
+                            priceText
+                    );
+
+            if (price <= 0) {
+
+                Toast.makeText(
+                        this,
+                        "Price must be greater than 0",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
 
         } catch (NumberFormatException e) {
 
             Toast.makeText(
-                    UpdateServiceActivity.this,
+                    this,
                     "Please enter a valid price",
                     Toast.LENGTH_SHORT
             ).show();
@@ -272,9 +448,13 @@ public class UpdateServiceActivity extends AppCompatActivity {
             return;
         }
 
-        // Update database
+        // =====================================================
+        // DATABASE UPDATE
+        // =====================================================
+
         SQLiteDatabase db =
-                databaseHelper.getWritableDatabase();
+                databaseHelper
+                        .getWritableDatabase();
 
         ContentValues values =
                 new ContentValues();
@@ -282,6 +462,11 @@ public class UpdateServiceActivity extends AppCompatActivity {
         values.put(
                 "serviceName",
                 serviceName
+        );
+
+        values.put(
+                "category",
+                category
         );
 
         values.put(
@@ -304,17 +489,20 @@ public class UpdateServiceActivity extends AppCompatActivity {
                 status
         );
 
-        int result = db.update(
-                "services",
-                values,
-                "serviceId = ?",
-                new String[]{id}
-        );
+        int result =
+                db.update(
+                        "services",
+                        values,
+                        "serviceId = ?",
+                        new String[]{
+                                serviceId
+                        }
+                );
 
         if (result > 0) {
 
             Toast.makeText(
-                    UpdateServiceActivity.this,
+                    this,
                     "Service updated successfully",
                     Toast.LENGTH_SHORT
             ).show();
@@ -324,7 +512,7 @@ public class UpdateServiceActivity extends AppCompatActivity {
         } else {
 
             Toast.makeText(
-                    UpdateServiceActivity.this,
+                    this,
                     "Service not found",
                     Toast.LENGTH_SHORT
             ).show();

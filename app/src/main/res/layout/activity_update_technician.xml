@@ -1,9 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    android:fillViewport="true"
     android:background="#F8F9FA"
     android:clipToPadding="false"
     android:scrollbars="none">
@@ -14,7 +17,6 @@
         android:orientation="vertical"
         android:padding="24dp">
 
-        <!-- Title -->
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -27,6 +29,7 @@
             android:textStyle="bold" />
 
         <!-- Technician ID -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -63,6 +66,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Technician Name -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -98,7 +102,8 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Phone Number -->
+        <!-- Phone -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -135,6 +140,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Email -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -171,6 +177,7 @@
         </com.google.android.material.card.MaterialCardView>
 
         <!-- Password -->
+
         <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -183,7 +190,7 @@
         <com.google.android.material.card.MaterialCardView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginBottom="24dp"
+            android:layout_marginBottom="20dp"
             app:cardBackgroundColor="#FFFFFF"
             app:cardCornerRadius="16dp"
             app:cardElevation="0dp"
@@ -206,7 +213,38 @@
 
         </com.google.android.material.card.MaterialCardView>
 
-        <!-- Update Technician Button -->
+        <!-- Assigned Branch -->
+
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="6dp"
+            android:text="Assigned Branch"
+            android:textColor="#1C1B1F"
+            android:textSize="14sp"
+            android:textStyle="bold" />
+
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="24dp"
+            app:cardBackgroundColor="#FFFFFF"
+            app:cardCornerRadius="16dp"
+            app:cardElevation="0dp"
+            app:strokeColor="#E0E2EC"
+            app:strokeWidth="1dp">
+
+            <Spinner
+                android:id="@+id/spinnerBranch"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- Update -->
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/btnUpdateTechnician"
             android:layout_width="match_parent"
