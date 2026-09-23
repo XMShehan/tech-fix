@@ -63,12 +63,8 @@ public class LoginActivity extends AppCompatActivity {
                     if (event.getAction() ==
                             MotionEvent.ACTION_UP) {
 
-                        /*
-                         * Check whether the user touched
-                         * the drawable on the right side.
-                         */
-
-                        if (event.getRawX() >=
+                        if (edtPassword.getCompoundDrawables()[2] != null
+                                && event.getRawX() >=
                                 (edtPassword.getRight()
                                         - edtPassword
                                         .getCompoundDrawables()[2]
@@ -148,16 +144,17 @@ public class LoginActivity extends AppCompatActivity {
         });
     }
 
-    // =====================================================
+    // =========================================================
     // LOGIN USER
-    // =====================================================
+    // =========================================================
 
     private void loginUser() {
 
         String email =
                 edtEmail.getText()
                         .toString()
-                        .trim();
+                        .trim()
+                        .toLowerCase();
 
         String password =
                 edtPassword.getText()
@@ -165,7 +162,7 @@ public class LoginActivity extends AppCompatActivity {
                         .trim();
 
         // =====================================================
-        // VALIDATE EMPTY FIELDS
+        // VALIDATION
         // =====================================================
 
         if (email.isEmpty()) {
@@ -197,229 +194,273 @@ public class LoginActivity extends AppCompatActivity {
         // CHECK CUSTOMER
         // =====================================================
 
-        Cursor customerCursor =
-                db.query(
-                        "customers",
-                        new String[]{
-                                "customerId",
-                                "customerName",
-                                "email"
-                        },
-                        "email = ? AND password = ?",
-                        new String[]{
-                                email,
-                                password
-                        },
-                        null,
-                        null,
-                        null
+        Cursor customerCursor = null;
+
+        try {
+
+            customerCursor =
+                    db.rawQuery(
+                            "SELECT customerId, customerName, email " +
+                                    "FROM customers " +
+                                    "WHERE LOWER(TRIM(email)) = ? " +
+                                    "AND password = ?",
+
+                            new String[]{
+                                    email,
+                                    password
+                            }
+                    );
+
+            if (customerCursor.moveToFirst()) {
+
+                String customerId =
+                        customerCursor.getString(
+                                customerCursor.getColumnIndexOrThrow(
+                                        "customerId"
+                                )
+                        );
+
+                String customerName =
+                        customerCursor.getString(
+                                customerCursor.getColumnIndexOrThrow(
+                                        "customerName"
+                                )
+                        );
+
+                Toast.makeText(
+                        this,
+                        "Welcome " + customerName,
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                Intent intent =
+                        new Intent(
+                                LoginActivity.this,
+                                CustomerDashboard.class
+                        );
+
+                intent.putExtra(
+                        "customerId",
+                        customerId
                 );
 
-        if (customerCursor.moveToFirst()) {
+                intent.putExtra(
+                        "customerName",
+                        customerName
+                );
 
-            String customerId =
-                    customerCursor.getString(
-                            customerCursor.getColumnIndexOrThrow(
-                                    "customerId"
-                            )
-                    );
+                intent.putExtra(
+                        "customerEmail",
+                        email
+                );
 
-            String customerName =
-                    customerCursor.getString(
-                            customerCursor.getColumnIndexOrThrow(
-                                    "customerName"
-                            )
-                    );
+                startActivity(intent);
 
-            customerCursor.close();
+                finish();
 
-            Toast.makeText(
-                    this,
-                    "Welcome " + customerName,
-                    Toast.LENGTH_SHORT
-            ).show();
+                return;
+            }
 
-            Intent intent =
-                    new Intent(
-                            LoginActivity.this,
-                            CustomerDashboard.class
-                    );
+        } finally {
 
-            intent.putExtra(
-                    "customerId",
-                    customerId
-            );
-
-            intent.putExtra(
-                    "customerName",
-                    customerName
-            );
-
-            intent.putExtra(
-                    "customerEmail",
-                    email
-            );
-
-            startActivity(intent);
-
-            finish();
-
-            return;
+            if (customerCursor != null) {
+                customerCursor.close();
+            }
         }
-
-        customerCursor.close();
 
         // =====================================================
         // CHECK ADMIN
         // =====================================================
 
-        Cursor adminCursor =
-                db.query(
-                        "admins",
-                        new String[]{
-                                "adminId",
-                                "adminName",
-                                "email"
-                        },
-                        "email = ? AND password = ?",
-                        new String[]{
-                                email,
-                                password
-                        },
-                        null,
-                        null,
-                        null
+        Cursor adminCursor = null;
+
+        try {
+
+            adminCursor =
+                    db.rawQuery(
+                            "SELECT adminId, adminName, email " +
+                                    "FROM admins " +
+                                    "WHERE LOWER(TRIM(email)) = ? " +
+                                    "AND password = ?",
+
+                            new String[]{
+                                    email,
+                                    password
+                            }
+                    );
+
+            if (adminCursor.moveToFirst()) {
+
+                String adminId =
+                        adminCursor.getString(
+                                adminCursor.getColumnIndexOrThrow(
+                                        "adminId"
+                                )
+                        );
+
+                String adminName =
+                        adminCursor.getString(
+                                adminCursor.getColumnIndexOrThrow(
+                                        "adminName"
+                                )
+                        );
+
+                Toast.makeText(
+                        this,
+                        "Welcome " + adminName,
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                Intent intent =
+                        new Intent(
+                                LoginActivity.this,
+                                AdminDashboardActivity.class
+                        );
+
+                intent.putExtra(
+                        "adminId",
+                        adminId
                 );
 
-        if (adminCursor.moveToFirst()) {
+                intent.putExtra(
+                        "adminName",
+                        adminName
+                );
 
-            String adminId =
-                    adminCursor.getString(
-                            adminCursor.getColumnIndexOrThrow(
-                                    "adminId"
-                            )
-                    );
+                intent.putExtra(
+                        "adminEmail",
+                        email
+                );
 
-            String adminName =
-                    adminCursor.getString(
-                            adminCursor.getColumnIndexOrThrow(
-                                    "adminName"
-                            )
-                    );
+                startActivity(intent);
 
-            adminCursor.close();
+                finish();
 
-            Toast.makeText(
-                    this,
-                    "Welcome " + adminName,
-                    Toast.LENGTH_SHORT
-            ).show();
+                return;
+            }
 
-            Intent intent =
-                    new Intent(
-                            LoginActivity.this,
-                            AdminDashboardActivity.class
-                    );
+        } finally {
 
-            intent.putExtra(
-                    "adminId",
-                    adminId
-            );
-
-            intent.putExtra(
-                    "adminName",
-                    adminName
-            );
-
-            intent.putExtra(
-                    "adminEmail",
-                    email
-            );
-
-            startActivity(intent);
-
-            finish();
-
-            return;
+            if (adminCursor != null) {
+                adminCursor.close();
+            }
         }
-
-        adminCursor.close();
 
         // =====================================================
         // CHECK TECHNICIAN
         // =====================================================
 
-        Cursor technicianCursor =
-                db.query(
-                        "technicians",
-                        new String[]{
-                                "technicianId",
-                                "technicianName",
-                                "email"
-                        },
-                        "email = ? AND password = ?",
-                        new String[]{
-                                email,
-                                password
-                        },
-                        null,
-                        null,
-                        null
+        Cursor technicianCursor = null;
+
+        try {
+
+            technicianCursor =
+                    db.rawQuery(
+                            "SELECT technicianId, technicianName, email " +
+                                    "FROM technicians " +
+                                    "WHERE LOWER(TRIM(email)) = ? " +
+                                    "AND password = ?",
+
+                            new String[]{
+                                    email,
+                                    password
+                            }
+                    );
+
+            if (technicianCursor.moveToFirst()) {
+
+                String technicianId =
+                        technicianCursor.getString(
+                                technicianCursor.getColumnIndexOrThrow(
+                                        "technicianId"
+                                )
+                        );
+
+                String technicianName =
+                        technicianCursor.getString(
+                                technicianCursor.getColumnIndexOrThrow(
+                                        "technicianName"
+                                )
+                        );
+
+                Toast.makeText(
+                        this,
+                        "Welcome " + technicianName,
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                Intent intent =
+                        new Intent(
+                                LoginActivity.this,
+                                TechnicianDashboardActivity.class
+                        );
+
+                intent.putExtra(
+                        "technicianId",
+                        technicianId
                 );
 
-        if (technicianCursor.moveToFirst()) {
+                intent.putExtra(
+                        "technicianName",
+                        technicianName
+                );
 
-            String technicianId =
-                    technicianCursor.getString(
-                            technicianCursor.getColumnIndexOrThrow(
-                                    "technicianId"
-                            )
-                    );
+                intent.putExtra(
+                        "technicianEmail",
+                        email
+                );
 
-            String technicianName =
-                    technicianCursor.getString(
-                            technicianCursor.getColumnIndexOrThrow(
-                                    "technicianName"
-                            )
-                    );
+                startActivity(intent);
 
-            technicianCursor.close();
+                finish();
 
-            Toast.makeText(
-                    this,
-                    "Welcome " + technicianName,
-                    Toast.LENGTH_SHORT
-            ).show();
+                return;
+            }
 
-            Intent intent =
-                    new Intent(
-                            LoginActivity.this,
-                            TechnicianDashboardActivity.class
-                    );
+        } finally {
 
-            intent.putExtra(
-                    "technicianId",
-                    technicianId
-            );
-
-            intent.putExtra(
-                    "technicianName",
-                    technicianName
-            );
-
-            intent.putExtra(
-                    "technicianEmail",
-                    email
-            );
-
-            startActivity(intent);
-
-            finish();
-
-            return;
+            if (technicianCursor != null) {
+                technicianCursor.close();
+            }
         }
 
-        technicianCursor.close();
+        // =====================================================
+        // CHECK WHETHER TECHNICIAN EMAIL EXISTS
+        // This helps diagnose a password problem.
+        // =====================================================
+
+        Cursor technicianEmailCursor = null;
+
+        try {
+
+            technicianEmailCursor =
+                    db.rawQuery(
+                            "SELECT technicianName " +
+                                    "FROM technicians " +
+                                    "WHERE LOWER(TRIM(email)) = ?",
+
+                            new String[]{
+                                    email
+                            }
+                    );
+
+            if (technicianEmailCursor.moveToFirst()) {
+
+                Toast.makeText(
+                        this,
+                        "Technician account found, but the password is incorrect.",
+                        Toast.LENGTH_LONG
+                ).show();
+
+                return;
+            }
+
+        } finally {
+
+            if (technicianEmailCursor != null) {
+                technicianEmailCursor.close();
+            }
+        }
 
         // =====================================================
         // INVALID LOGIN
