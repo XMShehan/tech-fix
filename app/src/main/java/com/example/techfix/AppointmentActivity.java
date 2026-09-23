@@ -2,7 +2,6 @@ package com.example.techfix;
 
 import android.Manifest;
 import android.app.DatePickerDialog;
-import android.app.TimePickerDialog;
 import android.content.ContentValues;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -11,6 +10,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
@@ -18,6 +19,7 @@ import android.widget.ImageView;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.activity.result.ActivityResultLauncher;
@@ -29,8 +31,11 @@ import android.location.Location;
 import android.location.LocationListener;
 import android.location.LocationManager;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 
 public class AppointmentActivity extends AppCompatActivity {
@@ -45,7 +50,8 @@ public class AppointmentActivity extends AppCompatActivity {
     private EditText edtCategory;
     private EditText edtPrice;
     private EditText edtDate;
-    private EditText edtTime;
+    private Spinner spinnerTime;
+    private TextView txtTimeAvailability;
 
     private Button btnAddPhoto;
     private Button btnCancel;
@@ -56,6 +62,8 @@ public class AppointmentActivity extends AppCompatActivity {
     private DatabaseHelper databaseHelper;
 
     private ArrayList<String> branchNames;
+    private ArrayList<TimeSlot> timeSlots;
+    private TimeSlotAdapter timeSlotAdapter;
 
     private static final int LOCATION_PERMISSION_REQUEST = 100;
     private static final int CAMERA_PERMISSION_REQUEST = 200;
@@ -80,6 +88,7 @@ public class AppointmentActivity extends AppCompatActivity {
     private String selectedProductName;
     private String selectedCategory;
     private double selectedPrice;
+    private boolean otherService;
 
     // =====================================================
     // CAMERA
@@ -174,9 +183,14 @@ public class AppointmentActivity extends AppCompatActivity {
                         R.id.edtDate
                 );
 
-        edtTime =
+        spinnerTime =
                 findViewById(
-                        R.id.edtTime
+                        R.id.spinnerTime
+                );
+
+        txtTimeAvailability =
+                findViewById(
+                        R.id.txtTimeAvailability
                 );
 
         btnAddPhoto =
@@ -204,6 +218,25 @@ public class AppointmentActivity extends AppCompatActivity {
 
         branchNames =
                 new ArrayList<>();
+
+        timeSlots =
+                new ArrayList<>();
+
+        timeSlotAdapter =
+                new TimeSlotAdapter(
+                        this,
+                        timeSlots
+                );
+
+        spinnerTime.setAdapter(
+                timeSlotAdapter
+        );
+
+        spinnerTime.setEnabled(false);
+
+        txtTimeAvailability.setText(
+                "Select a date to view available slots."
+        );
 
         // =====================================================
         // GET CUSTOMER INFORMATION
@@ -244,6 +277,12 @@ public class AppointmentActivity extends AppCompatActivity {
                         0
                 );
 
+        otherService =
+                getIntent().getBooleanExtra(
+                        "otherService",
+                        false
+                );
+
         // =====================================================
         // VALIDATE PRODUCT INFORMATION
         // =====================================================
@@ -276,7 +315,7 @@ public class AppointmentActivity extends AppCompatActivity {
             return;
         }
 
-        if (selectedPrice <= 0) {
+        if (!otherService && selectedPrice <= 0) {
 
             Toast.makeText(
                     this,
@@ -301,14 +340,23 @@ public class AppointmentActivity extends AppCompatActivity {
                 selectedCategory
         );
 
-        edtPrice.setText(
-                "Rs. " +
-                        String.format(
-                                Locale.getDefault(),
-                                "%.2f",
-                                selectedPrice
-                        )
-        );
+        if (otherService) {
+
+            edtPrice.setText(
+                    "To be confirmed"
+            );
+
+        } else {
+
+            edtPrice.setText(
+                    "Rs. " +
+                            String.format(
+                                    Locale.getDefault(),
+                                    "%.2f",
+                                    selectedPrice
+                            )
+            );
+        }
 
         // =====================================================
         // MAKE PRODUCT INFORMATION READ-ONLY
@@ -357,6 +405,32 @@ public class AppointmentActivity extends AppCompatActivity {
                             R.id.radioManual) {
 
                         spinnerBranch.setEnabled(true);
+
+                        refreshTimeSlots();
+                    }
+                }
+        );
+
+        // =====================================================
+        // BRANCH CHANGE
+        // =====================================================
+
+        spinnerBranch.setOnItemSelectedListener(
+                new AdapterView.OnItemSelectedListener() {
+
+                    @Override
+                    public void onItemSelected(
+                            AdapterView<?> parent,
+                            View view,
+                            int position,
+                            long id) {
+
+                        refreshTimeSlots();
+                    }
+
+                    @Override
+                    public void onNothingSelected(
+                            AdapterView<?> parent) {
                     }
                 }
         );
@@ -378,12 +452,10 @@ public class AppointmentActivity extends AppCompatActivity {
         );
 
         // =====================================================
-        // TIME
+        // TIME SLOTS
+        // Generated automatically after a date and branch
+        // are selected.
         // =====================================================
-
-        edtTime.setOnClickListener(
-                v -> showTimePicker()
-        );
 
         // =====================================================
         // CANCEL
@@ -840,6 +912,8 @@ public class AppointmentActivity extends AppCompatActivity {
                 }
             }
 
+            refreshTimeSlots();
+
             float distanceKm =
                     shortestDistance / 1000;
 
@@ -891,75 +965,434 @@ public class AppointmentActivity extends AppCompatActivity {
                         Calendar.DAY_OF_MONTH
                 );
 
-        new DatePickerDialog(
-                this,
-                (view,
-                 selectedYear,
-                 selectedMonth,
-                 selectedDay) -> {
+        DatePickerDialog dialog =
+                new DatePickerDialog(
+                        this,
+                        (view,
+                         selectedYear,
+                         selectedMonth,
+                         selectedDay) -> {
 
-                    String date =
-                            String.format(
-                                    Locale.getDefault(),
-                                    "%02d/%02d/%04d",
-                                    selectedDay,
-                                    selectedMonth + 1,
-                                    selectedYear
+                            String date =
+                                    String.format(
+                                            Locale.getDefault(),
+                                            "%02d/%02d/%04d",
+                                            selectedDay,
+                                            selectedMonth + 1,
+                                            selectedYear
+                                    );
+
+                            edtDate.setText(
+                                    date
                             );
 
-                    edtDate.setText(
-                            date
-                    );
+                            refreshTimeSlots();
+                        },
+                        year,
+                        month,
+                        day
+                );
 
-                },
-                year,
-                month,
-                day
-        ).show();
+        // Do not allow past dates.
+        dialog.getDatePicker().setMinDate(
+                System.currentTimeMillis()
+        );
+
+        dialog.show();
     }
 
     // =====================================================
-    // TIME PICKER
+    // REFRESH AVAILABLE TIME SLOTS
     // =====================================================
 
-    private void showTimePicker() {
+    private void refreshTimeSlots() {
 
-        Calendar calendar =
+        timeSlots.clear();
+
+        String date =
+                edtDate.getText()
+                        .toString()
+                        .trim();
+
+        if (date.isEmpty()) {
+
+            spinnerTime.setEnabled(false);
+
+            timeSlotAdapter.notifyDataSetChanged();
+
+            txtTimeAvailability.setText(
+                    "Select a date to view available slots."
+            );
+
+            return;
+        }
+
+        if (branchNames.isEmpty()
+                || spinnerBranch.getSelectedItem() == null) {
+
+            spinnerTime.setEnabled(false);
+
+            timeSlotAdapter.notifyDataSetChanged();
+
+            txtTimeAvailability.setText(
+                    "No branch is available."
+            );
+
+            return;
+        }
+
+        String branch =
+                spinnerBranch
+                        .getSelectedItem()
+                        .toString()
+                        .trim();
+
+        if (branch.isEmpty()) {
+
+            spinnerTime.setEnabled(false);
+
+            timeSlotAdapter.notifyDataSetChanged();
+
+            txtTimeAvailability.setText(
+                    "Please select a valid branch."
+            );
+
+            return;
+        }
+
+        int technicianCapacity =
+                getTechnicianCapacity(
+                        branch
+                );
+
+        /*
+         * 9:00 AM to 5:00 PM
+         * 30-minute slots
+         * Total = 16 slots per day.
+         */
+        Calendar start =
                 Calendar.getInstance();
 
-        int hour =
-                calendar.get(
-                        Calendar.HOUR_OF_DAY
-                );
+        start.set(
+                Calendar.HOUR_OF_DAY,
+                9
+        );
 
-        int minute =
-                calendar.get(
-                        Calendar.MINUTE
-                );
+        start.set(
+                Calendar.MINUTE,
+                0
+        );
 
-        new TimePickerDialog(
-                this,
-                (view,
-                 selectedHour,
-                 selectedMinute) -> {
+        start.set(
+                Calendar.SECOND,
+                0
+        );
 
-                    String time =
-                            String.format(
-                                    Locale.getDefault(),
-                                    "%02d:%02d",
-                                    selectedHour,
-                                    selectedMinute
-                            );
+        start.set(
+                Calendar.MILLISECOND,
+                0
+        );
 
-                    edtTime.setText(
-                            time
+        Calendar close =
+                (Calendar) start.clone();
+
+        close.set(
+                Calendar.HOUR_OF_DAY,
+                17
+        );
+
+        int availableCount = 0;
+
+        while (start.before(close)) {
+
+            Calendar end =
+                    (Calendar) start.clone();
+
+            end.add(
+                    Calendar.MINUTE,
+                    30
+            );
+
+            String storedStartTime =
+                    String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            start.get(
+                                    Calendar.HOUR_OF_DAY
+                            ),
+                            start.get(
+                                    Calendar.MINUTE
+                            )
                     );
 
-                },
-                hour,
+            String storedEndTime =
+                    String.format(
+                            Locale.getDefault(),
+                            "%02d:%02d",
+                            end.get(
+                                    Calendar.HOUR_OF_DAY
+                            ),
+                            end.get(
+                                    Calendar.MINUTE
+                            )
+                    );
+
+            String displayTime =
+                    formatDisplayTime(
+                            start.get(
+                                    Calendar.HOUR_OF_DAY
+                            ),
+                            start.get(
+                                    Calendar.MINUTE
+                            )
+                    )
+                            + " - " +
+                            formatDisplayTime(
+                                    end.get(
+                                            Calendar.HOUR_OF_DAY
+                                    ),
+                                    end.get(
+                                            Calendar.MINUTE
+                                    )
+                            );
+
+            String storedTime =
+                    storedStartTime +
+                            " - " +
+                            storedEndTime;
+
+            int bookedCount =
+                    getBookedCount(
+                            branch,
+                            date,
+                            storedTime
+                    );
+
+            boolean pastSlot =
+                    isPastSlot(
+                            date,
+                            start
+                    );
+
+            boolean available =
+                    technicianCapacity > 0
+                            && bookedCount < technicianCapacity
+                            && !pastSlot;
+
+            if (available) {
+                availableCount++;
+            }
+
+            timeSlots.add(
+                    new TimeSlot(
+                            storedTime,
+                            displayTime,
+                            technicianCapacity,
+                            bookedCount,
+                            available
+                    )
+            );
+
+            start.add(
+                    Calendar.MINUTE,
+                    30
+            );
+        }
+
+        spinnerTime.setEnabled(
+                technicianCapacity > 0
+        );
+
+        timeSlotAdapter.notifyDataSetChanged();
+
+        if (technicianCapacity <= 0) {
+
+            txtTimeAvailability.setText(
+                    "No technicians are currently assigned to " +
+                            branch +
+                            "."
+            );
+
+        } else {
+
+            txtTimeAvailability.setText(
+                    availableCount +
+                            " of " +
+                            timeSlots.size() +
+                            " slots are available at " +
+                            branch +
+                            "."
+            );
+        }
+
+        // Make sure the first selectable item is shown.
+        selectFirstAvailableSlot();
+    }
+
+    // =====================================================
+    // TECHNICIAN CAPACITY
+    // =====================================================
+
+    private int getTechnicianCapacity(
+            String branch) {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT COUNT(*) " +
+                                    "FROM technicians " +
+                                    "WHERE LOWER(TRIM(COALESCE(branch, ''))) = " +
+                                    "LOWER(TRIM(?))",
+                            new String[]{
+                                    branch
+                            }
+                    );
+
+            if (cursor.moveToFirst()) {
+
+                return cursor.getInt(0);
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return 0;
+    }
+
+    // =====================================================
+    // BOOKED APPOINTMENT COUNT
+    // =====================================================
+
+    private int getBookedCount(
+            String branch,
+            String date,
+            String time) {
+
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
+
+        Cursor cursor = null;
+
+        try {
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT COUNT(*) " +
+                                    "FROM appointments " +
+                                    "WHERE LOWER(TRIM(COALESCE(branch, ''))) = " +
+                                    "LOWER(TRIM(?)) " +
+                                    "AND appointmentDate = ? " +
+                                    "AND appointmentTime = ?",
+                            new String[]{
+                                    branch,
+                                    date,
+                                    time
+                            }
+                    );
+
+            if (cursor.moveToFirst()) {
+
+                return cursor.getInt(0);
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        return 0;
+    }
+
+    // =====================================================
+    // CHECK PAST SLOT
+    // =====================================================
+
+    private boolean isPastSlot(
+            String date,
+            Calendar slotStart) {
+
+        String today =
+                new SimpleDateFormat(
+                        "dd/MM/yyyy",
+                        Locale.getDefault()
+                ).format(
+                        new Date()
+                );
+
+        if (!date.equals(today)) {
+
+            return false;
+        }
+
+        Calendar now =
+                Calendar.getInstance();
+
+        return !slotStart.after(now);
+    }
+
+    // =====================================================
+    // DISPLAY TIME
+    // =====================================================
+
+    private String formatDisplayTime(
+            int hour,
+            int minute) {
+
+        String amPm =
+                hour >= 12
+                        ? "PM"
+                        : "AM";
+
+        int displayHour =
+                hour % 12;
+
+        if (displayHour == 0) {
+            displayHour = 12;
+        }
+
+        return String.format(
+                Locale.getDefault(),
+                "%d:%02d %s",
+                displayHour,
                 minute,
-                false
-        ).show();
+                amPm
+        );
+    }
+
+    // =====================================================
+    // SELECT FIRST AVAILABLE SLOT
+    // =====================================================
+
+    private void selectFirstAvailableSlot() {
+
+        for (int i = 0; i < timeSlots.size(); i++) {
+
+            TimeSlot slot =
+                    timeSlots.get(i);
+
+            if (slot.available) {
+
+                spinnerTime.setSelection(
+                        i
+                );
+
+                return;
+            }
+        }
+
+        spinnerTime.setSelection(0);
     }
 
     // =====================================================
@@ -969,12 +1402,8 @@ public class AppointmentActivity extends AppCompatActivity {
     private void saveAppointment() {
 
         String date =
-                edtDate.getText()
-                        .toString()
-                        .trim();
-
-        String time =
-                edtTime.getText()
+                edtDate
+                        .getText()
                         .toString()
                         .trim();
 
@@ -1022,7 +1451,10 @@ public class AppointmentActivity extends AppCompatActivity {
             return;
         }
 
-        if (selectedPrice <= 0) {
+        // Other Repair does not have an estimated price yet.
+        // Its price is stored as 0 until the administrator
+        // sets the final repair amount after the repair is finished.
+        if (!otherService && selectedPrice <= 0) {
 
             Toast.makeText(
                     this,
@@ -1044,21 +1476,6 @@ public class AppointmentActivity extends AppCompatActivity {
             );
 
             edtDate.requestFocus();
-
-            return;
-        }
-
-        // =====================================================
-        // TIME VALIDATION
-        // =====================================================
-
-        if (time.isEmpty()) {
-
-            edtTime.setError(
-                    "Please select a time"
-            );
-
-            edtTime.requestFocus();
 
             return;
         }
@@ -1097,6 +1514,84 @@ public class AppointmentActivity extends AppCompatActivity {
         }
 
         // =====================================================
+        // TIME SLOT VALIDATION
+        // =====================================================
+
+        if (spinnerTime.getSelectedItem() == null ||
+                timeSlots.isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Please select an available appointment slot.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            return;
+        }
+
+        TimeSlot selectedSlot =
+                (TimeSlot)
+                        spinnerTime
+                                .getSelectedItem();
+
+        if (selectedSlot == null ||
+                !selectedSlot.available) {
+
+            Toast.makeText(
+                    this,
+                    "Please select an available appointment slot.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            refreshTimeSlots();
+
+            return;
+        }
+
+        // =====================================================
+        // LAST AVAILABILITY CHECK
+        // Prevent two customers from taking the same final slot.
+        // =====================================================
+
+        int capacity =
+                getTechnicianCapacity(
+                        branch
+                );
+
+        int booked =
+                getBookedCount(
+                        branch,
+                        date,
+                        selectedSlot.storedTime
+                );
+
+        if (capacity <= 0) {
+
+            Toast.makeText(
+                    this,
+                    "No technicians are currently assigned to this branch.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            refreshTimeSlots();
+
+            return;
+        }
+
+        if (booked >= capacity) {
+
+            Toast.makeText(
+                    this,
+                    "This slot has just become fully booked. Please choose another slot.",
+                    Toast.LENGTH_LONG
+            ).show();
+
+            refreshTimeSlots();
+
+            return;
+        }
+
+        // =====================================================
         // INSERT APPOINTMENT
         // =====================================================
 
@@ -1112,10 +1607,7 @@ public class AppointmentActivity extends AppCompatActivity {
                 Integer.parseInt(customerId)
         );
 
-        // IMPORTANT:
-        // Use the original selected product values.
-        // Do NOT read these from editable fields.
-
+        // Use original selected product values
         values.put(
                 "productService",
                 selectedProductName
@@ -1126,6 +1618,7 @@ public class AppointmentActivity extends AppCompatActivity {
                 selectedCategory
         );
 
+        // Other Repair = 0 until final amount is confirmed
         values.put(
                 "price",
                 selectedPrice
@@ -1143,7 +1636,7 @@ public class AppointmentActivity extends AppCompatActivity {
 
         values.put(
                 "appointmentTime",
-                time
+                selectedSlot.storedTime
         );
 
         long result =
@@ -1161,7 +1654,8 @@ public class AppointmentActivity extends AppCompatActivity {
 
             Toast.makeText(
                     this,
-                    "Appointment Confirmed",
+                    "Appointment Confirmed\n" +
+                            selectedSlot.displayTime,
                     Toast.LENGTH_LONG
             ).show();
 
@@ -1174,6 +1668,179 @@ public class AppointmentActivity extends AppCompatActivity {
                     "Failed to create appointment",
                     Toast.LENGTH_LONG
             ).show();
+        }
+    }
+
+    // =====================================================
+    // TIME SLOT MODEL
+    // =====================================================
+
+    private static class TimeSlot {
+
+        String storedTime;
+        String displayTime;
+
+        int technicianCapacity;
+        int bookedCount;
+
+        boolean available;
+
+        TimeSlot(
+                String storedTime,
+                String displayTime,
+                int technicianCapacity,
+                int bookedCount,
+                boolean available) {
+
+            this.storedTime = storedTime;
+            this.displayTime = displayTime;
+            this.technicianCapacity =
+                    technicianCapacity;
+            this.bookedCount =
+                    bookedCount;
+            this.available =
+                    available;
+        }
+
+        @Override
+        public String toString() {
+
+            if (technicianCapacity <= 0) {
+
+                return displayTime +
+                        " • No technicians";
+            }
+
+            if (!available) {
+
+                if (bookedCount >= technicianCapacity) {
+
+                    return displayTime +
+                            " • FULL";
+                }
+
+                return displayTime +
+                        " • Not available";
+            }
+
+            return displayTime +
+                    " • " +
+                    (technicianCapacity - bookedCount) +
+                    " available";
+        }
+    }
+
+    // =====================================================
+    // TIME SLOT ADAPTER
+    // =====================================================
+
+    private static class TimeSlotAdapter
+            extends ArrayAdapter<TimeSlot> {
+
+        public TimeSlotAdapter(
+                android.content.Context context,
+                List<TimeSlot> items) {
+
+            super(
+                    context,
+                    android.R.layout.simple_spinner_item,
+                    items
+            );
+
+            setDropDownViewResource(
+                    android.R.layout.simple_spinner_dropdown_item
+            );
+        }
+
+        @Override
+        public boolean isEnabled(
+                int position) {
+
+            TimeSlot item =
+                    getItem(position);
+
+            return item != null &&
+                    item.available;
+        }
+
+        @Override
+        public boolean areAllItemsEnabled() {
+
+            return false;
+        }
+
+        @Override
+        public View getView(
+                int position,
+                View convertView,
+                android.view.ViewGroup parent) {
+
+            TextView textView =
+                    (TextView)
+                            super.getView(
+                                    position,
+                                    convertView,
+                                    parent
+                            );
+
+            TimeSlot item =
+                    getItem(position);
+
+            if (item != null) {
+
+                textView.setText(
+                        item.toString()
+                );
+
+                textView.setPadding(
+                        15,
+                        10,
+                        15,
+                        10
+                );
+            }
+
+            return textView;
+        }
+
+        @Override
+        public View getDropDownView(
+                int position,
+                View convertView,
+                android.view.ViewGroup parent) {
+
+            TextView textView =
+                    (TextView)
+                            super.getDropDownView(
+                                    position,
+                                    convertView,
+                                    parent
+                            );
+
+            TimeSlot item =
+                    getItem(position);
+
+            if (item != null) {
+
+                textView.setText(
+                        item.toString()
+                );
+
+                textView.setPadding(
+                        15,
+                        12,
+                        15,
+                        12
+                );
+
+                textView.setTextColor(
+                        item.available
+                                ? android.graphics.Color.BLACK
+                                : android.graphics.Color.GRAY
+                );
+            }
+
+            return textView;
         }
     }
 

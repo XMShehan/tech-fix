@@ -1,59 +1,57 @@
 package com.example.techfix;
 
 import android.content.ContentValues;
+import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.WindowManager;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Spinner;
 import android.widget.Toast;
 
-import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.graphics.Insets;
-import androidx.core.view.ViewCompat;
-import androidx.core.view.WindowInsetsCompat;
+
+import java.util.ArrayList;
 
 public class AddTechnicianActivity extends AppCompatActivity {
 
-    EditText edtTechnicianId;
-    EditText edtTechnicianName;
-    EditText edtTechnicianPhone;
-    EditText edtTechnicianEmail;
-    EditText edtTechnicianPassword;
+    private EditText edtTechnicianId;
+    private EditText edtTechnicianName;
+    private EditText edtTechnicianPhone;
+    private EditText edtTechnicianEmail;
+    private EditText edtTechnicianPassword;
 
-    Button btnSaveTechnician;
+    private Spinner spinnerBranch;
 
-    DatabaseHelper databaseHelper;
+    private Button btnSaveTechnician;
+
+    private DatabaseHelper databaseHelper;
+
+    private final ArrayList<String> branchNames =
+            new ArrayList<>();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        EdgeToEdge.enable(this);
+        // =====================================================
+        // KEYBOARD / SCROLL HANDLING
+        // =====================================================
 
-        setContentView(R.layout.activity_add_technician);
-
-        ViewCompat.setOnApplyWindowInsetsListener(
-                findViewById(R.id.main),
-                (v, insets) -> {
-
-                    Insets systemBars =
-                            insets.getInsets(
-                                    WindowInsetsCompat.Type.systemBars()
-                            );
-
-                    v.setPadding(
-                            systemBars.left,
-                            systemBars.top,
-                            systemBars.right,
-                            systemBars.bottom
-                    );
-
-                    return insets;
-                }
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
         );
 
-        // Find views
+        setContentView(
+                R.layout.activity_add_technician
+        );
+
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
+
         edtTechnicianId =
                 findViewById(R.id.edtTechnicianId);
 
@@ -69,104 +67,234 @@ public class AddTechnicianActivity extends AppCompatActivity {
         edtTechnicianPassword =
                 findViewById(R.id.edtTechnicianPassword);
 
+        spinnerBranch =
+                findViewById(R.id.spinnerBranch);
+
         btnSaveTechnician =
                 findViewById(R.id.btnSaveTechnician);
 
-        // Database
-        databaseHelper = new DatabaseHelper(this);
+        // =====================================================
+        // DATABASE
+        // =====================================================
 
-        // Save Technician
-        btnSaveTechnician.setOnClickListener(v -> {
+        databaseHelper =
+                new DatabaseHelper(this);
 
-            String technicianId =
-                    edtTechnicianId.getText().toString().trim();
+        // =====================================================
+        // LOAD BRANCHES
+        // =====================================================
 
-            String technicianName =
-                    edtTechnicianName.getText().toString().trim();
+        loadBranches();
 
-            String technicianPhone =
-                    edtTechnicianPhone.getText().toString().trim();
+        // =====================================================
+        // SAVE
+        // =====================================================
 
-            String technicianEmail =
-                    edtTechnicianEmail.getText().toString().trim();
+        btnSaveTechnician.setOnClickListener(
+                v -> saveTechnician()
+        );
+    }
 
-            String technicianPassword =
-                    edtTechnicianPassword.getText().toString().trim();
+    // =========================================================
+    // LOAD ACTIVE BRANCHES
+    // =========================================================
 
-            // Check required fields
-            if (technicianId.isEmpty() ||
-                    technicianName.isEmpty() ||
-                    technicianPhone.isEmpty() ||
-                    technicianEmail.isEmpty() ||
-                    technicianPassword.isEmpty()) {
+    private void loadBranches() {
 
-                Toast.makeText(
-                        this,
-                        "Please fill all fields",
-                        Toast.LENGTH_SHORT
-                ).show();
+        branchNames.clear();
 
-                return;
-            }
+        branchNames.add("Select Branch");
 
-            // Get writable database
-            SQLiteDatabase db =
-                    databaseHelper.getWritableDatabase();
+        SQLiteDatabase db =
+                databaseHelper.getReadableDatabase();
 
-            // Store technician data
-            ContentValues values = new ContentValues();
+        Cursor cursor = null;
 
-            values.put(
-                    "technicianId",
-                    technicianId
-            );
+        try {
 
-            values.put(
-                    "technicianName",
-                    technicianName
-            );
+            cursor =
+                    db.rawQuery(
+                            "SELECT branchName " +
+                                    "FROM branches " +
+                                    "WHERE status = ? " +
+                                    "ORDER BY branchName",
 
-            values.put(
-                    "phone",
-                    technicianPhone
-            );
-
-            values.put(
-                    "email",
-                    technicianEmail
-            );
-
-            values.put(
-                    "password",
-                    technicianPassword
-            );
-
-            // Insert into technicians table
-            long result =
-                    db.insert(
-                            "technicians",
-                            null,
-                            values
+                            new String[]{
+                                    "Active"
+                            }
                     );
 
-            if (result != -1) {
+            while (cursor.moveToNext()) {
 
-                Toast.makeText(
-                        this,
-                        "Technician added successfully",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                finish();
-
-            } else {
-
-                Toast.makeText(
-                        this,
-                        "Failed to add technician",
-                        Toast.LENGTH_SHORT
-                ).show();
+                branchNames.add(
+                        cursor.getString(
+                                cursor.getColumnIndexOrThrow(
+                                        "branchName"
+                                )
+                        )
+                );
             }
-        });
+
+        } catch (Exception e) {
+
+            Toast.makeText(
+                    this,
+                    "Unable to load branches",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        branchNames
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerBranch.setAdapter(adapter);
+    }
+
+    // =========================================================
+    // SAVE TECHNICIAN
+    // =========================================================
+
+    private void saveTechnician() {
+
+        String technicianId =
+                edtTechnicianId
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String technicianName =
+                edtTechnicianName
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String phone =
+                edtTechnicianPhone
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String email =
+                edtTechnicianEmail
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String password =
+                edtTechnicianPassword
+                        .getText()
+                        .toString()
+                        .trim();
+
+        if (technicianId.isEmpty() ||
+                technicianName.isEmpty() ||
+                phone.isEmpty() ||
+                email.isEmpty() ||
+                password.isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Please fill all fields",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        if (spinnerBranch.getSelectedItemPosition() == 0) {
+
+            Toast.makeText(
+                    this,
+                    "Please select an assigned branch",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        String branch =
+                spinnerBranch
+                        .getSelectedItem()
+                        .toString();
+
+        // =====================================================
+        // INSERT
+        // =====================================================
+
+        SQLiteDatabase db =
+                databaseHelper.getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                "technicianId",
+                technicianId
+        );
+
+        values.put(
+                "technicianName",
+                technicianName
+        );
+
+        values.put(
+                "phone",
+                phone
+        );
+
+        values.put(
+                "email",
+                email
+        );
+
+        values.put(
+                "password",
+                password
+        );
+
+        values.put(
+                "branch",
+                branch
+        );
+
+        long result =
+                db.insert(
+                        "technicians",
+                        null,
+                        values
+                );
+
+        if (result != -1) {
+
+            Toast.makeText(
+                    this,
+                    "Technician added successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            finish();
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Failed to add technician. Technician ID may already exist.",
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
 }

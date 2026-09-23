@@ -7,27 +7,34 @@ import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.Spinner;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.graphics.Insets;
 import androidx.core.view.ViewCompat;
 import androidx.core.view.WindowInsetsCompat;
 
+import java.util.ArrayList;
+
 public class ManageServicesActivity extends AppCompatActivity {
 
-    Button btnAddService;
-    Button btnDeleteService;
+    private Button btnAddService;
+    private Button btnDeleteService;
 
-    EditText edtSearch;
+    private EditText edtSearch;
 
-    LinearLayout serviceContainer;
+    private LinearLayout serviceContainer;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,7 +42,9 @@ public class ManageServicesActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
-        setContentView(R.layout.activity_manage_services);
+        setContentView(
+                R.layout.activity_manage_services
+        );
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
@@ -57,292 +66,836 @@ public class ManageServicesActivity extends AppCompatActivity {
                 }
         );
 
-        // Find views
-        btnAddService = findViewById(R.id.btnAddService);
-        btnDeleteService = findViewById(R.id.btnDeleteService);
-        edtSearch = findViewById(R.id.edtSearch);
-        serviceContainer = findViewById(R.id.serviceContainer);
+        // =====================================================
+        // CONNECT UI
+        // =====================================================
 
-        // Database
-        databaseHelper = new DatabaseHelper(this);
+        btnAddService =
+                findViewById(
+                        R.id.btnAddService
+                );
 
-        // Add Service button
-        btnAddService.setOnClickListener(v -> {
+        btnDeleteService =
+                findViewById(
+                        R.id.btnDeleteService
+                );
 
-            Intent intent = new Intent(
-                    ManageServicesActivity.this,
-                    AddServiceActivity.class
-            );
+        edtSearch =
+                findViewById(
+                        R.id.edtSearch
+                );
 
-            startActivity(intent);
-        });
+        serviceContainer =
+                findViewById(
+                        R.id.serviceContainer
+                );
 
-        // Delete Service button
-        btnDeleteService.setOnClickListener(v -> {
+        // =====================================================
+        // DATABASE
+        // =====================================================
 
-            Intent intent = new Intent(
-                    ManageServicesActivity.this,
-                    DeleteServiceActivity.class
-            );
+        databaseHelper =
+                new DatabaseHelper(this);
 
-            startActivity(intent);
-        });
+        // =====================================================
+        // ADD SERVICE
+        // =====================================================
 
-        // Search services
-        edtSearch.addTextChangedListener(new TextWatcher() {
+        btnAddService.setOnClickListener(
+                v -> {
 
-            @Override
-            public void beforeTextChanged(
-                    CharSequence s,
-                    int start,
-                    int count,
-                    int after) {
-            }
+                    Intent intent =
+                            new Intent(
+                                    ManageServicesActivity.this,
+                                    AddServiceActivity.class
+                            );
 
-            @Override
-            public void onTextChanged(
-                    CharSequence s,
-                    int start,
-                    int before,
-                    int count) {
+                    startActivity(intent);
+                }
+        );
 
-                loadServices(s.toString().trim());
-            }
+        // =====================================================
+        // DELETE SERVICE
+        // =====================================================
 
-            @Override
-            public void afterTextChanged(Editable s) {
-            }
-        });
+        btnDeleteService.setOnClickListener(
+                v -> showDeleteServiceDialog()
+        );
+
+        // =====================================================
+        // SEARCH
+        // =====================================================
+
+        edtSearch.addTextChangedListener(
+                new TextWatcher() {
+
+                    @Override
+                    public void beforeTextChanged(
+                            CharSequence s,
+                            int start,
+                            int count,
+                            int after) {
+                    }
+
+                    @Override
+                    public void onTextChanged(
+                            CharSequence s,
+                            int start,
+                            int before,
+                            int count) {
+
+                        loadServices(
+                                s.toString().trim()
+                        );
+                    }
+
+                    @Override
+                    public void afterTextChanged(
+                            Editable s) {
+                    }
+                }
+        );
+
+        // =====================================================
+        // INITIAL LOAD
+        // =====================================================
 
         loadServices("");
     }
 
+    // =========================================================
+    // ON RESUME
+    // =========================================================
+
     @Override
     protected void onResume() {
+
         super.onResume();
 
-        if (databaseHelper != null) {
+        if (databaseHelper != null &&
+                edtSearch != null) {
 
-            String searchText =
-                    edtSearch.getText().toString().trim();
-
-            loadServices(searchText);
+            loadServices(
+                    edtSearch
+                            .getText()
+                            .toString()
+                            .trim()
+            );
         }
     }
 
-    private void loadServices(String searchText) {
+    // =========================================================
+    // LOAD SERVICES
+    // =========================================================
+
+    private void loadServices(
+            String searchText) {
 
         serviceContainer.removeAllViews();
 
         SQLiteDatabase db =
-                databaseHelper.getReadableDatabase();
+                databaseHelper
+                        .getReadableDatabase();
 
         Cursor cursor;
 
-        if (searchText.isEmpty()) {
+        if (searchText == null ||
+                searchText.trim().isEmpty()) {
 
-            cursor = db.rawQuery(
-                    "SELECT serviceId, serviceName, description, price, duration, status " +
-                            "FROM services",
-                    null
-            );
+            cursor =
+                    db.rawQuery(
+                            "SELECT serviceId, serviceName, category, " +
+                                    "description, price, duration, status " +
+                                    "FROM services " +
+                                    "ORDER BY serviceId",
+                            null
+                    );
 
         } else {
 
-            cursor = db.rawQuery(
-                    "SELECT serviceId, serviceName, description, price, duration, status " +
-                            "FROM services " +
-                            "WHERE serviceId LIKE ? " +
-                            "OR serviceName LIKE ? " +
-                            "OR description LIKE ?",
-                    new String[]{
-                            "%" + searchText + "%",
-                            "%" + searchText + "%",
-                            "%" + searchText + "%"
-                    }
-            );
+            String search =
+                    "%" +
+                            searchText.trim() +
+                            "%";
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT serviceId, serviceName, category, " +
+                                    "description, price, duration, status " +
+                                    "FROM services " +
+                                    "WHERE serviceId LIKE ? " +
+                                    "OR serviceName LIKE ? " +
+                                    "OR category LIKE ? " +
+                                    "OR description LIKE ? " +
+                                    "OR status LIKE ? " +
+                                    "ORDER BY serviceId",
+
+                            new String[]{
+                                    search,
+                                    search,
+                                    search,
+                                    search,
+                                    search
+                            }
+                    );
         }
+
+        // =====================================================
+        // EMPTY RESULT
+        // =====================================================
 
         if (cursor.getCount() == 0) {
 
-            TextView emptyText = new TextView(this);
+            TextView emptyText =
+                    new TextView(this);
 
-            if (searchText.isEmpty()) {
-                emptyText.setText("No services available");
+            if (searchText == null ||
+                    searchText.trim().isEmpty()) {
+
+                emptyText.setText(
+                        "No services available"
+                );
+
             } else {
-                emptyText.setText("No matching services found");
+
+                emptyText.setText(
+                        "No matching services found"
+                );
             }
 
             emptyText.setTextSize(16);
-            emptyText.setTextColor(Color.GRAY);
-            emptyText.setPadding(10, 20, 10, 20);
 
-            serviceContainer.addView(emptyText);
+            emptyText.setTextColor(
+                    Color.rgb(
+                            96,
+                            96,
+                            96
+                    )
+            );
 
-        } else {
+            emptyText.setPadding(
+                    10,
+                    30,
+                    10,
+                    30
+            );
+
+            serviceContainer.addView(
+                    emptyText
+            );
+
+            cursor.close();
+
+            return;
+        }
+
+        // =====================================================
+        // DISPLAY SERVICES
+        // =====================================================
+
+        while (cursor.moveToNext()) {
+
+            String serviceId =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "serviceId"
+                            )
+                    );
+
+            String serviceName =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "serviceName"
+                            )
+                    );
+
+            String category =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "category"
+                            )
+                    );
+
+            String description =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "description"
+                            )
+                    );
+
+            double price =
+                    cursor.getDouble(
+                            cursor.getColumnIndexOrThrow(
+                                    "price"
+                            )
+                    );
+
+            String duration =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "duration"
+                            )
+                    );
+
+            String status =
+                    cursor.getString(
+                            cursor.getColumnIndexOrThrow(
+                                    "status"
+                            )
+                    );
+
+            // =================================================
+            // SERVICE CONTAINER
+            // =================================================
+
+            LinearLayout serviceLayout =
+                    new LinearLayout(this);
+
+            serviceLayout.setOrientation(
+                    LinearLayout.VERTICAL
+            );
+
+            serviceLayout.setPadding(
+                    16,
+                    18,
+                    16,
+                    18
+            );
+
+            // =================================================
+            // SERVICE ID
+            // =================================================
+
+            TextView txtId =
+                    new TextView(this);
+
+            txtId.setText(
+                    "Service ID: " +
+                            serviceId
+            );
+
+            txtId.setTextSize(15);
+
+            txtId.setTextColor(
+                    Color.DKGRAY
+            );
+
+            serviceLayout.addView(
+                    txtId
+            );
+
+            // =================================================
+            // SERVICE NAME
+            // =================================================
+
+            TextView txtName =
+                    new TextView(this);
+
+            txtName.setText(
+                    "Service Name: " +
+                            serviceName
+            );
+
+            txtName.setTextSize(18);
+
+            txtName.setTextColor(
+                    Color.BLACK
+            );
+
+            txtName.setTypeface(
+                    null,
+                    android.graphics.Typeface.BOLD
+            );
+
+            serviceLayout.addView(
+                    txtName
+            );
+
+            // =================================================
+            // CATEGORY
+            // =================================================
+
+            TextView txtCategory =
+                    new TextView(this);
+
+            txtCategory.setText(
+                    "Category: " +
+                            category
+            );
+
+            txtCategory.setTextSize(15);
+
+            txtCategory.setTextColor(
+                    Color.rgb(
+                            25,
+                            118,
+                            210
+                    )
+            );
+
+            serviceLayout.addView(
+                    txtCategory
+            );
+
+            // =================================================
+            // DESCRIPTION
+            // =================================================
+
+            TextView txtDescription =
+                    new TextView(this);
+
+            txtDescription.setText(
+                    "Description: " +
+                            description
+            );
+
+            txtDescription.setTextSize(15);
+
+            txtDescription.setTextColor(
+                    Color.DKGRAY
+            );
+
+            serviceLayout.addView(
+                    txtDescription
+            );
+
+            // =================================================
+            // PRICE
+            // =================================================
+
+            TextView txtPrice =
+                    new TextView(this);
+
+            txtPrice.setText(
+                    "Estimated Price: Rs. " +
+                            String.format(
+                                    java.util.Locale.getDefault(),
+                                    "%.2f",
+                                    price
+                            )
+            );
+
+            txtPrice.setTextSize(15);
+
+            txtPrice.setTextColor(
+                    Color.DKGRAY
+            );
+
+            serviceLayout.addView(
+                    txtPrice
+            );
+
+            // =================================================
+            // DURATION
+            // =================================================
+
+            TextView txtDuration =
+                    new TextView(this);
+
+            txtDuration.setText(
+                    "Duration: " +
+                            duration
+            );
+
+            txtDuration.setTextSize(15);
+
+            txtDuration.setTextColor(
+                    Color.DKGRAY
+            );
+
+            serviceLayout.addView(
+                    txtDuration
+            );
+
+            // =================================================
+            // STATUS
+            // =================================================
+
+            TextView txtStatus =
+                    new TextView(this);
+
+            txtStatus.setText(
+                    "Status: " +
+                            status
+            );
+
+            txtStatus.setTextSize(15);
+
+            txtStatus.setTextColor(
+                    Color.DKGRAY
+            );
+
+            serviceLayout.addView(
+                    txtStatus
+            );
+
+            // =================================================
+            // UPDATE BUTTON
+            // =================================================
+
+            Button btnUpdate =
+                    new Button(this);
+
+            btnUpdate.setText(
+                    "Update Service"
+            );
+
+            btnUpdate.setTextSize(14);
+
+            LinearLayout.LayoutParams buttonParams =
+                    new LinearLayout.LayoutParams(
+                            LinearLayout.LayoutParams.MATCH_PARENT,
+                            LinearLayout.LayoutParams.WRAP_CONTENT
+                    );
+
+            buttonParams.setMargins(
+                    0,
+                    14,
+                    0,
+                    8
+            );
+
+            btnUpdate.setLayoutParams(
+                    buttonParams
+            );
+
+            serviceLayout.addView(
+                    btnUpdate
+            );
+
+            // =================================================
+            // UPDATE CLICK
+            // =================================================
+
+            btnUpdate.setOnClickListener(
+                    v -> {
+
+                        Intent intent =
+                                new Intent(
+                                        ManageServicesActivity.this,
+                                        UpdateServiceActivity.class
+                                );
+
+                        intent.putExtra(
+                                "serviceId",
+                                serviceId
+                        );
+
+                        startActivity(intent);
+                    }
+            );
+
+            // =================================================
+            // ADD SERVICE CARD
+            // =================================================
+
+            serviceContainer.addView(
+                    serviceLayout
+            );
+        }
+
+        cursor.close();
+    }
+
+    // =========================================================
+    // DELETE SERVICE DIALOG
+    // =========================================================
+
+    private void showDeleteServiceDialog() {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getReadableDatabase();
+
+        Cursor cursor = null;
+
+        ArrayList<String> serviceIds =
+                new ArrayList<>();
+
+        ArrayList<String> serviceDisplayNames =
+                new ArrayList<>();
+
+        try {
+
+            cursor =
+                    db.rawQuery(
+                            "SELECT serviceId, serviceName " +
+                                    "FROM services " +
+                                    "ORDER BY serviceId",
+                            null
+                    );
 
             while (cursor.moveToNext()) {
 
                 String serviceId =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow("serviceId")
+                                cursor.getColumnIndexOrThrow(
+                                        "serviceId"
+                                )
                         );
 
                 String serviceName =
                         cursor.getString(
-                                cursor.getColumnIndexOrThrow("serviceName")
+                                cursor.getColumnIndexOrThrow(
+                                        "serviceName"
+                                )
                         );
 
-                String description =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("description")
-                        );
-
-                double price =
-                        cursor.getDouble(
-                                cursor.getColumnIndexOrThrow("price")
-                        );
-
-                String duration =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("duration")
-                        );
-
-                String status =
-                        cursor.getString(
-                                cursor.getColumnIndexOrThrow("status")
-                        );
-
-                // Container for one service
-                LinearLayout serviceLayout =
-                        new LinearLayout(this);
-
-                serviceLayout.setOrientation(
-                        LinearLayout.VERTICAL
+                serviceIds.add(
+                        serviceId
                 );
 
-                serviceLayout.setPadding(
-                        12,
-                        15,
-                        12,
-                        15
+                serviceDisplayNames.add(
+                        serviceId +
+                                " - " +
+                                serviceName
                 );
+            }
 
-                // Service ID
-                TextView txtId = new TextView(this);
+        } finally {
 
-                txtId.setText(
-                        "Service ID: " + serviceId
-                );
-
-                txtId.setTextSize(16);
-                txtId.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtId);
-
-                // Service Name
-                TextView txtName = new TextView(this);
-
-                txtName.setText(
-                        "Service Name: " + serviceName
-                );
-
-                txtName.setTextSize(16);
-                txtName.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtName);
-
-                // Description
-                TextView txtDescription = new TextView(this);
-
-                txtDescription.setText(
-                        "Description: " + description
-                );
-
-                txtDescription.setTextSize(16);
-                txtDescription.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtDescription);
-
-                // Price
-                TextView txtPrice = new TextView(this);
-
-                txtPrice.setText(
-                        "Price: " + price
-                );
-
-                txtPrice.setTextSize(16);
-                txtPrice.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtPrice);
-
-                // Duration
-                TextView txtDuration = new TextView(this);
-
-                txtDuration.setText(
-                        "Duration: " + duration
-                );
-
-                txtDuration.setTextSize(16);
-                txtDuration.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtDuration);
-
-                // Status
-                TextView txtStatus = new TextView(this);
-
-                txtStatus.setText(
-                        "Status: " + status
-                );
-
-                txtStatus.setTextSize(16);
-                txtStatus.setTextColor(Color.BLACK);
-
-                serviceLayout.addView(txtStatus);
-
-                // Update Service button
-                Button btnUpdate = new Button(this);
-
-                btnUpdate.setText("Update Service");
-                btnUpdate.setTextSize(14);
-
-                LinearLayout.LayoutParams buttonParams =
-                        new LinearLayout.LayoutParams(
-                                LinearLayout.LayoutParams.MATCH_PARENT,
-                                LinearLayout.LayoutParams.WRAP_CONTENT
-                        );
-
-                buttonParams.setMargins(
-                        0,
-                        10,
-                        0,
-                        10
-                );
-
-                btnUpdate.setLayoutParams(buttonParams);
-
-                serviceLayout.addView(btnUpdate);
-
-                // Update button click
-                btnUpdate.setOnClickListener(v -> {
-
-                    Intent intent = new Intent(
-                            ManageServicesActivity.this,
-                            UpdateServiceActivity.class
-                    );
-
-                    intent.putExtra(
-                            "serviceId",
-                            serviceId
-                    );
-
-                    startActivity(intent);
-                });
-
-                serviceContainer.addView(serviceLayout);
+            if (cursor != null) {
+                cursor.close();
             }
         }
 
-        cursor.close();
+        // =====================================================
+        // NO SERVICES
+        // =====================================================
+
+        if (serviceIds.isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "No services available to delete",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        // =====================================================
+        // SPINNER
+        // =====================================================
+
+        LinearLayout dialogLayout =
+                new LinearLayout(this);
+
+        dialogLayout.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        int padding =
+                (int) (
+                        20 *
+                                getResources()
+                                        .getDisplayMetrics()
+                                        .density
+                );
+
+        dialogLayout.setPadding(
+                padding,
+                padding,
+                padding,
+                padding
+        );
+
+        TextView instruction =
+                new TextView(this);
+
+        instruction.setText(
+                "Select the service you want to delete:"
+        );
+
+        instruction.setTextSize(15);
+
+        instruction.setTextColor(
+                Color.DKGRAY
+        );
+
+        instruction.setPadding(
+                0,
+                0,
+                0,
+                padding / 2
+        );
+
+        dialogLayout.addView(
+                instruction
+        );
+
+        Spinner spinnerServices =
+                new Spinner(this);
+
+        ArrayAdapter<String> adapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        serviceDisplayNames
+                );
+
+        adapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerServices.setAdapter(
+                adapter
+        );
+
+        dialogLayout.addView(
+                spinnerServices
+        );
+
+        // =====================================================
+        // SHOW DIALOG
+        // =====================================================
+
+        AlertDialog dialog =
+                new AlertDialog.Builder(this)
+                        .setTitle(
+                                "Delete Service"
+                        )
+                        .setView(
+                                dialogLayout
+                        )
+                        .setNegativeButton(
+                                "Cancel",
+                                null
+                        )
+                        .setPositiveButton(
+                                "Delete",
+                                null
+                        )
+                        .create();
+
+        dialog.setOnShowListener(
+                d -> {
+
+                    Button deleteButton =
+                            dialog.getButton(
+                                    AlertDialog.BUTTON_POSITIVE
+                            );
+
+                    deleteButton.setTextColor(
+                            Color.rgb(
+                                    179,
+                                    38,
+                                    30
+                            )
+                    );
+
+                    deleteButton.setOnClickListener(
+                            v -> {
+
+                                int selectedPosition =
+                                        spinnerServices
+                                                .getSelectedItemPosition();
+
+                                if (selectedPosition < 0 ||
+                                        selectedPosition >=
+                                                serviceIds.size()) {
+
+                                    Toast.makeText(
+                                            ManageServicesActivity.this,
+                                            "Please select a service",
+                                            Toast.LENGTH_SHORT
+                                    ).show();
+
+                                    return;
+                                }
+
+                                String selectedServiceId =
+                                        serviceIds.get(
+                                                selectedPosition
+                                        );
+
+                                String selectedDisplayName =
+                                        serviceDisplayNames.get(
+                                                selectedPosition
+                                        );
+
+                                // ---------------------------------
+                                // FINAL CONFIRMATION
+                                // ---------------------------------
+
+                                new AlertDialog.Builder(
+                                        ManageServicesActivity.this
+                                )
+                                        .setTitle(
+                                                "Confirm Delete"
+                                        )
+                                        .setMessage(
+                                                "Are you sure you want to delete:\n\n" +
+                                                        selectedDisplayName +
+                                                        "?"
+                                        )
+                                        .setNegativeButton(
+                                                "Cancel",
+                                                null
+                                        )
+                                        .setPositiveButton(
+                                                "Delete",
+                                                (confirmDialog,
+                                                 which) -> {
+
+                                                    deleteService(
+                                                            selectedServiceId
+                                                    );
+                                                }
+                                        )
+                                        .show();
+
+                                dialog.dismiss();
+                            }
+                    );
+                }
+        );
+
+        dialog.show();
+    }
+
+    // =========================================================
+    // DELETE SERVICE
+    // =========================================================
+
+    private void deleteService(
+            String serviceId) {
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getWritableDatabase();
+
+        int deleted =
+                db.delete(
+                        "services",
+                        "serviceId = ?",
+                        new String[]{
+                                serviceId
+                        }
+                );
+
+        if (deleted > 0) {
+
+            Toast.makeText(
+                    this,
+                    "Service deleted successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            loadServices(
+                    edtSearch
+                            .getText()
+                            .toString()
+                            .trim()
+            );
+
+        } else {
+
+            Toast.makeText(
+                    this,
+                    "Unable to delete service",
+                    Toast.LENGTH_SHORT
+            ).show();
+        }
     }
 }

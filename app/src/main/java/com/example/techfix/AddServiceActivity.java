@@ -13,155 +13,326 @@ import androidx.appcompat.app.AppCompatActivity;
 
 public class AddServiceActivity extends AppCompatActivity {
 
-    EditText edtServiceId;
-    EditText edtServiceName;
-    EditText edtDescription;
-    EditText edtPrice;
-    EditText edtDuration;
+    private EditText edtServiceId;
+    private EditText edtServiceName;
+    private EditText edtDescription;
+    private EditText edtPrice;
+    private EditText edtDuration;
 
-    Spinner spinnerStatus;
+    private Spinner spinnerCategory;
+    private Spinner spinnerStatus;
 
-    Button btnCancel;
-    Button btnSaveService;
+    private Button btnCancel;
+    private Button btnSaveService;
 
-    DatabaseHelper databaseHelper;
+    private DatabaseHelper databaseHelper;
 
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(
+            Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_add_service);
+        setContentView(
+                R.layout.activity_add_service
+        );
 
-        // Find views
-        edtServiceId = findViewById(R.id.edtServiceId);
-        edtServiceName = findViewById(R.id.edtServiceName);
-        edtDescription = findViewById(R.id.edtDescription);
-        edtPrice = findViewById(R.id.edtPrice);
-        edtDuration = findViewById(R.id.edtDuration);
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
 
-        spinnerStatus = findViewById(R.id.spinnerStatus);
+        edtServiceId =
+                findViewById(
+                        R.id.edtServiceId
+                );
 
-        btnCancel = findViewById(R.id.btnCancel);
-        btnSaveService = findViewById(R.id.btnSaveService);
+        edtServiceName =
+                findViewById(
+                        R.id.edtServiceName
+                );
 
-        // Database
-        databaseHelper = new DatabaseHelper(this);
+        edtDescription =
+                findViewById(
+                        R.id.edtDescription
+                );
 
-        // Status options
+        edtPrice =
+                findViewById(
+                        R.id.edtPrice
+                );
+
+        edtDuration =
+                findViewById(
+                        R.id.edtDuration
+                );
+
+        spinnerCategory =
+                findViewById(
+                        R.id.spinnerCategory
+                );
+
+        spinnerStatus =
+                findViewById(
+                        R.id.spinnerStatus
+                );
+
+        btnCancel =
+                findViewById(
+                        R.id.btnCancel
+                );
+
+        btnSaveService =
+                findViewById(
+                        R.id.btnSaveService
+                );
+
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
+        databaseHelper =
+                new DatabaseHelper(this);
+
+        // =====================================================
+        // CATEGORY OPTIONS
+        // =====================================================
+
+        String[] categoryOptions = {
+                "Mobile",
+                "Computer",
+                "Other"
+        };
+
+        ArrayAdapter<String> categoryAdapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        categoryOptions
+                );
+
+        categoryAdapter.setDropDownViewResource(
+                android.R.layout.simple_spinner_dropdown_item
+        );
+
+        spinnerCategory.setAdapter(
+                categoryAdapter
+        );
+
+        // =====================================================
+        // STATUS OPTIONS
+        // =====================================================
+
         String[] statusOptions = {
                 "Active",
                 "Inactive"
         };
 
-        ArrayAdapter<String> adapter = new ArrayAdapter<>(
-                this,
-                android.R.layout.simple_spinner_item,
-                statusOptions
-        );
+        ArrayAdapter<String> statusAdapter =
+                new ArrayAdapter<>(
+                        this,
+                        android.R.layout.simple_spinner_item,
+                        statusOptions
+                );
 
-        adapter.setDropDownViewResource(
+        statusAdapter.setDropDownViewResource(
                 android.R.layout.simple_spinner_dropdown_item
         );
 
-        spinnerStatus.setAdapter(adapter);
+        spinnerStatus.setAdapter(
+                statusAdapter
+        );
 
-        // Cancel button
-        btnCancel.setOnClickListener(v -> {
+        // =====================================================
+        // CANCEL
+        // =====================================================
+
+        btnCancel.setOnClickListener(
+                v -> finish()
+        );
+
+        // =====================================================
+        // SAVE SERVICE
+        // =====================================================
+
+        btnSaveService.setOnClickListener(
+                v -> saveService()
+        );
+    }
+
+    // =========================================================
+    // SAVE SERVICE
+    // =========================================================
+
+    private void saveService() {
+
+        String serviceId =
+                edtServiceId
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String serviceName =
+                edtServiceName
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String description =
+                edtDescription
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String priceText =
+                edtPrice
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String duration =
+                edtDuration
+                        .getText()
+                        .toString()
+                        .trim();
+
+        String category =
+                spinnerCategory
+                        .getSelectedItem()
+                        .toString();
+
+        String status =
+                spinnerStatus
+                        .getSelectedItem()
+                        .toString();
+
+        // =====================================================
+        // VALIDATION
+        // =====================================================
+
+        if (serviceId.isEmpty() ||
+                serviceName.isEmpty() ||
+                description.isEmpty() ||
+                priceText.isEmpty() ||
+                duration.isEmpty()) {
+
+            Toast.makeText(
+                    this,
+                    "Please fill all fields",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        // =====================================================
+        // PRICE VALIDATION
+        // =====================================================
+
+        double price;
+
+        try {
+
+            price =
+                    Double.parseDouble(
+                            priceText
+                    );
+
+            if (price <= 0) {
+
+                Toast.makeText(
+                        this,
+                        "Price must be greater than 0",
+                        Toast.LENGTH_SHORT
+                ).show();
+
+                return;
+            }
+
+        } catch (NumberFormatException e) {
+
+            Toast.makeText(
+                    this,
+                    "Please enter a valid price",
+                    Toast.LENGTH_SHORT
+            ).show();
+
+            return;
+        }
+
+        // =====================================================
+        // DATABASE
+        // =====================================================
+
+        SQLiteDatabase db =
+                databaseHelper
+                        .getWritableDatabase();
+
+        ContentValues values =
+                new ContentValues();
+
+        values.put(
+                "serviceId",
+                serviceId
+        );
+
+        values.put(
+                "serviceName",
+                serviceName
+        );
+
+        values.put(
+                "category",
+                category
+        );
+
+        values.put(
+                "description",
+                description
+        );
+
+        values.put(
+                "price",
+                price
+        );
+
+        values.put(
+                "duration",
+                duration
+        );
+
+        values.put(
+                "status",
+                status
+        );
+
+        // =====================================================
+        // INSERT
+        // =====================================================
+
+        long result =
+                db.insert(
+                        "services",
+                        null,
+                        values
+                );
+
+        if (result != -1) {
+
+            Toast.makeText(
+                    this,
+                    "Service added successfully",
+                    Toast.LENGTH_SHORT
+            ).show();
+
             finish();
-        });
 
-        // Save Service button
-        btnSaveService.setOnClickListener(v -> {
+        } else {
 
-            String serviceId =
-                    edtServiceId.getText().toString().trim();
-
-            String serviceName =
-                    edtServiceName.getText().toString().trim();
-
-            String description =
-                    edtDescription.getText().toString().trim();
-
-            String priceText =
-                    edtPrice.getText().toString().trim();
-
-            String duration =
-                    edtDuration.getText().toString().trim();
-
-            String status =
-                    spinnerStatus.getSelectedItem().toString();
-
-            // Validation
-            if (serviceId.isEmpty() ||
-                    serviceName.isEmpty() ||
-                    description.isEmpty() ||
-                    priceText.isEmpty() ||
-                    duration.isEmpty()) {
-
-                Toast.makeText(
-                        AddServiceActivity.this,
-                        "Please fill all fields",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                return;
-            }
-
-            // Convert price to double
-            double price;
-
-            try {
-                price = Double.parseDouble(priceText);
-            } catch (NumberFormatException e) {
-
-                Toast.makeText(
-                        AddServiceActivity.this,
-                        "Please enter a valid price",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                return;
-            }
-
-            // Open database
-            SQLiteDatabase db =
-                    databaseHelper.getWritableDatabase();
-
-            // Store values
-            ContentValues values = new ContentValues();
-
-            values.put("serviceId", serviceId);
-            values.put("serviceName", serviceName);
-            values.put("description", description);
-            values.put("price", price);
-            values.put("duration", duration);
-            values.put("status", status);
-
-            // Insert service
-            long result = db.insert(
-                    "services",
-                    null,
-                    values
-            );
-
-            if (result != -1) {
-
-                Toast.makeText(
-                        AddServiceActivity.this,
-                        "Service added successfully",
-                        Toast.LENGTH_SHORT
-                ).show();
-
-                finish();
-
-            } else {
-
-                Toast.makeText(
-                        AddServiceActivity.this,
-                        "Failed to add service. Service ID may already exist.",
-                        Toast.LENGTH_SHORT
-                ).show();
-            }
-        });
+            Toast.makeText(
+                    this,
+                    "Failed to add service. Service ID may already exist.",
+                    Toast.LENGTH_LONG
+            ).show();
+        }
     }
 }

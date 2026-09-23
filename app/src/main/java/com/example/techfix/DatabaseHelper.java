@@ -10,13 +10,18 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
     private static final String DATABASE_NAME = "TechFix.db";
 
-    // Version 12:
-    // Add jobId to feedback table
-    private static final int DATABASE_VERSION = 12;
+    // Version 14:
+    // Add final repair amount to appointments
+    // Keep existing payment amounts when upgrading
+    private static final int DATABASE_VERSION = 14;
 
     public DatabaseHelper(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
     }
+
+    // =========================================================
+    // CREATE DATABASE
+    // =========================================================
 
     @Override
     public void onCreate(SQLiteDatabase db) {
@@ -42,9 +47,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "productService TEXT NOT NULL, " +
                 "category TEXT NOT NULL, " +
                 "price REAL NOT NULL, " +
+                "finalPrice REAL NOT NULL DEFAULT 0, " +
                 "branch TEXT, " +
                 "appointmentDate TEXT, " +
-                "appointmentTime TEXT)");
+                "appointmentTime TEXT, " +
+                "deviceModel TEXT, " +
+                "problemDescription TEXT, " +
+                "photoPath TEXT)");
 
         // =====================================================
         // BRANCHES
@@ -71,7 +80,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "description TEXT, " +
                 "price REAL NOT NULL, " +
                 "duration TEXT, " +
-                "status TEXT DEFAULT 'Active')");
+                "status TEXT DEFAULT 'Active', " +
+                "category TEXT NOT NULL DEFAULT 'Other')");
 
         // =====================================================
         // TECHNICIANS
@@ -82,7 +92,8 @@ public class DatabaseHelper extends SQLiteOpenHelper {
                 "technicianName TEXT NOT NULL, " +
                 "phone TEXT, " +
                 "email TEXT NOT NULL, " +
-                "password TEXT NOT NULL)");
+                "password TEXT NOT NULL, " +
+                "branch TEXT DEFAULT 'Unassigned')");
 
         // =====================================================
         // FEEDBACK
@@ -151,7 +162,7 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         insertDefaultAdmin(db);
 
         // =====================================================
-        // SAMPLE PRODUCTS
+        // SAMPLE INVENTORY
         // =====================================================
 
         insertProduct(
@@ -255,6 +266,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         );
     }
 
+    // =========================================================
+    // DATABASE UPGRADE
+    // =========================================================
+
     @Override
     public void onUpgrade(
             SQLiteDatabase db,
@@ -309,38 +324,30 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 4) {
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN address TEXT"
                 );
-
             } catch (Exception ignored) {
             }
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN phone TEXT"
                 );
-
             } catch (Exception ignored) {
             }
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN email TEXT"
                 );
-
             } catch (Exception ignored) {
             }
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE branches ADD COLUMN status TEXT DEFAULT 'Active'"
                 );
-
             } catch (Exception ignored) {
             }
         }
@@ -459,10 +466,13 @@ public class DatabaseHelper extends SQLiteOpenHelper {
 
         if (oldVersion < 9) {
 
-            db.execSQL(
-                    "ALTER TABLE appointments " +
-                            "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
-            );
+            try {
+                db.execSQL(
+                        "ALTER TABLE appointments " +
+                                "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
+                );
+            } catch (Exception ignored) {
+            }
 
             db.execSQL(
                     "CREATE TABLE IF NOT EXISTS jobs (" +
@@ -483,12 +493,10 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 10) {
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE feedback " +
                                 "ADD COLUMN customerId INTEGER NOT NULL DEFAULT 0"
                 );
-
             } catch (Exception ignored) {
             }
         }
@@ -520,12 +528,137 @@ public class DatabaseHelper extends SQLiteOpenHelper {
         if (oldVersion < 12) {
 
             try {
-
                 db.execSQL(
                         "ALTER TABLE feedback " +
                                 "ADD COLUMN jobId INTEGER NOT NULL DEFAULT 0"
                 );
+            } catch (Exception ignored) {
+            }
+        }
 
+        // =====================================================
+        // VERSION 13
+        // CUSTOMER BOOKING REDESIGN
+        // =====================================================
+
+        if (oldVersion < 13) {
+
+            // -------------------------------------------------
+            // SERVICES - CATEGORY
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE services " +
+                                "ADD COLUMN category TEXT NOT NULL DEFAULT 'Other'"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // TECHNICIANS - BRANCH
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE technicians " +
+                                "ADD COLUMN branch TEXT DEFAULT 'Unassigned'"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // APPOINTMENTS - DEVICE MODEL
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE appointments " +
+                                "ADD COLUMN deviceModel TEXT"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // APPOINTMENTS - PROBLEM DESCRIPTION
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE appointments " +
+                                "ADD COLUMN problemDescription TEXT"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // APPOINTMENTS - CUSTOMER PHOTO
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE appointments " +
+                                "ADD COLUMN photoPath TEXT"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // INDEX FOR BOOKING LOOKUPS
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "CREATE INDEX IF NOT EXISTS idx_appointments_slot " +
+                                "ON appointments(branch, appointmentDate, appointmentTime)"
+                );
+            } catch (Exception ignored) {
+            }
+        }
+
+        // =====================================================
+        // VERSION 14
+        // FINAL REPAIR AMOUNT
+        // =====================================================
+
+        if (oldVersion < 14) {
+
+            // -------------------------------------------------
+            // APPOINTMENTS - FINAL PRICE
+            // -------------------------------------------------
+
+            try {
+                db.execSQL(
+                        "ALTER TABLE appointments " +
+                                "ADD COLUMN finalPrice REAL NOT NULL DEFAULT 0"
+                );
+            } catch (Exception ignored) {
+            }
+
+            // -------------------------------------------------
+            // PRESERVE EXISTING PAYMENT AMOUNTS
+            // -------------------------------------------------
+            // Existing payment records are copied to finalPrice
+            // so already-paid appointments keep their history.
+
+            try {
+                db.execSQL(
+                        "UPDATE appointments " +
+                                "SET finalPrice = (" +
+                                "SELECT p.amount " +
+                                "FROM payments p " +
+                                "WHERE p.appointmentId = appointments.appointmentId " +
+                                "AND p.customerId = appointments.customerId " +
+                                "ORDER BY p.paymentId DESC " +
+                                "LIMIT 1" +
+                                ") " +
+                                "WHERE EXISTS (" +
+                                "SELECT 1 " +
+                                "FROM payments p2 " +
+                                "WHERE p2.appointmentId = appointments.appointmentId " +
+                                "AND p2.customerId = appointments.customerId" +
+                                ")"
+                );
             } catch (Exception ignored) {
             }
         }

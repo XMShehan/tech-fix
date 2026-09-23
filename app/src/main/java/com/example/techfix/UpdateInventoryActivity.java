@@ -3,6 +3,7 @@ package com.example.techfix;
 import android.content.ContentValues;
 import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
@@ -31,15 +32,21 @@ public class UpdateInventoryActivity extends AppCompatActivity {
 
         EdgeToEdge.enable(this);
 
+        // Fix keyboard covering lower fields/buttons
+        getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_ADJUST_RESIZE
+        );
+
         setContentView(R.layout.activity_update_inventory);
 
         ViewCompat.setOnApplyWindowInsetsListener(
                 findViewById(R.id.main),
                 (v, insets) -> {
 
-                    Insets systemBars = insets.getInsets(
-                            WindowInsetsCompat.Type.systemBars()
-                    );
+                    Insets systemBars =
+                            insets.getInsets(
+                                    WindowInsetsCompat.Type.systemBars()
+                            );
 
                     v.setPadding(
                             systemBars.left,
@@ -52,7 +59,10 @@ public class UpdateInventoryActivity extends AppCompatActivity {
                 }
         );
 
-        // Find views
+        // =====================================================
+        // FIND VIEWS
+        // =====================================================
+
         edtProductName =
                 findViewById(R.id.edtProductName);
 
@@ -71,27 +81,47 @@ public class UpdateInventoryActivity extends AppCompatActivity {
         btnUpdateInventory =
                 findViewById(R.id.btnUpdateInventory);
 
-        // Database
-        databaseHelper = new DatabaseHelper(this);
+        // =====================================================
+        // DATABASE
+        // =====================================================
 
-        // Get selected inventory ID
+        databaseHelper =
+                new DatabaseHelper(this);
+
+        // =====================================================
+        // GET SELECTED INVENTORY
+        // =====================================================
+
         int inventoryId =
-                getIntent().getIntExtra("inventoryId", -1);
+                getIntent().getIntExtra(
+                        "inventoryId",
+                        -1
+                );
 
-        // Get selected inventory data
         String productName =
-                getIntent().getStringExtra("productName");
+                getIntent().getStringExtra(
+                        "productName"
+                );
 
         String category =
-                getIntent().getStringExtra("category");
+                getIntent().getStringExtra(
+                        "category"
+                );
 
         String price =
-                getIntent().getStringExtra("price");
+                getIntent().getStringExtra(
+                        "price"
+                );
 
         String quantity =
-                getIntent().getStringExtra("quantity");
+                getIntent().getStringExtra(
+                        "quantity"
+                );
 
-        // Display existing data
+        // =====================================================
+        // DISPLAY EXISTING DATA
+        // =====================================================
+
         if (productName != null) {
             edtProductName.setText(productName);
         }
@@ -108,27 +138,44 @@ public class UpdateInventoryActivity extends AppCompatActivity {
             edtQuantity.setText(quantity);
         }
 
-        // Cancel
+        // =====================================================
+        // CANCEL
+        // =====================================================
+
         btnCancel.setOnClickListener(v -> {
             finish();
         });
 
-        // Update Inventory
+        // =====================================================
+        // UPDATE INVENTORY
+        // =====================================================
+
         btnUpdateInventory.setOnClickListener(v -> {
 
             String newProductName =
-                    edtProductName.getText().toString().trim();
+                    edtProductName.getText()
+                            .toString()
+                            .trim();
 
             String newCategory =
-                    edtCategory.getText().toString().trim();
+                    edtCategory.getText()
+                            .toString()
+                            .trim();
 
             String newPrice =
-                    edtPrice.getText().toString().trim();
+                    edtPrice.getText()
+                            .toString()
+                            .trim();
 
             String newQuantity =
-                    edtQuantity.getText().toString().trim();
+                    edtQuantity.getText()
+                            .toString()
+                            .trim();
 
-            // Validation
+            // -------------------------------------------------
+            // VALIDATION
+            // -------------------------------------------------
+
             if (newProductName.isEmpty() ||
                     newCategory.isEmpty() ||
                     newPrice.isEmpty() ||
@@ -162,11 +209,36 @@ public class UpdateInventoryActivity extends AppCompatActivity {
                 int quantityValue =
                         Integer.parseInt(newQuantity);
 
-                // Open database
-                SQLiteDatabase db =
-                        databaseHelper.getWritableDatabase();
+                if (priceValue < 0) {
 
-                // Updated values
+                    Toast.makeText(
+                            UpdateInventoryActivity.this,
+                            "Price cannot be negative",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                if (quantityValue < 0) {
+
+                    Toast.makeText(
+                            UpdateInventoryActivity.this,
+                            "Quantity cannot be negative",
+                            Toast.LENGTH_SHORT
+                    ).show();
+
+                    return;
+                }
+
+                // -------------------------------------------------
+                // DATABASE
+                // -------------------------------------------------
+
+                SQLiteDatabase db =
+                        databaseHelper
+                                .getWritableDatabase();
+
                 ContentValues values =
                         new ContentValues();
 
@@ -190,14 +262,19 @@ public class UpdateInventoryActivity extends AppCompatActivity {
                         quantityValue
                 );
 
-                // Update inventory
+                // -------------------------------------------------
+                // UPDATE
+                // -------------------------------------------------
+
                 int result =
                         db.update(
                                 "inventory",
                                 values,
                                 "id = ?",
                                 new String[]{
-                                        String.valueOf(inventoryId)
+                                        String.valueOf(
+                                                inventoryId
+                                        )
                                 }
                         );
 

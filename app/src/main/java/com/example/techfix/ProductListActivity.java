@@ -6,6 +6,8 @@ import android.database.sqlite.SQLiteDatabase;
 import android.graphics.Color;
 import android.graphics.Typeface;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -30,29 +32,27 @@ public class ProductListActivity extends AppCompatActivity {
 
     private DatabaseHelper databaseHelper;
 
-    private ArrayList<Product> productList;
+    private ArrayList<Service> serviceList;
 
     private String selectedCategory = "All";
 
-    // Logged-in customer information
     private String customerId;
     private String customerName;
     private String customerEmail;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
 
         setContentView(
                 R.layout.activity_product_list
         );
 
-        // =====================================================
-        // CONNECT UI
-        // =====================================================
-
         productListContainer =
-                findViewById(R.id.productListContainer);
+                findViewById(
+                        R.id.productListContainer
+                );
 
         btnAll =
                 findViewById(R.id.btnAll);
@@ -69,12 +69,8 @@ public class ProductListActivity extends AppCompatActivity {
         databaseHelper =
                 new DatabaseHelper(this);
 
-        productList =
+        serviceList =
                 new ArrayList<>();
-
-        // =====================================================
-        // GET CUSTOMER INFORMATION
-        // =====================================================
 
         customerId =
                 getIntent().getStringExtra(
@@ -92,47 +88,53 @@ public class ProductListActivity extends AppCompatActivity {
                 );
 
         // =====================================================
-        // LOAD PRODUCTS
+        // LOAD SERVICES
         // =====================================================
 
-        loadProducts();
+        loadServices();
 
         // =====================================================
-        // CATEGORY - ALL
+        // ALL
         // =====================================================
 
         btnAll.setOnClickListener(v -> {
 
             selectedCategory = "All";
 
-            filterProducts(
-                    edtSearch.getText().toString()
+            filterServices(
+                    edtSearch
+                            .getText()
+                            .toString()
             );
         });
 
         // =====================================================
-        // CATEGORY - MOBILE
+        // MOBILE
         // =====================================================
 
         btnMobile.setOnClickListener(v -> {
 
             selectedCategory = "Mobile";
 
-            filterProducts(
-                    edtSearch.getText().toString()
+            filterServices(
+                    edtSearch
+                            .getText()
+                            .toString()
             );
         });
 
         // =====================================================
-        // CATEGORY - COMPUTER
+        // COMPUTER
         // =====================================================
 
         btnComputer.setOnClickListener(v -> {
 
             selectedCategory = "Computer";
 
-            filterProducts(
-                    edtSearch.getText().toString()
+            filterServices(
+                    edtSearch
+                            .getText()
+                            .toString()
             );
         });
 
@@ -141,7 +143,7 @@ public class ProductListActivity extends AppCompatActivity {
         // =====================================================
 
         edtSearch.addTextChangedListener(
-                new android.text.TextWatcher() {
+                new TextWatcher() {
 
                     @Override
                     public void beforeTextChanged(
@@ -158,206 +160,242 @@ public class ProductListActivity extends AppCompatActivity {
                             int before,
                             int count) {
 
-                        filterProducts(
+                        filterServices(
                                 s.toString()
                         );
                     }
 
                     @Override
                     public void afterTextChanged(
-                            android.text.Editable s) {
+                            Editable s) {
                     }
                 }
         );
     }
 
+    @Override
+    protected void onResume() {
+
+        super.onResume();
+
+        if (databaseHelper != null) {
+
+            loadServices();
+        }
+    }
+
     // =========================================================
-    // LOAD PRODUCTS
+    // LOAD ACTIVE SERVICES
     // =========================================================
 
-    private void loadProducts() {
+    private void loadServices() {
 
-        productList.clear();
+        serviceList.clear();
 
         SQLiteDatabase db =
                 databaseHelper.getReadableDatabase();
 
-        Cursor cursor =
-                db.rawQuery(
-                        "SELECT productName, category, price, quantity " +
-                                "FROM inventory " +
-                                "WHERE quantity > 0",
-                        null
-                );
+        Cursor cursor = null;
 
-        while (cursor.moveToNext()) {
+        try {
 
-            String productName =
-                    cursor.getString(0);
+            cursor =
+                    db.rawQuery(
+                            "SELECT serviceId, serviceName, " +
+                                    "category, description, price, duration " +
+                                    "FROM services " +
+                                    "WHERE status = ? " +
+                                    "ORDER BY category, serviceName",
 
-            String category =
-                    cursor.getString(1);
-
-            double price =
-                    cursor.getDouble(2);
-
-            int quantity =
-                    cursor.getInt(3);
-
-            Product product =
-                    new Product(
-                            productName,
-                            category,
-                            price,
-                            quantity
+                            new String[]{
+                                    "Active"
+                            }
                     );
 
-            productList.add(product);
+            while (cursor.moveToNext()) {
+
+                serviceList.add(
+                        new Service(
+                                cursor.getString(
+                                        cursor.getColumnIndexOrThrow(
+                                                "serviceId"
+                                        )
+                                ),
+
+                                cursor.getString(
+                                        cursor.getColumnIndexOrThrow(
+                                                "serviceName"
+                                        )
+                                ),
+
+                                cursor.getString(
+                                        cursor.getColumnIndexOrThrow(
+                                                "category"
+                                        )
+                                ),
+
+                                cursor.getString(
+                                        cursor.getColumnIndexOrThrow(
+                                                "description"
+                                        )
+                                ),
+
+                                cursor.getDouble(
+                                        cursor.getColumnIndexOrThrow(
+                                                "price"
+                                        )
+                                ),
+
+                                cursor.getString(
+                                        cursor.getColumnIndexOrThrow(
+                                                "duration"
+                                        )
+                                )
+                        )
+                );
+            }
+
+        } finally {
+
+            if (cursor != null) {
+                cursor.close();
+            }
         }
 
-        cursor.close();
-
-        displayProducts(
-                productList
+        filterServices(
+                edtSearch.getText().toString()
         );
     }
 
     // =========================================================
-    // FILTER PRODUCTS
+    // FILTER SERVICES
     // =========================================================
 
-    private void filterProducts(
+    private void filterServices(
             String searchText) {
 
-        ArrayList<Product> filteredList =
+        ArrayList<Service> filteredList =
                 new ArrayList<>();
 
-        searchText =
+        String search =
                 searchText
                         .toLowerCase(
                                 Locale.getDefault()
                         )
                         .trim();
 
-        for (Product product :
-                productList) {
+        for (Service service : serviceList) {
 
             boolean categoryMatches;
 
-            if (selectedCategory.equals("All")) {
+            if (selectedCategory.equalsIgnoreCase("All")) {
 
                 categoryMatches = true;
 
             } else {
 
                 categoryMatches =
-                        product.category.equalsIgnoreCase(
-                                selectedCategory
-                        );
+                        service.category != null
+                                && service.category
+                                .equalsIgnoreCase(
+                                        selectedCategory
+                                );
             }
 
             boolean searchMatches =
-                    product.productName
+                    service.serviceName
                             .toLowerCase(
                                     Locale.getDefault()
                             )
-                            .contains(searchText)
+                            .contains(search)
 
                             ||
 
-                            product.category
-                                    .toLowerCase(
-                                            Locale.getDefault()
-                                    )
-                                    .contains(searchText);
+                            (service.description != null &&
+                                    service.description
+                                            .toLowerCase(
+                                                    Locale.getDefault()
+                                            )
+                                            .contains(search))
+
+                            ||
+
+                            (service.category != null &&
+                                    service.category
+                                            .toLowerCase(
+                                                    Locale.getDefault()
+                                            )
+                                            .contains(search));
 
             if (categoryMatches &&
                     searchMatches) {
 
-                filteredList.add(
-                        product
-                );
+                filteredList.add(service);
             }
         }
 
-        displayProducts(
+        displayServices(
                 filteredList
         );
     }
 
     // =========================================================
-    // DISPLAY PRODUCTS
+    // DISPLAY SERVICES
     // =========================================================
 
-    private void displayProducts(
-            ArrayList<Product> products) {
+    private void displayServices(
+            ArrayList<Service> services) {
 
         productListContainer.removeAllViews();
 
-        if (products.isEmpty()) {
+        if (services.isEmpty() &&
+                !selectedCategory.equalsIgnoreCase("All") &&
+                !selectedCategory.equalsIgnoreCase("Mobile") &&
+                !selectedCategory.equalsIgnoreCase("Computer")) {
 
-            TextView noProducts =
-                    new TextView(this);
-
-            noProducts.setText(
-                    "No products available"
-            );
-
-            noProducts.setTextSize(
-                    18
-            );
-
-            noProducts.setTextColor(
-                    Color.rgb(
-                            96,
-                            125,
-                            139
-                    )
-            );
-
-            noProducts.setGravity(
-                    Gravity.CENTER
-            );
-
-            noProducts.setPadding(
-                    0,
-                    50,
-                    0,
-                    50
-            );
+            TextView emptyText =
+                    createEmptyText(
+                            "No repair services available"
+                    );
 
             productListContainer.addView(
-                    noProducts
+                    emptyText
             );
 
             return;
         }
 
-        for (Product product :
-                products) {
+        for (Service service : services) {
 
-            createProductCard(
-                    product.productName,
-                    product.category,
-                    product.price,
-                    product.quantity
+            createServiceCard(service);
+        }
+
+        // =====================================================
+        // OTHER REPAIR OPTION
+        // Available for ALL, Mobile and Computer
+        // =====================================================
+
+        if (selectedCategory.equalsIgnoreCase("All")) {
+
+            createOtherCard(
+                    "Other"
+            );
+
+        } else if (selectedCategory.equalsIgnoreCase("Mobile")
+                || selectedCategory.equalsIgnoreCase("Computer")) {
+
+            createOtherCard(
+                    selectedCategory
             );
         }
     }
 
     // =========================================================
-    // CREATE PRODUCT CARD
+    // CREATE SERVICE CARD
     // =========================================================
 
-    private void createProductCard(
-            String productName,
-            String category,
-            double price,
-            int quantity) {
-
-        // =====================================================
-        // MAIN CARD
-        // =====================================================
+    private void createServiceCard(
+            Service service) {
 
         LinearLayout card =
                 new LinearLayout(this);
@@ -379,9 +417,7 @@ public class ProductListActivity extends AppCompatActivity {
                 )
         );
 
-        card.setElevation(
-                2
-        );
+        card.setElevation(2);
 
         LinearLayout.LayoutParams cardParams =
                 new LinearLayout.LayoutParams(
@@ -400,20 +436,14 @@ public class ProductListActivity extends AppCompatActivity {
                 cardParams
         );
 
-        // =====================================================
-        // PRODUCT NAME
-        // =====================================================
-
         TextView nameText =
                 new TextView(this);
 
         nameText.setText(
-                productName
+                service.serviceName
         );
 
-        nameText.setTextSize(
-                20
-        );
+        nameText.setTextSize(20);
 
         nameText.setTextColor(
                 Color.rgb(
@@ -428,24 +458,16 @@ public class ProductListActivity extends AppCompatActivity {
                 Typeface.BOLD
         );
 
-        card.addView(
-                nameText
-        );
-
-        // =====================================================
-        // CATEGORY
-        // =====================================================
+        card.addView(nameText);
 
         TextView categoryText =
                 new TextView(this);
 
         categoryText.setText(
-                category
+                service.category
         );
 
-        categoryText.setTextSize(
-                14
-        );
+        categoryText.setTextSize(14);
 
         categoryText.setTextColor(
                 Color.rgb(
@@ -472,29 +494,63 @@ public class ProductListActivity extends AppCompatActivity {
                 categoryParams
         );
 
-        card.addView(
-                categoryText
-        );
+        card.addView(categoryText);
 
-        // =====================================================
-        // PRICE
-        // =====================================================
+        if (service.description != null &&
+                !service.description.trim().isEmpty()) {
+
+            TextView descriptionText =
+                    new TextView(this);
+
+            descriptionText.setText(
+                    service.description
+            );
+
+            descriptionText.setTextSize(14);
+
+            descriptionText.setTextColor(
+                    Color.rgb(
+                            96,
+                            125,
+                            139
+                    )
+            );
+
+            LinearLayout.LayoutParams descriptionParams =
+                    new LinearLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.WRAP_CONTENT
+                    );
+
+            descriptionParams.setMargins(
+                    0,
+                    8,
+                    0,
+                    0
+            );
+
+            descriptionText.setLayoutParams(
+                    descriptionParams
+            );
+
+            card.addView(
+                    descriptionText
+            );
+        }
 
         TextView priceText =
                 new TextView(this);
 
         priceText.setText(
-                "Rs. " +
+                "Estimated Price: Rs. " +
                         String.format(
                                 Locale.getDefault(),
                                 "%.2f",
-                                price
+                                service.price
                         )
         );
 
-        priceText.setTextSize(
-                22
-        );
+        priceText.setTextSize(21);
 
         priceText.setTextColor(
                 Color.rgb(
@@ -517,36 +573,28 @@ public class ProductListActivity extends AppCompatActivity {
 
         priceParams.setMargins(
                 0,
-                14,
+                12,
                 0,
-                0
+                3
         );
 
         priceText.setLayoutParams(
                 priceParams
         );
 
-        card.addView(
-                priceText
-        );
+        card.addView(priceText);
 
-        // =====================================================
-        // AVAILABLE QUANTITY
-        // =====================================================
-
-        TextView quantityText =
+        TextView durationText =
                 new TextView(this);
 
-        quantityText.setText(
-                "Available: " +
-                        quantity
+        durationText.setText(
+                "Estimated Duration: " +
+                        service.duration
         );
 
-        quantityText.setTextSize(
-                14
-        );
+        durationText.setTextSize(14);
 
-        quantityText.setTextColor(
+        durationText.setTextColor(
                 Color.rgb(
                         96,
                         125,
@@ -554,148 +602,397 @@ public class ProductListActivity extends AppCompatActivity {
                 )
         );
 
-        LinearLayout.LayoutParams quantityParams =
-                new LinearLayout.LayoutParams(
-                        ViewGroup.LayoutParams.WRAP_CONTENT,
-                        ViewGroup.LayoutParams.WRAP_CONTENT
-                );
+        card.addView(durationText);
 
-        quantityParams.setMargins(
-                0,
-                5,
-                0,
-                15
-        );
-
-        quantityText.setLayoutParams(
-                quantityParams
-        );
-
-        card.addView(
-                quantityText
-        );
-
-        // =====================================================
-        // SELECT PRODUCT
-        // =====================================================
-
-        Button btnSelect =
+        Button btnBook =
                 new Button(this);
 
-        btnSelect.setText(
-                "SELECT PRODUCT"
+        btnBook.setText(
+                "BOOK THIS SERVICE"
         );
 
-        btnSelect.setTextColor(
+        btnBook.setTextColor(
                 Color.WHITE
         );
 
-        btnSelect.setTextSize(
-                14
-        );
+        btnBook.setTextSize(14);
 
-        btnSelect.setTypeface(
+        btnBook.setTypeface(
                 null,
                 Typeface.BOLD
         );
 
-        btnSelect.setBackground(
+        btnBook.setBackground(
                 getDrawable(
                         R.drawable.bg_login_button
                 )
         );
 
-        btnSelect.setOnClickListener(v -> {
+        LinearLayout.LayoutParams buttonParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
 
-            Intent intent =
-                    new Intent(
-                            ProductListActivity.this,
-                            AppointmentActivity.class
-                    );
-
-            // =================================================
-            // PRODUCT INFORMATION
-            // =================================================
-
-            intent.putExtra(
-                    "productName",
-                    productName
-            );
-
-            intent.putExtra(
-                    "category",
-                    category
-            );
-
-            intent.putExtra(
-                    "price",
-                    price
-            );
-
-            intent.putExtra(
-                    "quantity",
-                    quantity
-            );
-
-            // =================================================
-            // CUSTOMER INFORMATION
-            // =================================================
-
-            intent.putExtra(
-                    "customerId",
-                    customerId
-            );
-
-            intent.putExtra(
-                    "customerName",
-                    customerName
-            );
-
-            intent.putExtra(
-                    "customerEmail",
-                    customerEmail
-            );
-
-            startActivity(intent);
-        });
-
-        card.addView(
-                btnSelect
+        buttonParams.setMargins(
+                0,
+                15,
+                0,
+                0
         );
 
-        productListContainer.addView(
-                card
+        btnBook.setLayoutParams(
+                buttonParams
         );
+
+        btnBook.setOnClickListener(v ->
+                openAppointment(
+                        service.serviceId,
+                        service.serviceName,
+                        service.category,
+                        service.price,
+                        service.duration,
+                        false
+                )
+        );
+
+        card.addView(btnBook);
+
+        productListContainer.addView(card);
     }
 
     // =========================================================
-    // PRODUCT CLASS
+    // OTHER CARD
     // =========================================================
 
-    private static class Product {
+    private void createOtherCard(
+            String category) {
 
-        String productName;
+        LinearLayout card =
+                new LinearLayout(this);
+
+        card.setOrientation(
+                LinearLayout.VERTICAL
+        );
+
+        card.setPadding(
+                22,
+                22,
+                22,
+                22
+        );
+
+        card.setBackground(
+                getDrawable(
+                        R.drawable.bg_dashboard_card
+                )
+        );
+
+        card.setElevation(2);
+
+        LinearLayout.LayoutParams cardParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        cardParams.setMargins(
+                0,
+                0,
+                0,
+                15
+        );
+
+        card.setLayoutParams(
+                cardParams
+        );
+
+        TextView title =
+                new TextView(this);
+
+        title.setText(
+                "Other Repair"
+        );
+
+        title.setTextSize(20);
+
+        title.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        title.setTextColor(
+                Color.rgb(
+                        38,
+                        50,
+                        56
+                )
+        );
+
+        card.addView(title);
+
+        TextView description =
+                new TextView(this);
+
+        description.setText(
+                "Can't find your repair service? " +
+                        "Describe the problem and our team will review it."
+        );
+
+        description.setTextSize(14);
+
+        description.setTextColor(
+                Color.rgb(
+                        96,
+                        125,
+                        139
+                )
+        );
+
+        LinearLayout.LayoutParams descriptionParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        descriptionParams.setMargins(
+                0,
+                8,
+                0,
+                0
+        );
+
+        description.setLayoutParams(
+                descriptionParams
+        );
+
+        card.addView(description);
+
+        TextView price =
+                new TextView(this);
+
+        price.setText(
+                "Estimated Price: To be confirmed"
+        );
+
+        price.setTextSize(15);
+
+        price.setTextColor(
+                Color.rgb(
+                        25,
+                        118,
+                        210
+                )
+        );
+
+        price.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        LinearLayout.LayoutParams priceParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.WRAP_CONTENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        priceParams.setMargins(
+                0,
+                12,
+                0,
+                0
+        );
+
+        price.setLayoutParams(priceParams);
+
+        card.addView(price);
+
+        Button btnBook =
+                new Button(this);
+
+        btnBook.setText(
+                "BOOK OTHER REPAIR"
+        );
+
+        btnBook.setTextColor(
+                Color.WHITE
+        );
+
+        btnBook.setTextSize(14);
+
+        btnBook.setTypeface(
+                null,
+                Typeface.BOLD
+        );
+
+        btnBook.setBackground(
+                getDrawable(
+                        R.drawable.bg_login_button
+                )
+        );
+
+        LinearLayout.LayoutParams buttonParams =
+                new LinearLayout.LayoutParams(
+                        ViewGroup.LayoutParams.MATCH_PARENT,
+                        ViewGroup.LayoutParams.WRAP_CONTENT
+                );
+
+        buttonParams.setMargins(
+                0,
+                15,
+                0,
+                0
+        );
+
+        btnBook.setLayoutParams(
+                buttonParams
+        );
+
+        btnBook.setOnClickListener(v ->
+                openAppointment(
+                        "OTHER",
+                        "Other",
+                        category,
+                        0.0,
+                        "To be confirmed",
+                        true
+                )
+        );
+
+        card.addView(btnBook);
+
+        productListContainer.addView(card);
+    }
+
+    // =========================================================
+    // OPEN APPOINTMENT
+    // =========================================================
+
+    private void openAppointment(
+            String serviceId,
+            String serviceName,
+            String category,
+            double price,
+            String duration,
+            boolean otherService) {
+
+        Intent intent =
+                new Intent(
+                        ProductListActivity.this,
+                        AppointmentActivity.class
+                );
+
+        intent.putExtra(
+                "serviceId",
+                serviceId
+        );
+
+        intent.putExtra(
+                "productName",
+                serviceName
+        );
+
+        intent.putExtra(
+                "category",
+                category
+        );
+
+        intent.putExtra(
+                "price",
+                price
+        );
+
+        intent.putExtra(
+                "duration",
+                duration
+        );
+
+        intent.putExtra(
+                "otherService",
+                otherService
+        );
+
+        intent.putExtra(
+                "customerId",
+                customerId
+        );
+
+        intent.putExtra(
+                "customerName",
+                customerName
+        );
+
+        intent.putExtra(
+                "customerEmail",
+                customerEmail
+        );
+
+        startActivity(intent);
+    }
+
+    // =========================================================
+    // EMPTY TEXT
+    // =========================================================
+
+    private TextView createEmptyText(
+            String message) {
+
+        TextView text =
+                new TextView(this);
+
+        text.setText(message);
+
+        text.setTextSize(17);
+
+        text.setTextColor(
+                Color.rgb(
+                        96,
+                        125,
+                        139
+                )
+        );
+
+        text.setGravity(
+                Gravity.CENTER
+        );
+
+        text.setPadding(
+                0,
+                50,
+                0,
+                50
+        );
+
+        return text;
+    }
+
+    // =========================================================
+    // SERVICE CLASS
+    // =========================================================
+
+    private static class Service {
+
+        String serviceId;
+        String serviceName;
         String category;
+        String description;
         double price;
-        int quantity;
+        String duration;
 
-        Product(
-                String productName,
+        Service(
+                String serviceId,
+                String serviceName,
                 String category,
+                String description,
                 double price,
-                int quantity) {
+                String duration) {
 
-            this.productName =
-                    productName;
-
-            this.category =
-                    category;
-
-            this.price =
-                    price;
-
-            this.quantity =
-                    quantity;
+            this.serviceId = serviceId;
+            this.serviceName = serviceName;
+            this.category = category;
+            this.description = description;
+            this.price = price;
+            this.duration = duration;
         }
     }
 }

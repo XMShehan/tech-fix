@@ -14,16 +14,16 @@
         android:paddingStart="20dp"
         android:paddingEnd="20dp"
         android:paddingTop="25dp"
-        android:paddingBottom="30dp">
+        android:paddingBottom="25dp">
 
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
         <!-- HEADER -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Book Appointment"
+            android:text="Create New Booking"
             android:textColor="#263238"
             android:textSize="28sp"
             android:textStyle="bold"
@@ -33,15 +33,15 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Confirm your repair details"
+            android:text="Enter your device and appointment details"
             android:textColor="#607D8B"
             android:textSize="14sp"
             android:layout_gravity="center"
             android:layout_marginBottom="24dp" />
 
-        <!-- ================================================= -->
-        <!-- SELECTED PRODUCT -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
+        <!-- REPAIR SERVICE -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -55,18 +55,18 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Selected Product"
+                android:text="Repair Service"
                 android:textColor="#1976D2"
                 android:textSize="18sp"
                 android:textStyle="bold"
                 android:layout_marginBottom="15dp" />
 
-            <!-- PRODUCT -->
+            <!-- SELECTED SERVICE -->
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Product / Service"
+                android:text="Selected Service"
                 android:textColor="#37474F"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -78,15 +78,12 @@
                 android:layout_height="52dp"
                 android:background="@drawable/bg_login_input"
                 android:textColor="#263238"
-                android:textColorHint="#90A4AE"
                 android:textSize="15sp"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:focusable="false"
                 android:clickable="false"
                 android:cursorVisible="false"
-                android:longClickable="false"
-                android:textIsSelectable="false"
                 android:layout_marginBottom="14dp" />
 
             <!-- CATEGORY -->
@@ -106,23 +103,20 @@
                 android:layout_height="52dp"
                 android:background="@drawable/bg_login_input"
                 android:textColor="#263238"
-                android:textColorHint="#90A4AE"
                 android:textSize="15sp"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:focusable="false"
                 android:clickable="false"
                 android:cursorVisible="false"
-                android:longClickable="false"
-                android:textIsSelectable="false"
                 android:layout_marginBottom="14dp" />
 
-            <!-- PRICE -->
+            <!-- ESTIMATED PRICE -->
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Price"
+                android:text="Estimated Price"
                 android:textColor="#37474F"
                 android:textSize="13sp"
                 android:textStyle="bold"
@@ -134,7 +128,6 @@
                 android:layout_height="52dp"
                 android:background="@drawable/bg_login_input"
                 android:textColor="#1976D2"
-                android:textColorHint="#90A4AE"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:paddingStart="15dp"
@@ -142,14 +135,20 @@
                 android:focusable="false"
                 android:clickable="false"
                 android:cursorVisible="false"
-                android:longClickable="false"
-                android:textIsSelectable="false" />
+                android:layout_marginBottom="6dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Final price will be confirmed after the repair is completed."
+                android:textColor="#607D8B"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
-        <!-- ================================================= -->
-        <!-- LOCATION -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
+        <!-- DEVICE DETAILS -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -163,7 +162,80 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Repair Location"
+                android:text="Device Details"
+                android:textColor="#1976D2"
+                android:textSize="18sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="15dp" />
+
+            <!-- DEVICE MODEL -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Device Model"
+                android:textColor="#37474F"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/edtDeviceModel"
+                android:layout_width="match_parent"
+                android:layout_height="52dp"
+                android:hint="Example: iPhone 13 / Dell Inspiron"
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:textSize="15sp"
+                android:inputType="text"
+                android:background="@drawable/bg_login_input"
+                android:paddingStart="15dp"
+                android:paddingEnd="15dp"
+                android:layout_marginBottom="15dp" />
+
+            <!-- PROBLEM -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Describe the Problem"
+                android:textColor="#37474F"
+                android:textSize="13sp"
+                android:textStyle="bold"
+                android:layout_marginBottom="6dp" />
+
+            <EditText
+                android:id="@+id/edtProblemDescription"
+                android:layout_width="match_parent"
+                android:layout_height="110dp"
+                android:hint="Explain what is wrong with your device..."
+                android:textColor="#263238"
+                android:textColorHint="#90A4AE"
+                android:textSize="15sp"
+                android:gravity="top"
+                android:inputType="textMultiLine"
+                android:background="@drawable/bg_login_input"
+                android:padding="15dp" />
+
+        </LinearLayout>
+
+        <!-- ===================================================== -->
+        <!-- BRANCH -->
+        <!-- ===================================================== -->
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:padding="20dp"
+            android:background="@drawable/bg_dashboard_card"
+            android:elevation="2dp"
+            android:layout_marginBottom="20dp">
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Preferred Repair Branch"
                 android:textColor="#1976D2"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -179,7 +251,7 @@
                     android:id="@+id/radioAutoDetect"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Auto Detect Nearest Branch"
+                    android:text="Use Nearest Branch"
                     android:textColor="#263238"
                     android:textSize="15sp" />
 
@@ -187,33 +259,32 @@
                     android:id="@+id/radioManual"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:text="Manually Select Branch"
+                    android:text="Select Branch Manually"
                     android:textColor="#263238"
                     android:textSize="15sp" />
 
             </RadioGroup>
 
             <TextView
-                android:id="@+id/txtLocationStatus"
+                android:id="@+id/txtAvailability"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="Tap Auto Detect to detect your location"
+                android:text="Select a date to view available appointment slots."
                 android:textColor="#607D8B"
                 android:textSize="13sp"
-                android:layout_marginTop="8dp"
+                android:layout_marginTop="10dp"
                 android:layout_marginBottom="12dp" />
 
             <Spinner
                 android:id="@+id/spinnerBranch"
                 android:layout_width="match_parent"
-                android:layout_height="50dp"
-                android:layout_marginTop="5dp" />
+                android:layout_height="52dp" />
 
         </LinearLayout>
 
-        <!-- ================================================= -->
-        <!-- PHOTO -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
+        <!-- DEVICE PHOTO -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -227,7 +298,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Product Photo"
+                android:text="Device Photo"
                 android:textColor="#1976D2"
                 android:textSize="18sp"
                 android:textStyle="bold"
@@ -236,7 +307,7 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Attach a photo of your device if needed"
+                android:text="Attach a photo of the device if helpful"
                 android:textColor="#607D8B"
                 android:textSize="13sp"
                 android:layout_marginBottom="12dp" />
@@ -256,16 +327,16 @@
                 android:id="@+id/imgProductPhoto"
                 android:layout_width="match_parent"
                 android:layout_height="220dp"
-                android:visibility="visible"
+                android:visibility="gone"
                 android:scaleType="centerCrop"
-                android:contentDescription="Attached product photo"
+                android:contentDescription="Device photo"
                 android:background="#E8EEF2" />
 
         </LinearLayout>
 
-        <!-- ================================================= -->
-        <!-- APPOINTMENT DATE -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
+        <!-- APPOINTMENT SCHEDULE -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -288,6 +359,26 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="Business Hours"
+                android:textColor="#37474F"
+                android:textSize="13sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/txtBusinessHours"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Booking hours: 9:00 AM - 5:00 PM • 30-minute slots"
+                android:textColor="#607D8B"
+                android:textSize="13sp"
+                android:layout_marginTop="5dp"
+                android:layout_marginBottom="15dp" />
+
+            <!-- DATE -->
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:text="Appointment Date"
                 android:textColor="#37474F"
                 android:textSize="13sp"
@@ -304,10 +395,13 @@
                 android:textSize="15sp"
                 android:focusable="false"
                 android:clickable="true"
+                android:cursorVisible="false"
                 android:background="@drawable/bg_login_input"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:layout_marginBottom="15dp" />
+
+            <!-- TIME -->
 
             <TextView
                 android:layout_width="wrap_content"
@@ -318,25 +412,36 @@
                 android:textStyle="bold"
                 android:layout_marginBottom="6dp" />
 
-            <EditText
-                android:id="@+id/edtTime"
+            <Spinner
+                android:id="@+id/spinnerTime"
                 android:layout_width="match_parent"
                 android:layout_height="52dp"
-                android:hint="Select Time"
-                android:textColor="#263238"
-                android:textColorHint="#90A4AE"
-                android:textSize="15sp"
-                android:focusable="false"
-                android:clickable="true"
                 android:background="@drawable/bg_login_input"
-                android:paddingStart="15dp"
-                android:paddingEnd="15dp" />
+                android:paddingStart="8dp"
+                android:paddingEnd="8dp"
+                android:layout_marginBottom="8dp" />
+
+            <TextView
+                android:id="@+id/txtTimeAvailability"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Select a date to view available slots."
+                android:textColor="#607D8B"
+                android:textSize="12sp"
+                android:layout_marginBottom="5dp" />
+
+            <TextView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="Appointments are available in 30-minute slots from 9:00 AM to 5:00 PM. Full slots cannot be selected."
+                android:textColor="#607D8B"
+                android:textSize="12sp" />
 
         </LinearLayout>
 
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
         <!-- ACTION BUTTONS -->
-        <!-- ================================================= -->
+        <!-- ===================================================== -->
 
         <LinearLayout
             android:layout_width="match_parent"
@@ -361,7 +466,7 @@
                 android:layout_width="0dp"
                 android:layout_height="52dp"
                 android:layout_weight="1"
-                android:text="CONFIRM"
+                android:text="CONFIRM BOOKING"
                 android:textSize="14sp"
                 android:textStyle="bold"
                 android:textColor="#FFFFFF"
